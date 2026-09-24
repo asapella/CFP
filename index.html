@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#151515" />
+  <title>Sala Giochi CFP</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__inner">
+      <div>
+        <p class="eyebrow">CFP · ATTIVITÀ INTERATTIVE</p>
+        <h1>SALA<br>GIOCHI</h1>
+        <p class="subtitle">Scegli la tua classe, apri un’attività e prova.</p>
+      </div>
+      <div class="hero__badge" aria-hidden="true">▶</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="toolbar" aria-label="Filtri">
+      <div class="filters" id="filters"></div>
+      <label class="search">
+        <span>⌕</span>
+        <input id="searchInput" type="search" placeholder="Cerca un’attività…" autocomplete="off" />
+      </label>
+    </section>
+
+    <section class="intro">
+      <div>
+        <span class="kicker">COME FUNZIONA</span>
+        <h2>Entra. Prova. Sbaglia. Riprova.</h2>
+      </div>
+      <p>
+        Qui trovi giochi, simulazioni ed esercizi usati a lezione.
+        Puoi tornarci quando vuoi anche da casa.
+      </p>
+    </section>
+
+    <section>
+      <div id="gameGrid" class="grid" aria-live="polite"></div>
+      <div id="emptyState" class="empty" hidden>
+        Nessuna attività trovata.
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Sala Giochi CFP</span>
+    <span>Imparare facendo.</span>
+  </footer>
+
+  <script src="games.js"></script>
+  <script>
+    const classOrder = ["Tutte", "1 Legno", "2 Legno", "3 Legno", "1 Disegno"];
+    const filtersEl = document.getElementById("filters");
+    const gridEl = document.getElementById("gameGrid");
+    const emptyEl = document.getElementById("emptyState");
+    const searchEl = document.getElementById("searchInput");
+
+    let activeClass = "Tutte";
+    let query = "";
+
+    function makeFilters() {
+      classOrder.forEach((name, index) => {
+        const button = document.createElement("button");
+        button.className = "filter" + (index === 0 ? " active" : "");
+        button.textContent = name;
+        button.addEventListener("click", () => {
+          activeClass = name;
+          document.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
+          button.classList.add("active");
+          render();
+        });
+        filtersEl.appendChild(button);
+      });
+    }
+
+    function render() {
+      const visible = GAMES.filter(game => {
+        const classOk = activeClass === "Tutte" || game.className === activeClass;
+        const haystack = `${game.title} ${game.subject} ${game.description} ${game.className}`.toLowerCase();
+        const searchOk = haystack.includes(query.toLowerCase());
+        return classOk && searchOk;
+      });
+
+      gridEl.innerHTML = "";
+      emptyEl.hidden = visible.length !== 0;
+
+      visible.forEach((game, i) => {
+        const card = document.createElement(game.url ? "a" : "article");
+        card.className = "card" + (!game.url ? " card--disabled" : "");
+        if (game.url) card.href = game.url;
+
+        card.innerHTML = `
+          <div class="card__top">
+            <span class="number">${String(i + 1).padStart(2, "0")}</span>
+            <span class="class-tag">${game.className}</span>
+          </div>
+          <div class="icon" aria-hidden="true">${game.icon || "◆"}</div>
+          <div class="card__body">
+            <span class="subject">${game.subject}</span>
+            <h3>${game.title}</h3>
+            <p>${game.description}</p>
+          </div>
+          <div class="card__bottom">
+            <span>${game.url ? "APRI ATTIVITÀ" : "IN ARRIVO"}</span>
+            <span aria-hidden="true">${game.url ? "↗" : "…"}</span>
+          </div>
+        `;
+        gridEl.appendChild(card);
+      });
+    }
+
+    searchEl.addEventListener("input", e => {
+      query = e.target.value.trim();
+      render();
+    });
+
+    makeFilters();
+    render();
+  </script>
+</body>
+</html>
