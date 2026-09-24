@@ -11,6 +11,14 @@ const GAMES = [
     icon: "🍞",
     url: "1-legno/colazione/"
   },
+    {
+    title: "Colazione & proteine",
+    className: "1 Legno",
+    subject: "Scienze",
+    description: "Costruisci una colazione aggiungendo le proteine e osserva come cambiano energia, zuccheri e nutrienti.",
+    icon: "🍞",
+    url: "1-legno/colazione/proteine/"
+  },
   {
     title: "Trave & vincoli",
     className: "3 Legno",
