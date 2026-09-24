@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#161616">
+<title>Sala Giochi CFP</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="hero">
+  <div class="heroInner">
+    <div>
+      <div class="eyebrow">CFP · ATTIVITÀ INTERATTIVE</div>
+      <h1>SALA<br>GIOCHI</h1>
+      <p>Giochi, laboratori e missioni usati a lezione. Scegli la tua classe.</p>
+    </div>
+    <div class="mark" aria-hidden="true">▶</div>
+  </div>
+</header>
+
+<main>
+  <section class="tools">
+    <div id="filters" class="filters"></div>
+    <label class="search"><span>⌕</span><input id="q" type="search" placeholder="Cerca attività…"></label>
+  </section>
+
+  <section class="intro">
+    <div>
+      <span>IMPARARE FACENDO</span>
+      <h2>Entra. Prova. Sbaglia. Riprova.</h2>
+    </div>
+    <p>Le attività restano qui anche dopo la lezione, così puoi tornarci quando vuoi.</p>
+  </section>
+
+  <section id="grid" class="grid" aria-live="polite"></section>
+  <p id="empty" class="empty" hidden>Nessuna attività trovata.</p>
+</main>
+
+<footer><b>Sala Giochi CFP</b><span>Versione 24.09.2026</span></footer>
+<script src="games.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MCM - salti e fattori</title>
+<style>
+:root{--dirt:#2d2017;--wood:#7a4b28;--plank:#c98b4a;--sand:#f3dfaf;--stone:#d0d0c8;--grass:#3f7f3c;--leaf:#5fa845;--water:#3aa7c8;--lava:#e66a3a;--emerald:#2fbf87;--ink:#1b252b;--muted:#62717b;--card:#fff8e7;--line:#6c4a2f}
+*{box-sizing:border-box}body{margin:0;background:#d9c59b;font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:var(--ink)}
+.wrap{max-width:1100px;margin:auto;padding:18px}.top{background:var(--dirt);color:#fff;border:4px solid #1a120d;box-shadow:8px 8px 0 rgba(0,0,0,.18);padding:16px 18px;margin-bottom:14px;display:flex;justify-content:space-between;gap:16px;align-items:end}.top h1{margin:0;font-size:34px;letter-spacing:-.03em}.top p{margin:.4rem 0 0;color:#e8d6c0}.tag{background:var(--grass);padding:7px 11px;font-weight:800;border:2px solid #244d24}
+.grid{display:grid;grid-template-columns:280px 1fr;gap:14px}.panel{background:var(--card);border:4px solid var(--line);box-shadow:6px 6px 0 rgba(0,0,0,.18);padding:16px}.panel h2{margin:0 0 10px}.ctrl{margin:12px 0}.ctrl label{display:flex;justify-content:space-between;font-weight:800}.ctrl b{color:var(--grass);font-size:20px}input[type=range]{width:100%;accent-color:var(--grass)}.quick{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.quick button{border:3px solid var(--line);background:var(--plank);font-weight:900;padding:8px 10px;cursor:pointer}.quick button:hover{filter:brightness(1.05)}
+.result{margin-top:14px;background:#e9f2d1;border:4px solid #3f7f3c;padding:12px}.result .big{font-size:32px;font-weight:1000;color:#2e6d32}.row{display:grid;grid-template-columns:1.15fr .85fr;gap:12px}canvas{width:100%;height:335px;background:#fffaf0;border:4px solid var(--line);display:block}.facts{display:grid;gap:10px}.fact{background:#fffaf0;border:4px solid var(--line);padding:12px}.fact h3{margin:.1rem 0 .5rem}.blocks{display:flex;flex-wrap:wrap;gap:6px}.block{display:inline-grid;place-items:center;width:38px;height:34px;border:3px solid #263522;background:var(--grass);color:#fff;font-weight:1000;box-shadow:3px 3px 0 rgba(0,0,0,.18)}.block.lava{background:var(--lava)}.formula{font-size:20px;font-weight:1000;color:#1e5d36}.hint{margin-top:10px;color:var(--muted);font-size:13px}.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;margin-top:8px}.dot{display:inline-block;width:13px;height:13px;border:2px solid #222;vertical-align:-2px}.blue{background:var(--water)}.orange{background:var(--lava)}.gold{background:#ffd34d}
+@media(max-width:850px){.grid,.row{grid-template-columns:1fr}.top{display:block}}
+</style></head>
+<body><div class="wrap"><div class="top"><div><span class="tag">MCM WIDGET</span><h1>Salti che si incontrano</h1><p>Muovi i due numeri: cambiano multipli, primo incontro e fattori primi.</p></div><div style="font-size:28px;font-weight:1000">C → P → S</div></div>
+<div class="grid"><div class="panel"><h2>Numeri</h2><div class="ctrl"><label>A <b id="av">6</b></label><input id="a" type="range" min="2" max="24" value="6"></div><div class="ctrl"><label>B <b id="bv">8</b></label><input id="b" type="range" min="2" max="24" value="8"></div><div class="quick"><button data-a="4" data-b="6">4/6</button><button data-a="6" data-b="8">6/8</button><button data-a="8" data-b="12">8/12</button><button data-a="12" data-b="18">12/18</button><button data-a="15" data-b="20">15/20</button></div><div class="result"><div>primo incontro</div><div class="big" id="res">24</div></div><div class="hint">Regola: prendo tutti i fattori primi presenti, con l'esponente più grande.</div></div>
+<div class="panel"><div class="row"><div><canvas id="cv" width="720" height="335"></canvas><div class="legend"><span><i class="dot blue"></i> multipli di A</span><span><i class="dot orange"></i> multipli di B</span><span><i class="dot gold"></i> MCM</span></div></div><div class="facts"><div class="fact"><h3>Scomposizione</h3><div id="fa" class="formula"></div><div class="blocks" id="ba"></div><br><div id="fb" class="formula"></div><div class="blocks" id="bb"></div></div><div class="fact"><h3>Costruzione MCM</h3><div id="build" class="formula"></div></div></div></div></div></div></div>
+<script>
+const a=document.getElementById('a'),b=document.getElementById('b'),cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+function gcd(x,y){while(y){[x,y]=[y,x%y]}return x} function lcm(x,y){return x*y/gcd(x,y)}
+function fac(n){let out=[],p=2;while(n>1){while(n%p===0){out.push(p);n/=p}p++}return out}
+function powmap(arr){let m={};arr.forEach(x=>m[x]=(m[x]||0)+1);return m} function txt(m){return Object.keys(m).map(Number).sort((a,b)=>a-b).map(k=>m[k]==1?`${k}`:`${k}^${m[k]}`).join(' · ')}
+function blocks(id, arr, lava=false){let el=document.getElementById(id); el.innerHTML=''; arr.forEach(x=>{let s=document.createElement('span');s.className='block'+(lava?' lava':'');s.textContent=x;el.appendChild(s)})}
+function draw(){let A=+a.value,B=+b.value,M=lcm(A,B),max=Math.min(Math.max(M*2,30),120);av.textContent=A;bv.textContent=B;res.textContent=M;let FA=fac(A),FB=fac(B),MA=powmap(FA),MB=powmap(FB),MM={};[...new Set([...Object.keys(MA),...Object.keys(MB)].map(Number))].sort((x,y)=>x-y).forEach(k=>MM[k]=Math.max(MA[k]||0,MB[k]||0));fa.textContent=`${A} = ${txt(MA)}`; fb.textContent=`${B} = ${txt(MB)}`; blocks('ba',FA,false); blocks('bb',FB,true); build.textContent=`MCM(${A}, ${B}) = ${txt(MM)} = ${M}`;
+ctx.clearRect(0,0,720,335);ctx.fillStyle='#fffaf0';ctx.fillRect(0,0,720,335);let L=46,R=680,W=R-L,y1=115,y2=220,axis=165;ctx.strokeStyle='#bfa57b';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(L,axis);ctx.lineTo(R,axis);ctx.stroke();ctx.fillStyle='#62717b';ctx.font='12px Arial';ctx.textAlign='center';for(let v=0;v<=max;v+=Math.max(1,Math.ceil(max/12))){let x=L+W*v/max;ctx.strokeStyle='#d8c49a';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x,axis-12);ctx.lineTo(x,axis+12);ctx.stroke();ctx.fillText(v,x,axis+30)}
+function series(step,y,col,label){ctx.fillStyle=col;ctx.font='bold 15px Arial';ctx.textAlign='left';ctx.fillText(label,L,y-25);for(let v=step;v<=max;v+=step){let x=L+W*v/max;ctx.beginPath();ctx.arc(x,y,9,0,Math.PI*2);ctx.fillStyle=(v==M?'#ffd34d':col);ctx.fill();ctx.strokeStyle='#222';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#1b252b';ctx.font='12px Arial';ctx.textAlign='center';ctx.fillText(v,x,y-16)}}
+series(A,y1,'#3aa7c8',`salti di ${A}`);series(B,y2,'#e66a3a',`salti di ${B}`);let xm=L+W*M/max;ctx.strokeStyle='#ffd34d';ctx.lineWidth=4;ctx.setLineDash([7,5]);ctx.beginPath();ctx.moveTo(xm,55);ctx.lineTo(xm,270);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#1b252b';ctx.font='bold 17px Arial';ctx.textAlign='center';ctx.fillText(`primo incontro = ${M}`,xm,42)}
+a.addEventListener('input',draw);b.addEventListener('input',draw);document.querySelectorAll('.quick button').forEach(x=>x.onclick=()=>{a.value=x.dataset.a;b.value=x.dataset.b;draw()});draw();
+</script>
+<style id="cfpPortalNavStyle">
+#cfpPortalBack{position:fixed;right:14px;bottom:14px;z-index:99999;background:#171717;color:#fff;
+border:2px solid #fff;border-radius:999px;padding:10px 14px;font:800 13px/1 Arial,sans-serif;
+text-decoration:none;box-shadow:4px 4px 0 rgba(0,0,0,.25)}
+#cfpPortalBack:hover{transform:translateY(-2px)}
+</style>
+<a id="cfpPortalBack" href="../../" aria-label="Torna alla Sala Giochi CFP">← SALA GIOCHI</a>
+
+</body></html>

@@ -1,0 +1,48 @@
+# SALA GIOCHI CFP — PACCHETTO PRONTO
+
+Questa cartella contiene già il portale e tutte le attività.
+
+## ATTIVITÀ INCLUSE
+- 1 Legno + 1 Disegno: Detective dell'energia
+- 1 Legno + 1 Disegno: Colazione & proteine
+- 1 Legno: Missioni numeriche
+- 1 Legno: MCM · salti e fattori
+- 3 Legno: Trave Lab
+
+## STRUTTURA
+CFP/
+├── index.html
+├── styles.css
+├── games.js
+└── attivita/
+    ├── detective-energia/index.html
+    ├── colazione-proteine/index.html
+    ├── missioni-numeriche/index.html
+    ├── mcm/index.html
+    └── trave-lab/index.html
+
+## COME SOSTITUIRE IL VECCHIO SITO SU GITHUB
+Metodo consigliato se usi il sito web di GitHub:
+1. Apri il repository `CFP`.
+2. Elimina i vecchi file/cartelle che appartenevano alla prova precedente, lasciando pure eventuale README se vuoi.
+3. Sul tuo PC estrai questo ZIP.
+4. Trascina su GitHub i tre file `index.html`, `styles.css`, `games.js` e la cartella `attivita`.
+5. Fai Commit changes.
+6. Apri https://asapella.github.io/CFP/ e fai Ctrl+F5.
+
+Se GitHub dal browser ti rende scomodo caricare la cartella `attivita`, usa GitHub Desktop:
+- Clone del repository CFP
+- Copia dentro il contenuto di questa cartella
+- Commit
+- Push
+
+## MISSIONI NUMERICHE E CONSEGNA
+La versione attuale:
+- salva la sessione nel browser;
+- permette allo studente di scaricare JSON;
+- permette di scaricare CSV;
+- NON invia automaticamente i risultati al docente.
+
+Per una consegna diretta serve un punto di raccolta esterno/backend
+(es. Microsoft Forms/Power Automate, Google Apps Script, Supabase, oppure un piccolo server).
+Il portale è già organizzato in modo che questa funzione possa essere aggiunta più avanti.
