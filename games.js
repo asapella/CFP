@@ -22,6 +22,17 @@ const GAMES = [
     "url": "attivita/colazione-proteine/"
   },
   {
+    "title": "Colazione & fibre",
+    "classes": [
+      "1 Legno",
+      "1 Disegno"
+    ],
+    "subject": "Scienze · Fibre",
+    "description": "Scegli gli alimenti, controlla i dati e scopri il ruolo delle fibre nell'alimentazione.",
+    "icon": "🥬",
+    "url": "attivita/fibre/"
+  },
+  {
     "title": "Missioni numeriche",
     "classes": [
       "1 Legno"
