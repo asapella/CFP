@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Missione Acqua FPV — 8 livelli</title>
+<style>
+:root{
+  --cyan:#38e7ff; --blue:#0f8cff; --deep:#03111f; --panel:rgba(3,16,31,.86);
+  --green:#52f29b; --red:#ff5b6d; --yellow:#ffd75e; --white:#eefcff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020b14;font-family:Inter,Arial,Helvetica,sans-serif;color:var(--white)}
+#game{position:fixed;inset:0;width:100%;height:100%;display:block;background:#071522}
+#vignette{pointer-events:none;position:fixed;inset:0;background:radial-gradient(circle at center, transparent 45%, rgba(0,0,0,.4) 100%)}
+#hud{position:fixed;inset:0;pointer-events:none}
+.topbar{position:absolute;left:24px;right:24px;top:18px;display:grid;grid-template-columns:1fr minmax(310px,560px) 1fr;align-items:start;gap:18px}
+.logo,.levelbox,.missionbox,.controls,.radar,.toast{border:1px solid rgba(74,226,255,.46);background:linear-gradient(180deg,rgba(6,30,53,.9),rgba(3,16,31,.84));box-shadow:0 0 22px rgba(0,204,255,.12),inset 0 0 22px rgba(0,170,255,.06);backdrop-filter:blur(8px)}
+.logo{padding:14px 18px;border-radius:14px}
+.logo h1{font-size:25px;margin:0;letter-spacing:1.2px}.logo h1 b{color:var(--cyan)}
+.logo small{display:block;margin-top:5px;color:#94cfe0;font-weight:700}
+.levelbox{text-align:center;padding:11px 18px;border-radius:14px}
+.levelbox .big{font-size:19px;font-weight:900}.levelbox .sub{font-size:12px;color:#9fc6d5;margin-top:5px}
+.missionbox{justify-self:end;padding:12px 15px;border-radius:14px;min-width:220px}
+.missionbox .k{font-size:11px;color:#90bfd0;font-weight:900;letter-spacing:1px}.missionbox .v{font-size:16px;font-weight:900;margin-top:3px}
+.hydration{position:absolute;left:50%;transform:translateX(-50%);top:100px;width:min(780px,70vw)}
+.hydration-head{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:900;text-shadow:0 2px 6px #000}
+.hydration-track{height:30px;margin-top:7px;border:2px solid #7feeff;border-radius:99px;background:rgba(1,9,18,.78);padding:4px;box-shadow:0 0 20px rgba(0,226,255,.2)}
+#hydrationFill{height:100%;border-radius:99px;background:linear-gradient(90deg,#0aa4ff,#4af0ff);box-shadow:0 0 16px rgba(55,229,255,.6);transition:width .3s ease,background .3s}
+#hydrationValue{font-size:26px;color:#bff8ff}
+.crosshair{position:absolute;left:50%;top:50%;width:26px;height:26px;transform:translate(-50%,-50%)}
+.crosshair:before,.crosshair:after{content:"";position:absolute;background:rgba(220,253,255,.85);box-shadow:0 0 6px #32e8ff}
+.crosshair:before{width:2px;height:26px;left:12px;top:0}.crosshair:after{height:2px;width:26px;left:0;top:12px}
+.bottom{position:absolute;left:22px;right:22px;bottom:18px;display:flex;justify-content:space-between;align-items:end;gap:20px}
+.controls{padding:12px 15px;border-radius:14px;font-size:12px;color:#b8dce8;line-height:1.55}
+.controls b{color:#fff}
+.radar{width:155px;height:155px;border-radius:50%;position:relative;overflow:hidden}
+#radarCanvas{width:100%;height:100%}
+.distance{position:absolute;right:22px;bottom:190px;padding:10px 14px;border-radius:12px;background:rgba(2,14,26,.78);border:1px solid rgba(61,230,255,.4);font-weight:900;color:#c9f8ff}
+#quizOverlay,#startOverlay,#finishOverlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,7,15,.78);backdrop-filter:blur(8px);z-index:20}
+.hidden{display:none!important}
+.panel{width:min(900px,92vw);max-height:90vh;overflow:auto;border:1px solid rgba(86,226,255,.55);border-radius:22px;background:linear-gradient(180deg,rgba(6,28,49,.97),rgba(2,13,25,.98));box-shadow:0 0 60px rgba(0,179,255,.22);padding:28px}
+.panel h2{margin:0 0 8px;font-size:34px}.panel h2 span{color:var(--cyan)}
+.panel p{color:#b9d6df;line-height:1.55}
+#questionText{font-size:25px;line-height:1.4;font-weight:800;color:white;margin:18px 0}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.answer{pointer-events:auto;border:1px solid rgba(89,224,255,.36);border-radius:14px;background:#0a2942;color:white;padding:17px 18px;font-size:18px;font-weight:800;text-align:left;cursor:pointer;transition:.15s}
+.answer:hover{transform:translateY(-1px);background:#0d3656;border-color:#62e7ff}
+.answer.correct{background:#124b38;border-color:#60f1a5}.answer.wrong{background:#531b28;border-color:#ff7180}
+.feedback{min-height:34px;margin-top:15px;font-size:17px;font-weight:800}
+.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.btn{pointer-events:auto;border:0;border-radius:13px;padding:13px 18px;font-weight:900;font-size:16px;cursor:pointer}
+.primary{background:linear-gradient(90deg,#12b8e8,#2fe4ff);color:#02111c}.secondary{background:#143149;color:#e8fbff}
+.intro-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;margin-top:22px}
+.card{border:1px solid rgba(83,223,255,.25);border-radius:16px;padding:16px;background:rgba(5,27,45,.62)}
+.card h3{margin:0 0 8px;color:#dffbff}
+.keys{display:grid;grid-template-columns:repeat(3,52px);gap:7px;justify-content:center;margin:14px 0}
+.key{border:1px solid #6fd9ee;border-bottom-width:4px;border-radius:9px;padding:12px 5px;text-align:center;font-weight:900;background:#102d43}
+.warning{color:#ffd76b!important;font-size:13px}
+.toast{position:fixed;left:50%;bottom:42px;transform:translateX(-50%) translateY(20px);opacity:0;padding:11px 16px;border-radius:12px;z-index:30;font-weight:900;transition:.25s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.progressLevels{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}
+.pill{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:#102c43;border:1px solid #2b637d;font-weight:900}
+.pill.done{background:#14563d;border-color:#5fe59d}.pill.active{background:#0e6b94;border-color:#4ce8ff;box-shadow:0 0 12px rgba(43,232,255,.35)}
+@media(max-width:800px){
+  .topbar{grid-template-columns:1fr 1fr}.levelbox{display:none}.missionbox{min-width:0}
+  .hydration{top:95px;width:88vw}.intro-grid{grid-template-columns:1fr}.answers{grid-template-columns:1fr}
+  .controls{max-width:70vw}.radar{width:120px;height:120px}
+}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="vignette"></div>
+
+<div id="hud">
+  <div class="topbar">
+    <div class="logo"><h1>MISSIONE <b>ACQUA</b></h1><small>FPV · scienze + matematica</small></div>
+    <div class="levelbox"><div class="big" id="levelTitle">LIVELLO 1 / 8</div><div class="sub">Raggiungi la stazione d'acqua e risolvi la missione</div></div>
+    <div class="missionbox"><div class="k">OBIETTIVO</div><div class="v" id="missionText">Trova la stazione blu</div></div>
+  </div>
+  <div class="hydration">
+    <div class="hydration-head"><span>💧 IDRATAZIONE DI GIOCO</span><span id="hydrationValue">82%</span></div>
+    <div class="hydration-track"><div id="hydrationFill" style="width:82%"></div></div>
+  </div>
+  <div class="crosshair"></div>
+  <div class="distance" id="distance">STAZIONE: -- m</div>
+  <div class="bottom">
+    <div class="controls"><b>W/S</b> avanti-indietro · <b>A/D</b> spostamento laterale · <b>←/→ o Q/E</b> ruota<br>Clicca sul gioco per usare anche il mouse. <b>ESC</b> libera il mouse.</div>
+    <div class="radar"><canvas id="radarCanvas" width="155" height="155"></canvas></div>
+  </div>
+</div>
+
+<div id="startOverlay">
+  <div class="panel">
+    <h2>Missione <span>Acqua FPV</span></h2>
+    <p>Questa volta non è una schermata finta: ti muovi davvero in prima persona. In ogni livello devi raggiungere una stazione d'acqua e risolvere una domanda. Le domande diventano progressivamente più complesse.</p>
+    <div class="intro-grid">
+      <div class="card">
+        <h3>Come si gioca</h3>
+        <div class="keys"><div></div><div class="key">W</div><div></div><div class="key">A</div><div class="key">S</div><div class="key">D</div></div>
+        <p><b>W/S</b> muovono avanti e indietro, <b>A/D</b> lateralmente. Usa le frecce sinistra/destra oppure il mouse per girarti.</p>
+      </div>
+      <div class="card">
+        <h3>La regola della barra</h3>
+        <p>La barra scende lentamente durante l'esplorazione. Una risposta corretta la ricarica, una risposta sbagliata la fa scendere.</p>
+        <p class="warning">La barra è una meccanica di gioco: non rappresenta una percentuale reale di idratazione del corpo.</p>
+      </div>
+    </div>
+    <div class="progressLevels" id="startPills"></div>
+    <div class="actions"><button class="btn primary" onclick="startGame()">ENTRA NEL LIVELLO 1</button></div>
+  </div>
+</div>
+
+<div id="quizOverlay" class="hidden">
+  <div class="panel">
+    <h2>Stazione <span id="quizLevel">1</span></h2>
+    <p id="quizContext"></p>
+    <div id="questionText"></div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="actions">
+      <button id="continueBtn" class="btn primary hidden" onclick="continueAfterQuiz()">LIVELLO SUCCESSIVO</button>
+    </div>
+  </div>
+</div>
+
+<div id="finishOverlay" class="hidden">
+  <div class="panel">
+    <h2>🏆 Missione <span>completata</span></h2>
+    <p>Avete superato tutti gli 8 livelli: equivalenze, somme tra unità diverse, frazioni di volume e problemi a più passaggi.</p>
+    <div class="card"><h3>Punteggio finale</h3><p id="finalScore" style="font-size:30px;font-weight:900;color:#8ff8ff"></p></div>
+    <div class="actions"><button class="btn primary" onclick="restartAll()">RIGIOCA DA CAPO</button></div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const radar = document.getElementById('radarCanvas');
+const rctx = radar.getContext('2d');
+
+let W=innerWidth,H=innerHeight;
+function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight}
+addEventListener('resize',resize);resize();
+
+const maps = [
+[
+"111111111111",
+"100000000001",
+"101111011101",
+"100001000001",
+"111101111101",
+"100100000001",
+"101101111101",
+"100000100001",
+"101110101101",
+"100000000001",
+"100011111001",
+"111111111111"],
+[
+"111111111111",
+"100000100001",
+"101110101101",
+"101000100001",
+"101011111101",
+"100010000001",
+"111010111101",
+"100010100001",
+"101110101101",
+"100000001001",
+"101111000001",
+"111111111111"],
+[
+"111111111111",
+"100001000001",
+"101101011101",
+"100101010001",
+"110101010111",
+"100001010001",
+"101111010101",
+"100000010101",
+"101111110101",
+"100000000001",
+"101111111001",
+"111111111111"],
+[
+"111111111111",
+"100000000001",
+"111110111101",
+"100010100001",
+"101010101101",
+"101000101001",
+"101111101011",
+"100000001001",
+"101111101101",
+"100000100001",
+"101110000001",
+"111111111111"],
+[
+"111111111111",
+"100010000001",
+"101010111101",
+"101000100001",
+"101111101101",
+"100000001001",
+"111011101001",
+"100010001001",
+"101110111101",
+"100000000001",
+"101111111001",
+"111111111111"],
+[
+"111111111111",
+"100000100001",
+"101110101101",
+"100010101001",
+"111010101011",
+"100010001001",
+"101111111101",
+"100000000001",
+"101111101101",
+"100000100001",
+"101110000001",
+"111111111111"],
+[
+"111111111111",
+"100000000001",
+"101111101101",
+"100000101001",
+"111010101011",
+"100010100001",
+"101010111101",
+"101010000001",
+"101011111101",
+"100000000001",
+"101111110001",
+"111111111111"],
+[
+"111111111111",
+"100000100001",
+"101110101101",
+"101000101001",
+"101011101011",
+"100010001001",
+"111010111101",
+"100010100001",
+"101110101101",
+"100000001001",
+"101111000001",
+"111111111111"]
+];
+
+const starts=[
+{x:1.5,y:1.5,a:.2},{x:1.5,y:10.5,a:-.7},{x:10.5,y:10.5,a:-2.5},{x:1.5,y:1.5,a:.4},
+{x:10.5,y:1.5,a:2.7},{x:1.5,y:10.5,a:-.7},{x:10.5,y:10.5,a:-2.4},{x:1.5,y:1.5,a:.2}
+];
+const goals=[
+{x:10.2,y:9.5},{x:10.2,y:1.5},{x:1.6,y:1.5},{x:10.3,y:10.3},
+{x:1.6,y:10.2},{x:10.2,y:1.5},{x:1.5,y:10.2},{x:10.2,y:10.2}
+];
+
+const quizzes=[
+{
+context:"Livello 1 · equivalenza con decimali",
+q:"Una borraccia contiene 0,75 L. Quanti centilitri sono?",
+answers:["7,5 cl","75 cl","750 cl","0,075 cl"],correct:1,
+explain:"0,75 L × 100 = 75 cl."
+},
+{
+context:"Livello 2 · sottrazione tra unità diverse",
+q:"Una bottiglia contiene 1,5 L. Bevi 35 cl. Quanta acqua rimane?",
+answers:["1,15 L","1,465 L","1,25 L","115 cl + 35 cl"],correct:0,
+explain:"1,5 L = 150 cl. 150 − 35 = 115 cl = 1,15 L."
+},
+{
+context:"Livello 3 · somma a più passaggi",
+q:"Bevi 3 bicchieri da 250 ml e poi altri 40 cl. Quanto hai bevuto in totale?",
+answers:["0,95 L","1,05 L","1,15 L","1,40 L"],correct:2,
+explain:"3 × 250 ml = 750 ml. 40 cl = 400 ml. Totale 1150 ml = 1,15 L."
+},
+{
+context:"Livello 4 · trova il dato mancante",
+q:"Obiettivo della missione: 2,0 L. Hai già raccolto 600 ml + 35 cl + 450 ml. Quanto manca?",
+answers:["0,40 L","0,50 L","0,60 L","0,75 L"],correct:2,
+explain:"600 + 350 + 450 = 1400 ml = 1,4 L. Mancano 0,6 L."
+},
+{
+context:"Livello 5 · riconosci l'errore",
+q:"Quale equivalenza è SBAGLIATA?",
+answers:["1,2 L = 120 cl","750 ml = 75 cl","0,45 L = 450 ml","35 cl = 0,035 L"],correct:3,
+explain:"35 cl = 0,35 L, non 0,035 L."
+},
+{
+context:"Livello 6 · frazione di un volume",
+q:"Una borraccia contiene 750 ml. Ne bevi 1/3. Quanto rimane?",
+answers:["250 ml","500 ml","525 ml","0,25 L"],correct:1,
+explain:"1/3 di 750 ml = 250 ml bevuti. 750 − 250 = 500 ml."
+},
+{
+context:"Livello 7 · confronto tra espressioni",
+q:"Contenitore A: 1,2 L + 35 cl. Contenitore B: 1450 ml. Quale affermazione è corretta?",
+answers:["B contiene 100 ml in più","Sono uguali","A contiene 100 ml in più","A contiene 10 ml in più"],correct:2,
+explain:"A = 1200 + 350 = 1550 ml. B = 1450 ml. A ha 100 ml in più."
+},
+{
+context:"Livello 8 · boss finale, più passaggi",
+q:"Un serbatoio contiene 2,4 L. Usi 4 bicchieri da 18 cl e poi altri 330 ml. Quanto rimane?",
+answers:["1,05 L","1,25 L","1,35 L","1,65 L"],correct:2,
+explain:"4 × 18 cl = 72 cl = 0,72 L. 330 ml = 0,33 L. Usati 1,05 L. 2,4 − 1,05 = 1,35 L."
+}
+];
+
+let level=0,player={...starts[0]},hydration=82,score=0,started=false,quizOpen=false,levelSolved=false,lastDrain=0;
+const keys={};
+const FOV=Math.PI/3;
+let mouseEnabled=false;
+
+function cell(x,y){
+ const m=maps[level]; const ix=Math.floor(x),iy=Math.floor(y);
+ if(iy<0||iy>=m.length||ix<0||ix>=m[0].length)return 1;
+ return m[iy][ix]==='1'?1:0;
+}
+function blocked(x,y){return cell(x,y)===1}
+function normAngle(a){while(a<-Math.PI)a+=Math.PI*2;while(a>Math.PI)a-=Math.PI*2;return a}
+
+addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key))e.preventDefault()});
+addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+canvas.addEventListener('click',()=>{ if(started&&!quizOpen){canvas.requestPointerLock?.()} });
+document.addEventListener('pointerlockchange',()=>mouseEnabled=document.pointerLockElement===canvas);
+document.addEventListener('mousemove',e=>{if(mouseEnabled&&!quizOpen)player.a+=e.movementX*.0028});
+
+function move(dt){
+ if(!started||quizOpen)return;
+ let rot=0;
+ if(keys['arrowleft']||keys['q'])rot-=1;
+ if(keys['arrowright']||keys['e'])rot+=1;
+ player.a+=rot*1.9*dt;
+ let f=0,s=0;
+ if(keys['w']||keys['arrowup'])f+=1;
+ if(keys['s']||keys['arrowdown'])f-=1;
+ if(keys['a'])s-=1;
+ if(keys['d'])s+=1;
+ let speed=2.3*dt;
+ let dx=Math.cos(player.a)*f*speed + Math.cos(player.a+Math.PI/2)*s*speed;
+ let dy=Math.sin(player.a)*f*speed + Math.sin(player.a+Math.PI/2)*s*speed;
+ let nx=player.x+dx,ny=player.y+dy;
+ const r=.20;
+ if(!blocked(nx+r,player.y)&&!blocked(nx-r,player.y))player.x=nx;
+ if(!blocked(player.x,ny+r)&&!blocked(player.x,ny-r))player.y=ny;
+
+ const g=goals[level];
+ let dist=Math.hypot(g.x-player.x,g.y-player.y);
+ document.getElementById('distance').textContent='STAZIONE: '+dist.toFixed(1)+' m';
+ if(dist<.58&&!levelSolved)openQuiz();
+
+ let now=performance.now();
+ if(now-lastDrain>10000){hydration=Math.max(5,hydration-1);lastDrain=now;updateHydration();}
+}
+
+function castScene(){
+ // sky
+ let grd=ctx.createLinearGradient(0,0,0,H*.55);
+ grd.addColorStop(0,'#5bc7ef');grd.addColorStop(.6,'#1d789f');grd.addColorStop(1,'#0c3954');
+ ctx.fillStyle=grd;ctx.fillRect(0,0,W,H*.55);
+ // floor
+ let fg=ctx.createLinearGradient(0,H*.5,0,H);
+ fg.addColorStop(0,'#26424b');fg.addColorStop(1,'#07131b');
+ ctx.fillStyle=fg;ctx.fillRect(0,H*.5,W,H*.5);
+
+ const rays=Math.min(W,900);
+ const slice=W/rays;
+ for(let i=0;i<rays;i++){
+   const ra=player.a-FOV/2+(i/rays)*FOV;
+   let dist=0,hit=false,side=0;
+   const step=.025;
+   let px=player.x,py=player.y,prevx=px,prevy=py;
+   while(dist<18&&!hit){
+     dist+=step; prevx=px;prevy=py;
+     px=player.x+Math.cos(ra)*dist;py=player.y+Math.sin(ra)*dist;
+     if(blocked(px,py)){hit=true; side=(Math.floor(prevx)!==Math.floor(px))?0:1;}
+   }
+   if(hit){
+     const corr=dist*Math.cos(ra-player.a);
+     const wallH=Math.min(H*1.8,H/(corr*.78));
+     const y=(H-wallH)/2;
+     let shade=Math.max(35,210-corr*16-(side?22:0));
+     ctx.fillStyle=`rgb(${Math.floor(shade*.22)},${Math.floor(shade*.62)},${Math.floor(shade*.72)})`;
+     ctx.fillRect(i*slice,y,slice+1,wallH);
+     // tech lines
+     if(i%18===0){ctx.fillStyle='rgba(101,233,255,.12)';ctx.fillRect(i*slice,y,1,wallH)}
+   }
+ }
+ drawGoalSprite();
+}
+
+function drawGoalSprite(){
+ const g=goals[level],dx=g.x-player.x,dy=g.y-player.y;
+ const dist=Math.hypot(dx,dy),ang=normAngle(Math.atan2(dy,dx)-player.a);
+ if(Math.abs(ang)>FOV*.7)return;
+ // occlusion approximation
+ const steps=Math.floor(dist/.04);
+ let blockedView=false;
+ for(let i=1;i<steps;i++){
+   let t=i/steps;
+   if(cell(player.x+dx*t,player.y+dy*t)){blockedView=true;break}
+ }
+ if(blockedView)return;
+ const sx=W/2+(ang/(FOV/2))*(W/2);
+ const size=Math.min(H*.75, H/(dist*.58));
+ const sy=H/2;
+ ctx.save();
+ ctx.globalCompositeOperation='lighter';
+ const glow=ctx.createRadialGradient(sx,sy,0,sx,sy,size*.55);
+ glow.addColorStop(0,'rgba(82,244,255,.95)');glow.addColorStop(.25,'rgba(0,172,255,.45)');glow.addColorStop(1,'rgba(0,120,255,0)');
+ ctx.fillStyle=glow;ctx.beginPath();ctx.arc(sx,sy,size*.55,0,Math.PI*2);ctx.fill();
+ ctx.restore();
+ // droplet
+ ctx.save();ctx.translate(sx,sy);ctx.scale(size/240,size/240);
+ ctx.fillStyle='#4cecff';ctx.strokeStyle='#d7ffff';ctx.lineWidth=7;
+ ctx.beginPath();ctx.moveTo(0,-92);ctx.bezierCurveTo(52,-30,76,8,76,48);ctx.bezierCurveTo(76,94,43,122,0,122);ctx.bezierCurveTo(-43,122,-76,94,-76,48);ctx.bezierCurveTo(-76,8,-52,-30,0,-92);ctx.fill();ctx.stroke();
+ ctx.fillStyle='rgba(255,255,255,.65)';ctx.beginPath();ctx.ellipse(-23,30,13,25,-.4,0,Math.PI*2);ctx.fill();
+ ctx.restore();
+}
+
+function drawRadar(){
+ const w=radar.width,h=radar.height;rctx.clearRect(0,0,w,h);
+ rctx.fillStyle='rgba(4,19,32,.92)';rctx.fillRect(0,0,w,h);
+ const scale=9,ox=w/2-player.x*scale,oy=h/2-player.y*scale;
+ const m=maps[level];
+ for(let y=0;y<m.length;y++)for(let x=0;x<m[0].length;x++){
+   if(m[y][x]==='1'){rctx.fillStyle='#174356';rctx.fillRect(ox+x*scale,oy+y*scale,scale,scale)}
+ }
+ let g=goals[level];
+ rctx.fillStyle='#51efff';rctx.beginPath();rctx.arc(ox+g.x*scale,oy+g.y*scale,5,0,Math.PI*2);rctx.fill();
+ rctx.save();rctx.translate(w/2,h/2);rctx.rotate(player.a);rctx.fillStyle='#fff';
+ rctx.beginPath();rctx.moveTo(8,0);rctx.lineTo(-6,-5);rctx.lineTo(-6,5);rctx.closePath();rctx.fill();rctx.restore();
+ rctx.strokeStyle='rgba(77,232,255,.35)';rctx.lineWidth=2;rctx.beginPath();rctx.arc(w/2,h/2,70,0,Math.PI*2);rctx.stroke();
+}
+
+function loop(t){
+ const dt=Math.min(.04,(t-(loop.last||t))/1000);loop.last=t;
+ move(dt);castScene();drawRadar();requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+function updateHydration(){
+ hydration=Math.round(Math.max(0,Math.min(100,hydration)));
+ let f=document.getElementById('hydrationFill'),v=document.getElementById('hydrationValue');
+ f.style.width=hydration+'%';v.textContent=hydration+'%';
+ if(hydration<35)f.style.background='linear-gradient(90deg,#ff5568,#ff9b55)';
+ else if(hydration<60)f.style.background='linear-gradient(90deg,#ffc94e,#46d9ff)';
+ else f.style.background='linear-gradient(90deg,#0aa4ff,#4af0ff)';
+}
+function updateHUD(){
+ document.getElementById('levelTitle').textContent=`LIVELLO ${level+1} / 8`;
+ document.getElementById('missionText').textContent=level===7?'Trova il boss finale':'Trova la stazione blu';
+}
+function startGame(){
+ started=true;lastDrain=performance.now();
+ document.getElementById('startOverlay').classList.add('hidden');updateHUD();updateHydration();
+}
+function openQuiz(){
+ quizOpen=true;document.exitPointerLock?.();
+ const q=quizzes[level];document.getElementById('quizLevel').textContent=level+1;
+ document.getElementById('quizContext').textContent=q.context;
+ document.getElementById('questionText').textContent=q.q;
+ const a=document.getElementById('answers');a.innerHTML='';
+ document.getElementById('feedback').textContent='';
+ document.getElementById('continueBtn').classList.add('hidden');
+ q.answers.forEach((txt,i)=>{
+   const b=document.createElement('button');b.className='answer';b.textContent=String.fromCharCode(65+i)+'. '+txt;
+   b.onclick=()=>answer(i,b);a.appendChild(b);
+ });
+ document.getElementById('quizOverlay').classList.remove('hidden');
+}
+function answer(i,button){
+ if(levelSolved)return;
+ const q=quizzes[level],buttons=[...document.querySelectorAll('.answer')];
+ if(i===q.correct){
+   levelSolved=true;button.classList.add('correct');buttons.forEach(b=>b.disabled=true);
+   hydration=Math.min(100,hydration+10);score+=100+hydration;updateHydration();
+   document.getElementById('feedback').innerHTML='✅ Corretto. '+q.explain+' <span style="color:#66f4a9">+10 idratazione</span>';
+   document.getElementById('continueBtn').textContent=level===7?'CONCLUDI MISSIONE':'LIVELLO SUCCESSIVO';
+   document.getElementById('continueBtn').classList.remove('hidden');
+ }else{
+   button.classList.add('wrong');button.disabled=true;
+   hydration=Math.max(5,hydration-16);score=Math.max(0,score-25);updateHydration();
+   document.getElementById('feedback').innerHTML='❌ Non torna. Rileggi le unità e prova un’altra risposta. <span style="color:#ff7c88">−16 idratazione</span>';
+ }
+}
+function continueAfterQuiz(){
+ document.getElementById('quizOverlay').classList.add('hidden');
+ if(level===7){
+   document.getElementById('finalScore').textContent=`${Math.round(score)} punti · idratazione finale ${hydration}%`;
+   document.getElementById('finishOverlay').classList.remove('hidden');return;
+ }
+ level++;player={...starts[level]};levelSolved=false;quizOpen=false;hydration=Math.min(100,hydration+4);updateHydration();updateHUD();toast('Livello '+(level+1)+' avviato');
+}
+function restartAll(){
+ level=0;player={...starts[0]};hydration=82;score=0;levelSolved=false;quizOpen=false;started=true;lastDrain=performance.now();
+ document.getElementById('finishOverlay').classList.add('hidden');updateHydration();updateHUD();
+}
+function toast(msg){
+ const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1700);
+}
+function buildPills(){
+ const p=document.getElementById('startPills');p.innerHTML='';
+ for(let i=0;i<8;i++){let e=document.createElement('div');e.className='pill'+(i===0?' active':'');e.textContent=i+1;p.appendChild(e)}
+}
+buildPills();updateHydration();updateHUD();
+</script>
+</body>
+</html>
