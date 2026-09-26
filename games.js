@@ -52,6 +52,17 @@ const GAMES = [
     "icon": "×",
     "url": "attivita/mcm/"
   },
+{
+  "title": "Missione Acqua FPV",
+  "classes": [
+    "1 Legno",
+    "1 Disegno"
+  ],
+  "subject": "Scienze · Acqua",
+  "description": "Esplora in prima persona, raggiungi le stazioni d'acqua e supera 8 livelli su idratazione, volumi ed equivalenze.",
+  "icon": "💧",
+  "url": "attivita/acqua/"
+},
   {
     "title": "Trave Lab",
     "classes": [
