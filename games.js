@@ -75,11 +75,19 @@ const GAMES = [
 },
 {
   "title": "Corsa dentro il legno",
-  "classes": ["2 Disegno"],
+  "classes": ["2 Disegno","2 Disegno"],
   "subject": "Scienze applicate",
   "description": "Gara a checkpoint su fibra, cellula, cellulosa, lignina, molecole, atomi e scale della materia.",
   "icon": "🏎️",
   "url": "attivita/corsa-dentro-il-legno/"
+},
+{
+  "title": "CAD Lab · Pixel → CAD",
+  "classes": ["1 Informatica"],
+  "subject": "CAD · Fondamenti",
+  "description": "24 quesiti a difficoltà crescente su raster e vettoriale, coordinate, dimensioni e controllo degli errori. Entra con il codice classe per salvare i risultati.",
+  "icon": "📐",
+  "url": "attivita/cad/"
 },
   {
     "title": "Trave Lab",
