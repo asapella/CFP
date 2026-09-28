@@ -63,6 +63,16 @@ const GAMES = [
   "icon": "💧",
   "url": "attivita/acqua/"
 },
+{
+  "title": "Hotel di Hilbert",
+  "classes": [
+    "2 Legno"
+  ],
+  "subject": "Matematica · Infinito",
+  "description": "Sette missioni per capire l'infinito spostando gli ospiti di un hotel con infinite camere.",
+  "icon": "∞",
+  "url": "attivita/hotel-infinito/"
+},
   {
     "title": "Trave Lab",
     "classes": [
