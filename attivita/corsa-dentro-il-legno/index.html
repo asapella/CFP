@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gran Premio del Legno</title>
+<style>
+:root{
+  --cream:#fff1d1; --paper:#f7e3b8; --red:#b51616; --red2:#e53a2f;
+  --blue:#1569c7; --green:#2c9a45; --yellow:#f3bd2d; --ink:#2b1a12;
+  --track:#c79255; --grass:#6aa84f; --dark:#1d1d1d; --white:#fffdf7;
+}
+*{box-sizing:border-box} body{margin:0;font-family:Trebuchet MS,Arial,sans-serif;background:linear-gradient(#63c5ff 0 24%,#8bcf67 24% 100%);color:var(--ink);overflow-x:hidden}
+button{font:inherit} .wrap{max-width:1180px;margin:auto;padding:12px}
+.banner{background:var(--cream);border:5px solid #8f4a1d;border-radius:24px;box-shadow:0 8px 0 #6a3516;padding:10px 16px;text-align:center;position:relative;overflow:hidden}
+.banner:before,.banner:after{content:"🏁";position:absolute;top:8px;font-size:32px}.banner:before{left:12px}.banner:after{right:12px}
+.banner h1{margin:0;color:var(--red);font-size:clamp(30px,5vw,60px);line-height:1;font-weight:1000;text-transform:uppercase;letter-spacing:1px}
+.banner p{margin:6px 0 0;font-weight:900;font-size:clamp(14px,2vw,22px)}
+.hud{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:12px 0}
+.hud .box{background:#2a1f18;color:white;border:4px solid #f0c36a;border-radius:14px;padding:8px;text-align:center;box-shadow:0 5px 0 #6a3516;font-weight:900}
+.hud .big{display:block;font-size:25px;color:#ffd95e}.hud .small{font-size:12px;opacity:.85}
+.game-shell{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(310px,.75fr);gap:12px;align-items:start}
+.panel{background:rgba(255,245,218,.96);border:5px solid #8f4a1d;border-radius:20px;box-shadow:0 8px 0 #6a3516}
+.track-panel{padding:10px;position:relative}.track-title{display:flex;justify-content:space-between;gap:10px;align-items:center;font-weight:1000;padding:4px 8px 10px}.track-title span:last-child{font-size:13px;opacity:.8}
+canvas{display:block;width:100%;aspect-ratio:16/10;background:#76b656;border:4px solid #553017;border-radius:14px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;padding:10px 2px 0;font-size:13px;font-weight:900}.legend span{background:#fff;border:2px solid #8f4a1d;border-radius:999px;padding:5px 9px}
+.side{padding:14px}.side h2{margin:0 0 8px;color:var(--red);font-size:26px}.rules{display:grid;gap:8px}.rule{background:#fff;border:3px solid #d7a86e;border-radius:12px;padding:10px;font-weight:800}.rule b{color:var(--red)}
+.start-btn,.answer-btn,.again-btn{width:100%;border:0;border-radius:14px;padding:14px 12px;font-weight:1000;text-transform:uppercase;cursor:pointer;box-shadow:0 5px 0 #6a3516;transition:.08s transform,.08s filter}.start-btn{background:var(--red2);color:white;font-size:22px;margin-top:12px}.start-btn:active,.answer-btn:active,.again-btn:active{transform:translateY(4px);box-shadow:0 1px 0 #6a3516}.start-btn:hover,.answer-btn:hover,.again-btn:hover{filter:brightness(1.05)}
+.status{margin-top:12px;background:#fff;border:3px solid #d7a86e;border-radius:12px;padding:10px;min-height:64px;font-weight:900;line-height:1.3}.status.good{border-color:#3ba557;background:#e7f7e8}.status.bad{border-color:#d74747;background:#fde5e5}
+.progressbar{height:22px;background:#3c2d24;border:3px solid #1f1712;border-radius:999px;overflow:hidden;margin-top:8px}.progressbar>div{height:100%;width:0;background:linear-gradient(90deg,#f3bd2d,#ef5b35);transition:width .25s ease}
+#quizOverlay{position:fixed;inset:0;background:rgba(20,12,8,.74);display:none;align-items:center;justify-content:center;padding:14px;z-index:20}
+.quiz{width:min(760px,96vw);background:var(--cream);border:6px solid #8f4a1d;border-radius:24px;box-shadow:0 12px 0 #4b2815;padding:18px}.quiz .cp{display:inline-block;background:var(--red);color:#fff;padding:7px 12px;border-radius:999px;font-weight:1000;text-transform:uppercase}.quiz h2{font-size:clamp(24px,4vw,40px);margin:12px 0}.answers{display:grid;gap:10px}.answer-btn{background:white;color:var(--ink);border:4px solid #d8aa71;text-align:left;font-size:18px;box-shadow:0 5px 0 #b17b3a}.answer-btn:hover{border-color:var(--blue)}.answer-btn.correct{background:#dff4e3;border-color:#2f9c4b}.answer-btn.wrong{background:#fde1e1;border-color:#cc3c3c}.answer-btn:disabled{cursor:default;filter:none}
+.quiz-foot{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:12px;font-weight:900}.boost{color:#0d66c2}.slow{color:#bd1919}
+#finishOverlay{position:fixed;inset:0;background:rgba(20,12,8,.82);display:none;align-items:center;justify-content:center;padding:14px;z-index:30}.finish{width:min(650px,96vw);background:var(--cream);border:6px solid #8f4a1d;border-radius:24px;box-shadow:0 12px 0 #4b2815;padding:20px;text-align:center}.finish h2{font-size:42px;color:var(--red);margin:6px 0}.podium{font-size:24px;font-weight:1000;margin:12px 0}.again-btn{background:var(--blue);color:white;font-size:20px;margin-top:10px}
+.checkpoints{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}.cpdot{padding:7px;border-radius:9px;background:#fff;border:2px solid #c8a377;text-align:center;font-size:12px;font-weight:1000}.cpdot.done{background:#dff4e3;border-color:#3ba557}.cpdot.current{background:#fff2a6;border-color:#e3a500}
+@media(max-width:850px){.game-shell{grid-template-columns:1fr}.hud{grid-template-columns:repeat(3,1fr)}.hud .box:nth-child(4),.hud .box:nth-child(5){grid-column:span 1}}
+@media(max-width:520px){.hud{grid-template-columns:repeat(2,1fr)}.banner:before,.banner:after{display:none}.quiz-foot{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner">
+    <h1>Gran Premio del Legno</h1>
+    <p>3 giri · 5 piloti · una domanda a ogni checkpoint</p>
+  </div>
+
+  <div class="hud">
+    <div class="box"><span class="small">GIRO</span><span class="big" id="lapHud">1/3</span></div>
+    <div class="box"><span class="small">POSIZIONE</span><span class="big" id="placeHud">1/5</span></div>
+    <div class="box"><span class="small">PUNTI</span><span class="big" id="scoreHud">0</span></div>
+    <div class="box"><span class="small">RISPOSTE</span><span class="big" id="rightHud">0/0</span></div>
+    <div class="box"><span class="small">VELOCITÀ</span><span class="big" id="speedHud">—</span></div>
+  </div>
+
+  <div class="game-shell">
+    <section class="panel track-panel">
+      <div class="track-title"><span>🏇 Circuito dell'Ippodromo</span><span>Tu sei il kart blu</span></div>
+      <canvas id="race" width="900" height="560" aria-label="Circuito di gara"></canvas>
+      <div class="progressbar"><div id="raceProgress"></div></div>
+      <div class="legend">
+        <span>🔵 Tu</span><span>🔴 Scuderia Rossa</span><span>🟢 Verde Sprint</span><span>🟡 Saetta d'Oro</span><span>🟣 Viola Turbo</span>
+      </div>
+      <div class="checkpoints" id="checkpoints"></div>
+    </section>
+
+    <aside class="panel side">
+      <h2>Come si gioca</h2>
+      <div class="rules">
+        <div class="rule">🏁 Completa <b>3 giri</b>.</div>
+        <div class="rule">❓ Ogni <b>checkpoint</b> compare una domanda.</div>
+        <div class="rule">⚡ Risposta giusta = <b>turbo</b>.</div>
+        <div class="rule">🐌 Risposta sbagliata = <b>rallenti</b>.</div>
+        <div class="rule">🏆 Arriva davanti agli altri <b>4 piloti</b>.</div>
+      </div>
+      <button id="startBtn" class="start-btn">Avvia la corsa</button>
+      <div class="status" id="status">Premi “Avvia la corsa”. Le domande riguardano fibra, cellula, cellulosa, lignina, molecole, atomi e scale della materia.</div>
+    </aside>
+  </div>
+</div>
+
+<div id="quizOverlay" role="dialog" aria-modal="true" aria-labelledby="qTitle">
+  <div class="quiz">
+    <span class="cp" id="cpLabel">Checkpoint</span>
+    <h2 id="qTitle">Domanda</h2>
+    <div class="answers" id="answers"></div>
+    <div class="quiz-foot"><span id="quizFeedback">Scegli una risposta.</span><span id="quizBonus"></span></div>
+  </div>
+</div>
+
+<div id="finishOverlay" role="dialog" aria-modal="true">
+  <div class="finish">
+    <div style="font-size:58px">🏆</div>
+    <h2 id="finishTitle">Gara finita!</h2>
+    <div class="podium" id="podium"></div>
+    <div id="finishStats"></div>
+    <button class="again-btn" id="againBtn">Corri di nuovo</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('race');
+  const ctx = canvas.getContext('2d');
+  const startBtn = document.getElementById('startBtn');
+  const statusEl = document.getElementById('status');
+  const lapHud = document.getElementById('lapHud');
+  const placeHud = document.getElementById('placeHud');
+  const scoreHud = document.getElementById('scoreHud');
+  const rightHud = document.getElementById('rightHud');
+  const speedHud = document.getElementById('speedHud');
+  const progressEl = document.getElementById('raceProgress');
+  const checkpointsEl = document.getElementById('checkpoints');
+  const quizOverlay = document.getElementById('quizOverlay');
+  const qTitle = document.getElementById('qTitle');
+  const answersEl = document.getElementById('answers');
+  const cpLabel = document.getElementById('cpLabel');
+  const quizFeedback = document.getElementById('quizFeedback');
+  const quizBonus = document.getElementById('quizBonus');
+  const finishOverlay = document.getElementById('finishOverlay');
+  const podium = document.getElementById('podium');
+  const finishStats = document.getElementById('finishStats');
+  const finishTitle = document.getElementById('finishTitle');
+  const againBtn = document.getElementById('againBtn');
+
+  const questions = [
+    {q:'Che cos’è una fibra del legno?', a:['Una struttura lunga e sottile orientata nel legno','Un singolo atomo','Una goccia d’acqua'], c:0, why:'Le fibre sono strutture lunghe e sottili, orientate soprattutto lungo la venatura.'},
+    {q:'Che cos’è una cellula?', a:['La più piccola unità vivente della pianta','Una molecola gigante','Una venatura'], c:0, why:'La cellula è l’unità fondamentale degli organismi viventi.'},
+    {q:'Dove troviamo cellulosa e lignina?', a:['Nella parete cellulare','Nel nucleo dell’atomo','Solo nella corteccia esterna'], c:0, why:'Cellulosa e lignina sono componenti fondamentali della parete cellulare del legno.'},
+    {q:'Che cos’è la cellulosa?', a:['Un polimero formato da lunghe catene','Un metallo','Una singola cellula'], c:0, why:'La cellulosa è una grande molecola formata da lunghe catene che contribuiscono alla resistenza.'},
+    {q:'Che funzione ha la lignina?', a:['Irrigidisce e lega la struttura della parete','Scioglie il legno','Trasforma il legno in plastica'], c:0, why:'La lignina rende la parete cellulare più rigida e resistente.'},
+    {q:'Cellulosa e lignina sono “le fibre”?', a:['No: sono sostanze che formano la parete delle cellule','Sì: sono esattamente la stessa cosa','Sono due tipi di atomi'], c:0, why:'Le fibre sono strutture; cellulosa e lignina sono materiali molecolari presenti nelle pareti cellulari.'},
+    {q:'Che cos’è una molecola?', a:['Un insieme di atomi legati','Una cellula molto piccola','Un pezzo di legno'], c:0, why:'Una molecola è costituita da atomi legati tra loro.'},
+    {q:'Che cos’è un atomo?', a:['Una piccolissima unità della materia','Una fibra di legno','Una parte visibile del tronco'], c:0, why:'Gli atomi sono unità fondamentali della materia.'},
+    {q:'Quali elementi sono molto presenti nel legno?', a:['Carbonio, idrogeno e ossigeno','Oro, argento e ferro','Elio, neon e argon'], c:0, why:'Il legno è composto soprattutto da sostanze organiche ricche di C, H e O.'},
+    {q:'Quale sequenza va dal più grande al più piccolo?', a:['Legno → fibra → cellula → molecola → atomo','Atomo → legno → cellula → fibra → molecola','Molecola → fibra → legno → atomo → cellula'], c:0, why:'È un viaggio di scala: dal materiale visibile fino alla scala atomica.'},
+    {q:'1 micrometro (µm) vale…', a:['10⁻⁶ metri','10⁶ metri','10⁻³ metri'], c:0, why:'Il prefisso micro indica un milionesimo: 10⁻⁶ m.'},
+    {q:'1 nanometro (nm) vale…', a:['10⁻⁹ metri','10⁻² metri','10⁹ metri'], c:0, why:'Il prefisso nano indica un miliardesimo: 10⁻⁹ m.'},
+    {q:'Una cellula vegetale ha dimensioni tipiche dell’ordine di…', a:['decine di micrometri','decine di metri','decine di chilometri'], c:0, why:'Molte cellule vegetali hanno dimensioni dell’ordine di decine di µm.'},
+    {q:'Una molecola è più piccola di una cellula?', a:['Sì','No','Sono sempre identiche'], c:0, why:'Le molecole sono enormemente più piccole delle cellule.'},
+    {q:'Perché la direzione delle fibre conta?', a:['Influenza molte proprietà meccaniche del legno','Serve solo al colore','Non cambia niente'], c:0, why:'Il legno è anisotropo: molte proprietà cambiano con la direzione della fibra.'},
+    {q:'Se due pezzi hanno stesso volume ma masse diverse, cosa cambia?', a:['La densità','Il numero di atomi diventa zero','La temperatura è per forza diversa'], c:0, why:'Densità = massa/volume: a stesso volume, una massa diversa implica densità diversa.'},
+    {q:'Qual è l’idea chiave della lezione?', a:['Struttura e organizzazione influenzano le proprietà','Tutto il legno è identico','Gli atomi sono visibili a occhio nudo'], c:0, why:'Il comportamento del materiale dipende anche da come è organizzata la sua struttura.'},
+    {q:'La cellulosa è formata da unità ripetute di…', a:['glucosio','ferro','ossigeno puro'], c:0, why:'La cellulosa è un polisaccaride formato da molte unità di glucosio.'},
+    {q:'La lignina è…', a:['un polimero organico complesso','una cellula completa','un minerale metallico'], c:0, why:'La lignina è un complesso polimero organico presente nelle pareti cellulari.'},
+    {q:'Nel legno maturo molte cellule che conducono e sostengono sono ancora vive?', a:['No, molte sono morte a maturità','Sì, tutte','Non esistono cellule nel legno'], c:0, why:'Molte cellule dello xilema maturo sono morte quando svolgono la loro funzione strutturale o di conduzione.'}
+  ];
+
+  const racers = [
+    {name:'TU', color:'#1d70d6', accent:'#9bd7ff', progress:0, base:.000105, boost:1, lane:0},
+    {name:'ROSSA', color:'#dc2f2f', accent:'#ffd0d0', progress:0, base:.000103, boost:1, lane:1},
+    {name:'VERDE', color:'#2e9d4d', accent:'#bff0c8', progress:0, base:.000102, boost:1, lane:2},
+    {name:'ORO', color:'#e3aa19', accent:'#fff0a5', progress:0, base:.000101, boost:1, lane:3},
+    {name:'VIOLA', color:'#8348c9', accent:'#e0c7ff', progress:0, base:.000104, boost:1, lane:4}
+  ];
+
+  let running=false, paused=false, finished=false, last=0, score=0, correct=0, answered=0;
+  let qPool=[], checkpointIndex=0;
+  const checkpointsPerLap=[.20,.42,.64,.84];
+  const totalCheckpoints=12;
+
+  function resetGame(){
+    racers.forEach((r,i)=>{r.progress=0;r.boost=1;r.base=[.000105,.000103,.000102,.000101,.000104][i]});
+    running=false; paused=false; finished=false; last=0; score=0; correct=0; answered=0; checkpointIndex=0;
+    qPool=[...questions].sort(()=>Math.random()-.5).slice(0,totalCheckpoints);
+    quizOverlay.style.display='none'; finishOverlay.style.display='none'; startBtn.disabled=false; startBtn.textContent='Avvia la corsa';
+    statusEl.className='status'; statusEl.textContent='Premi “Avvia la corsa”. Le domande riguardano fibra, cellula, cellulosa, lignina, molecole, atomi e scale della materia.';
+    renderCheckpointDots(); updateHud(); draw();
+  }
+
+  function renderCheckpointDots(){
+    checkpointsEl.innerHTML='';
+    for(let i=0;i<totalCheckpoints;i++){
+      const d=document.createElement('div'); d.className='cpdot'; d.textContent='CP '+(i+1); d.id='cpdot'+i; checkpointsEl.appendChild(d);
+    }
+  }
+
+  function lapOf(p){return Math.min(3,Math.floor(p)+1)}
+  function frac(p){return p-Math.floor(p)}
+
+  function nextCheckpointProgress(){
+    const lap=Math.floor(checkpointIndex/4);
+    const cp=checkpointsPerLap[checkpointIndex%4];
+    return lap+cp;
+  }
+
+  function checkQuestionTrigger(){
+    if(checkpointIndex>=totalCheckpoints) return;
+    if(racers[0].progress>=nextCheckpointProgress()) showQuestion(checkpointIndex);
+  }
+
+  function showQuestion(idx){
+    paused=true;
+    const q=qPool[idx];
+    document.getElementById('cpdot'+idx)?.classList.add('current');
+    cpLabel.textContent='Checkpoint '+(idx+1)+' / '+totalCheckpoints;
+    qTitle.textContent=q.q;
+    answersEl.innerHTML=''; quizFeedback.textContent='Scegli una risposta.'; quizBonus.textContent='';
+    q.a.forEach((txt,i)=>{
+      const b=document.createElement('button'); b.className='answer-btn'; b.textContent=String.fromCharCode(65+i)+'. '+txt;
+      b.addEventListener('click',()=>answerQuestion(i,q,idx)); answersEl.appendChild(b);
+    });
+    quizOverlay.style.display='flex';
+  }
+
+  function answerQuestion(choice,q,idx){
+    const buttons=[...answersEl.querySelectorAll('button')];
+    buttons.forEach(b=>b.disabled=true);
+    answered++;
+    const ok=choice===q.c;
+    buttons[q.c].classList.add('correct');
+    if(!ok) buttons[choice].classList.add('wrong');
+    if(ok){
+      correct++; score+=100; racers[0].progress+=.045; racers[0].boost=1.65;
+      quizFeedback.textContent='✅ '+q.why; quizBonus.innerHTML='<span class="boost">TURBO +100</span>';
+      statusEl.className='status good'; statusEl.textContent='Turbo! '+q.why;
+    } else {
+      score=Math.max(0,score-25); racers[0].boost=.56;
+      quizFeedback.textContent='❌ '+q.why; quizBonus.innerHTML='<span class="slow">RALLENTI −25</span>';
+      statusEl.className='status bad'; statusEl.textContent='Rallenti. '+q.why;
+    }
+    document.getElementById('cpdot'+idx)?.classList.remove('current');
+    document.getElementById('cpdot'+idx)?.classList.add('done');
+    checkpointIndex++;
+    updateHud();
+    setTimeout(()=>{
+      quizOverlay.style.display='none'; paused=false;
+      setTimeout(()=>{racers[0].boost=1}, ok?3200:2600);
+    },1350);
+  }
+
+  function placeOfPlayer(){
+    const sorted=[...racers].sort((a,b)=>b.progress-a.progress);
+    return sorted.findIndex(r=>r===racers[0])+1;
+  }
+
+  function updateHud(){
+    lapHud.textContent=Math.min(3,Math.floor(racers[0].progress)+1)+'/3';
+    placeHud.textContent=placeOfPlayer()+'/5';
+    scoreHud.textContent=score;
+    rightHud.textContent=correct+'/'+answered;
+    speedHud.textContent = !running ? '—' : racers[0].boost>1.1?'TURBO':racers[0].boost<.9?'LENTA':'OK';
+    progressEl.style.width=Math.min(100,(racers[0].progress/3)*100)+'%';
+  }
+
+  function finishRace(){
+    running=false; finished=true;
+    const sorted=[...racers].sort((a,b)=>b.progress-a.progress);
+    const place=sorted.findIndex(r=>r===racers[0])+1;
+    finishTitle.textContent=place===1?'Hai vinto il Gran Premio!':'Gara conclusa!';
+    podium.textContent='Posizione finale: '+place+'° su 5';
+    finishStats.innerHTML='<b>Risposte corrette:</b> '+correct+'/'+answered+'<br><b>Punti:</b> '+score+'<br><b>Concetto chiave:</b> struttura → proprietà';
+    finishOverlay.style.display='flex';
+  }
+
+  function update(dt){
+    if(!running || paused || finished) return;
+    racers.forEach((r,i)=>{
+      const jitter = i===0 ? 1 : (0.965 + Math.random()*0.07);
+      r.progress += r.base*r.boost*jitter*dt;
+      if(r.progress>3) r.progress=3;
+    });
+    checkQuestionTrigger();
+    if(racers.some(r=>r.progress>=3)){
+      racers.forEach(r=>{if(r.progress<3) r.progress=Math.min(3,r.progress)});
+      finishRace();
+    }
+    updateHud();
+  }
+
+  function ellipsePoint(t, lane=0){
+    const cx=450, cy=280;
+    const rx=330-lane*8, ry=190-lane*4;
+    const a=t*Math.PI*2 - Math.PI/2;
+    return {x:cx+Math.cos(a)*rx, y:cy+Math.sin(a)*ry};
+  }
+
+  function drawTrack(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#78b755'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#ead8a9'; ctx.fillRect(0,0,canvas.width,80);
+    ctx.fillStyle='#8e5f30'; ctx.font='bold 28px Trebuchet MS'; ctx.fillText('IPPODROMO SCIENTIFICO',25,50);
+    // track layers
+    ctx.save(); ctx.translate(450,280);
+    ctx.beginPath(); ctx.ellipse(0,0,365,225,0,0,Math.PI*2); ctx.fillStyle='#8b5f36'; ctx.fill();
+    ctx.beginPath(); ctx.ellipse(0,0,315,175,0,0,Math.PI*2); ctx.fillStyle='#6fab4f'; ctx.fill();
+    ctx.setLineDash([18,14]); ctx.lineWidth=4; ctx.strokeStyle='#f5e6c2';
+    ctx.beginPath(); ctx.ellipse(0,0,340,200,0,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+    ctx.restore();
+    // start line
+    const sp=ellipsePoint(0,0); ctx.save(); ctx.translate(sp.x,sp.y); ctx.rotate(0);
+    for(let i=0;i<8;i++){ctx.fillStyle=i%2?'#fff':'#111';ctx.fillRect(-24+i*6,-16,6,32)} ctx.restore();
+    // checkpoint gates
+    const cps=[.20,.42,.64,.84];
+    cps.forEach((p,i)=>{const pt=ellipsePoint(p); ctx.fillStyle='#fff7d9';ctx.strokeStyle='#7d4a23';ctx.lineWidth=3;ctx.beginPath();ctx.arc(pt.x,pt.y,20,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#a61717';ctx.font='bold 13px Trebuchet MS';ctx.textAlign='center';ctx.fillText('CP'+(i+1),pt.x,pt.y+4);});
+    // center title
+    ctx.fillStyle='#2f6f3a'; ctx.textAlign='center';ctx.font='900 34px Trebuchet MS';ctx.fillText('GRAN PREMIO DEL LEGNO',450,260);
+    ctx.font='bold 18px Trebuchet MS';ctx.fillText('fibra · cellula · cellulosa · lignina · molecola · atomo',450,292);
+  }
+
+  function drawKart(r,i){
+    const p=ellipsePoint(frac(r.progress),i*0.7);
+    const p2=ellipsePoint((frac(r.progress)+.002)%1,i*0.7);
+    const ang=Math.atan2(p2.y-p.y,p2.x-p.x);
+    ctx.save();ctx.translate(p.x,p.y);ctx.rotate(ang);
+    ctx.fillStyle='rgba(0,0,0,.18)';ctx.beginPath();ctx.ellipse(0,10,24,10,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=r.color;ctx.strokeStyle='#2a211a';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(-23,-14,46,28,9);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#151515';ctx.fillRect(-19,-19,10,7);ctx.fillRect(9,-19,10,7);ctx.fillRect(-19,12,10,7);ctx.fillRect(9,12,10,7);
+    ctx.fillStyle=r.accent;ctx.beginPath();ctx.arc(0,-5,8,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='900 12px Trebuchet MS';ctx.textAlign='center';ctx.fillText(i===0?'TU':String(i+1),0,5);
+    if(r.boost>1.1){ctx.fillStyle='#55c9ff';ctx.beginPath();ctx.moveTo(-30,0);ctx.lineTo(-45,-7);ctx.lineTo(-45,7);ctx.closePath();ctx.fill();}
+    ctx.restore();
+  }
+
+  function draw(){
+    drawTrack(); racers.forEach(drawKart); requestAnimationFrame(loop);
+  }
+
+  function loop(ts){
+    if(!last) last=ts; const dt=Math.min(40,ts-last); last=ts; update(dt); drawTrack(); racers.forEach(drawKart); requestAnimationFrame(loop);
+  }
+
+  startBtn.addEventListener('click',()=>{
+    if(running) return; running=true; startBtn.disabled=true; startBtn.textContent='Corsa in corso'; statusEl.className='status'; statusEl.textContent='Via! Al primo checkpoint arriva la prima domanda.'; updateHud();
+  });
+  againBtn.addEventListener('click',resetGame);
+
+  resetGame(); requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
