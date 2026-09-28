@@ -71,7 +71,7 @@ const GAMES = [
   "subject": "Matematica · Infinito",
   "description": "Sette missioni per capire l'infinito spostando gli ospiti di un hotel con infinite camere.",
   "icon": "∞",
-  "url": "attivita/hotel-infinito/"
+  "url": "attivita/hotel_infinito/"
 },
   {
     "title": "Trave Lab",
