@@ -73,6 +73,14 @@ const GAMES = [
   "icon": "∞",
   "url": "attivita/hotel_hilbert/"
 },
+{
+  "title": "Corsa dentro il legno",
+  "classes": ["2 Disegno"],
+  "subject": "Scienze applicate",
+  "description": "Gara a checkpoint su fibra, cellula, cellulosa, lignina, molecole, atomi e scale della materia.",
+  "icon": "🏎️",
+  "url": "attivita/corsa-dentro-il-legno/"
+},
   {
     "title": "Trave Lab",
     "classes": [
