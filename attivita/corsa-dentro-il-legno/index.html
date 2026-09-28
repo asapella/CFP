@@ -41,7 +41,7 @@ canvas{display:block;width:100%;aspect-ratio:16/10;background:#76b656;border:4px
 <div class="wrap">
   <div class="banner">
     <h1>Gran Premio del Legno</h1>
-    <p>3 giri · 5 piloti · una domanda a ogni checkpoint</p>
+    <p>3 giri · 5 piloti · 72 domande nella banca · 12 per gara</p>
   </div>
 
   <div class="hud">
@@ -73,7 +73,7 @@ canvas{display:block;width:100%;aspect-ratio:16/10;background:#76b656;border:4px
         <div class="rule">🏆 Arriva davanti agli altri <b>4 piloti</b>.</div>
       </div>
       <button id="startBtn" class="start-btn">Avvia la corsa</button>
-      <div class="status" id="status">Premi “Avvia la corsa”. Le domande riguardano fibra, cellula, cellulosa, lignina, molecole, atomi e scale della materia.</div>
+      <div class="status" id="status">Premi “Avvia la corsa”. Ogni gara pesca 12 domande diverse da una banca di 72: fibra, cellula, cellulosa, lignina, molecole, atomi, scale, proprietà e metodo scientifico.</div>
     </aside>
   </div>
 </div>
@@ -123,26 +123,95 @@ canvas{display:block;width:100%;aspect-ratio:16/10;background:#76b656;border:4px
   const againBtn = document.getElementById('againBtn');
 
   const questions = [
-    {q:'Che cos’è una fibra del legno?', a:['Una struttura lunga e sottile orientata nel legno','Un singolo atomo','Una goccia d’acqua'], c:0, why:'Le fibre sono strutture lunghe e sottili, orientate soprattutto lungo la venatura.'},
-    {q:'Che cos’è una cellula?', a:['La più piccola unità vivente della pianta','Una molecola gigante','Una venatura'], c:0, why:'La cellula è l’unità fondamentale degli organismi viventi.'},
-    {q:'Dove troviamo cellulosa e lignina?', a:['Nella parete cellulare','Nel nucleo dell’atomo','Solo nella corteccia esterna'], c:0, why:'Cellulosa e lignina sono componenti fondamentali della parete cellulare del legno.'},
-    {q:'Che cos’è la cellulosa?', a:['Un polimero formato da lunghe catene','Un metallo','Una singola cellula'], c:0, why:'La cellulosa è una grande molecola formata da lunghe catene che contribuiscono alla resistenza.'},
-    {q:'Che funzione ha la lignina?', a:['Irrigidisce e lega la struttura della parete','Scioglie il legno','Trasforma il legno in plastica'], c:0, why:'La lignina rende la parete cellulare più rigida e resistente.'},
-    {q:'Cellulosa e lignina sono “le fibre”?', a:['No: sono sostanze che formano la parete delle cellule','Sì: sono esattamente la stessa cosa','Sono due tipi di atomi'], c:0, why:'Le fibre sono strutture; cellulosa e lignina sono materiali molecolari presenti nelle pareti cellulari.'},
-    {q:'Che cos’è una molecola?', a:['Un insieme di atomi legati','Una cellula molto piccola','Un pezzo di legno'], c:0, why:'Una molecola è costituita da atomi legati tra loro.'},
-    {q:'Che cos’è un atomo?', a:['Una piccolissima unità della materia','Una fibra di legno','Una parte visibile del tronco'], c:0, why:'Gli atomi sono unità fondamentali della materia.'},
-    {q:'Quali elementi sono molto presenti nel legno?', a:['Carbonio, idrogeno e ossigeno','Oro, argento e ferro','Elio, neon e argon'], c:0, why:'Il legno è composto soprattutto da sostanze organiche ricche di C, H e O.'},
-    {q:'Quale sequenza va dal più grande al più piccolo?', a:['Legno → fibra → cellula → molecola → atomo','Atomo → legno → cellula → fibra → molecola','Molecola → fibra → legno → atomo → cellula'], c:0, why:'È un viaggio di scala: dal materiale visibile fino alla scala atomica.'},
-    {q:'1 micrometro (µm) vale…', a:['10⁻⁶ metri','10⁶ metri','10⁻³ metri'], c:0, why:'Il prefisso micro indica un milionesimo: 10⁻⁶ m.'},
-    {q:'1 nanometro (nm) vale…', a:['10⁻⁹ metri','10⁻² metri','10⁹ metri'], c:0, why:'Il prefisso nano indica un miliardesimo: 10⁻⁹ m.'},
-    {q:'Una cellula vegetale ha dimensioni tipiche dell’ordine di…', a:['decine di micrometri','decine di metri','decine di chilometri'], c:0, why:'Molte cellule vegetali hanno dimensioni dell’ordine di decine di µm.'},
-    {q:'Una molecola è più piccola di una cellula?', a:['Sì','No','Sono sempre identiche'], c:0, why:'Le molecole sono enormemente più piccole delle cellule.'},
-    {q:'Perché la direzione delle fibre conta?', a:['Influenza molte proprietà meccaniche del legno','Serve solo al colore','Non cambia niente'], c:0, why:'Il legno è anisotropo: molte proprietà cambiano con la direzione della fibra.'},
-    {q:'Se due pezzi hanno stesso volume ma masse diverse, cosa cambia?', a:['La densità','Il numero di atomi diventa zero','La temperatura è per forza diversa'], c:0, why:'Densità = massa/volume: a stesso volume, una massa diversa implica densità diversa.'},
-    {q:'Qual è l’idea chiave della lezione?', a:['Struttura e organizzazione influenzano le proprietà','Tutto il legno è identico','Gli atomi sono visibili a occhio nudo'], c:0, why:'Il comportamento del materiale dipende anche da come è organizzata la sua struttura.'},
-    {q:'La cellulosa è formata da unità ripetute di…', a:['glucosio','ferro','ossigeno puro'], c:0, why:'La cellulosa è un polisaccaride formato da molte unità di glucosio.'},
-    {q:'La lignina è…', a:['un polimero organico complesso','una cellula completa','un minerale metallico'], c:0, why:'La lignina è un complesso polimero organico presente nelle pareti cellulari.'},
-    {q:'Nel legno maturo molte cellule che conducono e sostengono sono ancora vive?', a:['No, molte sono morte a maturità','Sì, tutte','Non esistono cellule nel legno'], c:0, why:'Molte cellule dello xilema maturo sono morte quando svolgono la loro funzione strutturale o di conduzione.'}
+    // FIBRE E TESSUTO
+    {id:'f01',cat:'fibra',q:'Che cos’è una fibra legnosa?',a:['Una cellula molto allungata del legno','Una molecola di cellulosa','Un poro pieno d’acqua'],c:0,why:'Una fibra legnosa è una cellula allungata, con pareti resistenti.'},
+    {id:'f02',cat:'fibra',q:'Le fibre del legno hanno una direzione?',a:['Sì, sono orientate nel tessuto','No, sono sempre disposte a caso','Solo quando il legno è bagnato'],c:0,why:'La direzione delle fibre contribuisce alla venatura e influenza le proprietà del legno.'},
+    {id:'f03',cat:'fibra',q:'Perché è importante la direzione delle fibre?',a:['Perché il legno può resistere diversamente nelle diverse direzioni','Perché cambia il numero di atomi','Perché crea sempre lo stesso colore'],c:0,why:'Il legno è anisotropo: molte proprietà cambiano con la direzione.'},
+    {id:'f04',cat:'fibra',q:'Una fibra è più grande di una molecola?',a:['Sì, enormemente più grande','No, è più piccola di un atomo','Hanno sempre la stessa dimensione'],c:0,why:'Una fibra è una cellula: contiene moltissime molecole.'},
+    {id:'f05',cat:'fibra',q:'Che cos’è un tessuto biologico?',a:['Un insieme organizzato di cellule','Una singola molecola','Un elemento chimico'],c:0,why:'Un tessuto è formato da molte cellule organizzate.'},
+    {id:'f06',cat:'fibra',q:'Il legno è un blocco completamente omogeneo?',a:['No, possiede una struttura organizzata','Sì, è uguale in ogni punto e direzione','Sì, non contiene cellule'],c:0,why:'Nel legno troviamo cellule, pareti, pori e strutture orientate.'},
+    {id:'f07',cat:'fibra',q:'La venatura del legno è collegata anche…',a:['all’organizzazione e direzione delle strutture del legno','alla presenza di metallo','alla forma degli atomi di carbonio visibili'],c:0,why:'La struttura e l’orientamento del tessuto contribuiscono all’aspetto della venatura.'},
+    {id:'f08',cat:'fibra',q:'Quale frase è corretta?',a:['Una fibra legnosa è una cellula, non una molecola','Una fibra è un singolo atomo','Cellulosa e fibra sono sinonimi perfetti'],c:0,why:'La fibra è una cellula allungata; la cellulosa è una macromolecola nella sua parete.'},
+
+    // CELLULE E PARETE CELLULARE
+    {id:'c01',cat:'cellula',q:'Che cos’è una cellula?',a:['L’unità fondamentale degli organismi viventi','Un tipo di atomo','Una formula matematica'],c:0,why:'Le cellule sono le unità fondamentali con cui sono costruiti gli organismi.'},
+    {id:'c02',cat:'cellula',q:'Nel legno, quale parte della cellula è particolarmente importante?',a:['La parete cellulare','La targa del banco','Il nucleo dell’atomo'],c:0,why:'La parete cellulare dà struttura e rimane fondamentale nel materiale legno.'},
+    {id:'c03',cat:'cellula',q:'La parete cellulare vegetale si trova…',a:['attorno alla cellula','dentro il nucleo atomico','solo fuori dal tronco'],c:0,why:'La parete cellulare circonda la membrana della cellula vegetale.'},
+    {id:'c04',cat:'cellula',q:'La parete cellulare contiene anche cellulosa e lignina?',a:['Sì','No, contiene solo acqua','No, contiene esclusivamente ferro'],c:0,why:'Cellulosa, emicellulose e lignina sono componenti importanti delle pareti cellulari del legno.'},
+    {id:'c05',cat:'cellula',q:'Una cellula del legno contiene moltissime molecole?',a:['Sì','No, contiene un solo atomo','Solo se il legno è verniciato'],c:0,why:'Una cellula e la sua parete sono strutture enormemente più grandi delle singole molecole.'},
+    {id:'c06',cat:'cellula',q:'Nel legno maturo tutte le cellule sono ancora vive?',a:['No, molte cellule dello xilema maturo sono morte','Sì, tutte senza eccezione','Nel legno non esistono cellule'],c:0,why:'Molte cellule del legno maturo sono morte quando svolgono funzioni di sostegno o conduzione.'},
+    {id:'c07',cat:'cellula',q:'Quale viene prima scendendo di scala?',a:['Cellula, poi molecola','Molecola, poi tronco','Atomo, poi tessuto'],c:0,why:'La cellula è formata da strutture che contengono moltissime molecole.'},
+    {id:'c08',cat:'cellula',q:'Una fibra legnosa e una cellula sono concetti completamente separati?',a:['No: una fibra legnosa è un tipo di cellula allungata','Sì: una fibra è sempre una molecola','Sì: le cellule non esistono nel legno'],c:0,why:'Nel legno le fibre sono cellule specializzate e molto allungate.'},
+
+    // CELLULOSA
+    {id:'ce01',cat:'cellulosa',q:'Che cos’è la cellulosa?',a:['Una macromolecola formata da lunghe catene','Una cellula completa','Un metallo'],c:0,why:'La cellulosa è un polimero: una macromolecola fatta da molte unità ripetute.'},
+    {id:'ce02',cat:'cellulosa',q:'La cellulosa è fatta da molte unità di…',a:['glucosio','ferro','sale da cucina'],c:0,why:'La cellulosa è un polisaccaride formato da molte unità di glucosio.'},
+    {id:'ce03',cat:'cellulosa',q:'Dove si trova la cellulosa nel legno?',a:['Nelle pareti delle cellule','Solo nell’aria intorno al tronco','Nel nucleo degli atomi'],c:0,why:'La cellulosa è uno dei principali componenti strutturali della parete cellulare.'},
+    {id:'ce04',cat:'cellulosa',q:'La cellulosa contribuisce soprattutto…',a:['alla resistenza della parete cellulare','a trasformare il legno in metallo','a creare elettricità da sola'],c:0,why:'Le microfibrille di cellulosa contribuiscono alla resistenza della parete.'},
+    {id:'ce05',cat:'cellulosa',q:'La cellulosa è più piccola di una cellula?',a:['Sì','No, è più grande di un tronco','Sono esattamente la stessa cosa'],c:0,why:'La cellulosa è una macromolecola contenuta nella struttura della cellula.'},
+    {id:'ce06',cat:'cellulosa',q:'Cellulosa e fibra legnosa sono la stessa cosa?',a:['No: la cellulosa è dentro la parete della fibra/cellula','Sì, sono sinonimi','No: la cellulosa è un atomo'],c:0,why:'La fibra è una cellula; la cellulosa è una macromolecola della sua parete.'},
+    {id:'ce07',cat:'cellulosa',q:'Perché si dice che la cellulosa è un polimero?',a:['Perché è formata da molte unità ripetute collegate','Perché è fatta da un solo atomo','Perché è sempre liquida'],c:0,why:'Un polimero è una grande molecola costruita ripetendo molte unità.'},
+    {id:'ce08',cat:'cellulosa',q:'Quale immagine mentale funziona meglio per la cellulosa?',a:['Lunghe catene/fili molecolari','Una biglia singola','Una lastra di metallo'],c:0,why:'La cellulosa forma lunghe catene organizzate in microfibrille.'},
+
+    // LIGNINA
+    {id:'l01',cat:'lignina',q:'Che cos’è la lignina?',a:['Un polimero organico complesso','Una cellula intera','Un elemento metallico'],c:0,why:'La lignina è una macromolecola complessa presente nelle pareti cellulari.'},
+    {id:'l02',cat:'lignina',q:'Qual è una funzione importante della lignina?',a:['Irrigidire la parete cellulare','Sciogliere completamente la cellulosa','Produrre luce'],c:0,why:'La lignina contribuisce a rigidità e robustezza della parete.'},
+    {id:'l03',cat:'lignina',q:'Dove troviamo la lignina?',a:['Nelle pareti cellulari del tessuto legnoso','Solo nell’acqua piovana','Nel nucleo di ogni atomo'],c:0,why:'La lignina è depositata nelle pareti di molte cellule del legno.'},
+    {id:'l04',cat:'lignina',q:'Lignina e cellulosa sono entrambe…',a:['macromolecole della parete cellulare','tipi di cellule','tipi di metallo'],c:0,why:'Sono entrambe grandi molecole strutturali, ma hanno struttura e ruolo diversi.'},
+    {id:'l05',cat:'lignina',q:'La lignina è uguale alla cellulosa?',a:['No, sono sostanze diverse con ruoli diversi','Sì, hanno anche la stessa struttura chimica','Sì, cambia solo il nome'],c:0,why:'Cellulosa e lignina sono componenti diversi della parete cellulare.'},
+    {id:'l06',cat:'lignina',q:'Quale paragone è più utile?',a:['Cellulosa come rinforzo, lignina come matrice che irrigidisce','Lignina come aria e cellulosa come vuoto','Sono entrambe semplici atomi'],c:0,why:'È un’analogia: la cellulosa porta rinforzo fibroso, la lignina contribuisce a legare e irrigidire.'},
+    {id:'l07',cat:'lignina',q:'La lignina è visibile come singola molecola a occhio nudo?',a:['No','Sì, come una venatura','Sì, come un nodo'],c:0,why:'Le molecole sono troppo piccole per essere viste a occhio nudo.'},
+    {id:'l08',cat:'lignina',q:'Se tolgo la lignina, la struttura del materiale tende a perdere…',a:['parte della rigidità','tutti gli atomi di carbonio','ogni molecola d’acqua del pianeta'],c:0,why:'La lignina contribuisce alla rigidità e alla coesione delle pareti cellulari.'},
+
+    // MOLECOLE
+    {id:'m01',cat:'molecola',q:'Che cos’è una molecola?',a:['Un insieme definito di atomi legati tra loro','Una cellula molto piccola','Una venatura'],c:0,why:'Una molecola è costituita da atomi legati secondo una determinata struttura.'},
+    {id:'m02',cat:'molecola',q:'Una macromolecola è…',a:['una molecola molto grande','un grande pezzo di legno','un atomo ingrandito'],c:0,why:'Macromolecola significa grande molecola, spesso formata da moltissime unità.'},
+    {id:'m03',cat:'molecola',q:'Cellulosa e lignina sono esempi di…',a:['macromolecole','cellule','minerali metallici'],c:0,why:'Sono grandi molecole organiche che fanno parte della struttura del legno.'},
+    {id:'m04',cat:'molecola',q:'Una molecola è formata da…',a:['atomi legati','tessuti completi','sole cellule viventi'],c:0,why:'Gli atomi si legano tra loro formando molecole.'},
+    {id:'m05',cat:'molecola',q:'Una molecola è più piccola di una fibra legnosa?',a:['Sì, di moltissimo','No, è sempre più grande','Sono della stessa scala'],c:0,why:'Una fibra è una cellula e contiene un numero enorme di molecole.'},
+    {id:'m06',cat:'molecola',q:'Cambiare il modo in cui gli atomi sono collegati può cambiare…',a:['la sostanza e le sue proprietà','solo il nome della sostanza','la dimensione del metro'],c:0,why:'La struttura molecolare influenza le proprietà delle sostanze.'},
+    {id:'m07',cat:'molecola',q:'Quale viene prima andando dal piccolo al grande?',a:['Atomo → molecola','Molecola → atomo','Cellula → atomo'],c:0,why:'Gli atomi si combinano in molecole.'},
+    {id:'m08',cat:'molecola',q:'La cellulosa è una singola piccola molecola semplice?',a:['No, è una grande catena polimerica','Sì, è un solo atomo','Sì, è una cellula'],c:0,why:'La cellulosa è una macromolecola costituita da molte unità ripetute.'},
+
+    // ATOMI ED ELEMENTI
+    {id:'a01',cat:'atomo',q:'Che cos’è un atomo?',a:['Una unità fondamentale di un elemento chimico','Una fibra di legno','Un tessuto'],c:0,why:'Gli elementi chimici sono costituiti da atomi.'},
+    {id:'a02',cat:'atomo',q:'Quali elementi sono molto presenti nelle sostanze del legno?',a:['Carbonio, idrogeno e ossigeno','Oro, argento e platino','Elio, neon e argon soltanto'],c:0,why:'Cellulosa e lignina sono sostanze organiche ricche soprattutto di C, H e O.'},
+    {id:'a03',cat:'atomo',q:'C, H e O indicano…',a:['elementi chimici','tipi di cellule','unità di misura'],c:0,why:'C è carbonio, H idrogeno, O ossigeno.'},
+    {id:'a04',cat:'atomo',q:'Gli atomi sono visibili a occhio nudo?',a:['No','Sì, sembrano piccoli pallini colorati','Solo nel legno'],c:0,why:'Gli atomi hanno dimensioni enormemente inferiori al potere di risoluzione dell’occhio.'},
+    {id:'a05',cat:'atomo',q:'Atomo e molecola sono la stessa cosa?',a:['No','Sì, sempre','Solo nel legno'],c:0,why:'Una molecola è formata da più atomi legati tra loro.'},
+    {id:'a06',cat:'atomo',q:'Qual è più piccolo?',a:['Un atomo','Una cellula','Una fibra'],c:0,why:'Tra questi, l’atomo è di gran lunga il più piccolo.'},
+    {id:'a07',cat:'atomo',q:'Il carbonio è…',a:['un elemento chimico','una cellula vegetale','una fibra'],c:0,why:'Carbonio è il nome di un elemento chimico, simbolo C.'},
+    {id:'a08',cat:'atomo',q:'Gli stessi tipi di atomi possono formare sostanze diverse?',a:['Sì, se sono combinati e organizzati diversamente','No, mai','Solo se diventano cellule'],c:0,why:'Il modo in cui gli atomi sono legati e organizzati determina molecole e materiali diversi.'},
+
+    // SCALE E POTENZE DI DIECI
+    {id:'s01',cat:'scala',q:'1 millimetro (mm) equivale a…',a:['10⁻³ metri','10⁻⁶ metri','10³ metri'],c:0,why:'Milli significa un millesimo: 1 mm = 10⁻³ m.'},
+    {id:'s02',cat:'scala',q:'1 micrometro (µm) equivale a…',a:['10⁻⁶ metri','10⁻³ metri','10⁶ metri'],c:0,why:'Micro significa un milionesimo: 1 µm = 10⁻⁶ m.'},
+    {id:'s03',cat:'scala',q:'1 nanometro (nm) equivale a…',a:['10⁻⁹ metri','10⁻⁶ metri','10⁹ metri'],c:0,why:'Nano significa un miliardesimo: 1 nm = 10⁻⁹ m.'},
+    {id:'s04',cat:'scala',q:'Quale è più piccolo?',a:['1 nm','1 µm','1 mm'],c:0,why:'10⁻⁹ m è più piccolo di 10⁻⁶ m e 10⁻³ m.'},
+    {id:'s05',cat:'scala',q:'Una cellula vegetale tipica si misura spesso in…',a:['micrometri','chilometri','centinaia di metri'],c:0,why:'Molte cellule vegetali hanno dimensioni dell’ordine di decine di micrometri.'},
+    {id:'s06',cat:'scala',q:'Le dimensioni molecolari sono tipicamente dell’ordine di…',a:['nanometri o meno','chilometri','metri'],c:0,why:'Le molecole sono su scale nanometriche o sub-nanometriche.'},
+    {id:'s07',cat:'scala',q:'10⁻⁶ significa…',a:['un milionesimo','un milione','un millesimo'],c:0,why:'10⁻⁶ = 0,000001.'},
+    {id:'s08',cat:'scala',q:'Scendendo da millimetri a micrometri a nanometri stiamo…',a:['osservando scale sempre più piccole','aumentando sempre la dimensione','misurando soltanto il peso'],c:0,why:'mm → µm → nm significa passare a lunghezze sempre più piccole.'},
+
+    // STRUTTURA E PROPRIETÀ
+    {id:'p01',cat:'proprieta',q:'Che cosa significa “struttura → proprietà”?',a:['Come è organizzato un materiale influenza come si comporta','Ogni materiale ha sempre le stesse proprietà','La struttura cambia solo il colore'],c:0,why:'Le proprietà dipendono anche dall’organizzazione interna del materiale.'},
+    {id:'p02',cat:'proprieta',q:'Che cosa significa che il legno è anisotropo?',a:['Le proprietà possono cambiare con la direzione','È identico in ogni direzione','Non possiede fibre'],c:0,why:'Nel legno direzione longitudinale, radiale e tangenziale possono dare comportamenti diversi.'},
+    {id:'p03',cat:'proprieta',q:'Se due pezzi hanno lo stesso volume ma masse diverse, hanno…',a:['densità diverse','sempre lo stesso peso','lo stesso numero di molecole per forza'],c:0,why:'Densità = massa/volume: a volume uguale, masse diverse significano densità diverse.'},
+    {id:'p04',cat:'proprieta',q:'La densità si calcola come…',a:['massa ÷ volume','volume ÷ temperatura','massa + lunghezza'],c:0,why:'La densità è il rapporto tra massa e volume.'},
+    {id:'p05',cat:'proprieta',q:'La struttura delle pareti cellulari contribuisce alle proprietà del legno?',a:['Sì','No, non ha alcun effetto','Solo al colore della vernice'],c:0,why:'Composizione e organizzazione delle pareti cellulari influenzano il comportamento del materiale.'},
+    {id:'p06',cat:'proprieta',q:'Perché due essenze possono avere densità diverse?',a:['Per differenze nella struttura e nella quantità di materia per volume','Perché una non contiene atomi','Perché una misura sempre un metro'],c:0,why:'Struttura, porosità e composizione influenzano la massa presente in un certo volume.'},
+    {id:'p07',cat:'proprieta',q:'Un materiale più denso è sempre automaticamente più resistente in ogni situazione?',a:['No','Sì, senza eccezioni','Solo se è più scuro'],c:0,why:'Densità e resistenza possono essere correlate, ma la resistenza dipende anche da struttura, direzione, difetti e condizioni.'},
+    {id:'p08',cat:'proprieta',q:'Un nodo può influenzare il comportamento meccanico del legno?',a:['Sì, può interrompere o deviare la continuità delle fibre','No, è soltanto un colore','No, perché non fa parte del legno'],c:0,why:'I nodi modificano l’orientamento locale delle fibre e possono influenzare la resistenza.'},
+
+    // METODO SCIENTIFICO / OSSERVAZIONE
+    {id:'o01',cat:'osservazione',q:'“Il campione è più scuro” è soprattutto…',a:['un’osservazione','una teoria atomica','una formula'],c:0,why:'Stai descrivendo qualcosa che puoi osservare direttamente.'},
+    {id:'o02',cat:'osservazione',q:'“Secondo me questo pezzo è più resistente” è…',a:['un’ipotesi da verificare','una misura già certa','un atomo'],c:0,why:'È una spiegazione o previsione che deve essere verificata con una prova.'},
+    {id:'o03',cat:'osservazione',q:'“Perché questo legno assorbe più acqua?” è…',a:['una domanda scientifica','una misura di massa','una risposta definitiva'],c:0,why:'È una domanda che può guidare osservazioni ed esperimenti.'},
+    {id:'o04',cat:'osservazione',q:'Quale frase descrive un dato osservabile?',a:['Vedo venature orientate','È sicuramente il legno migliore','Mi piace di più'],c:0,why:'Un dato osservabile descrive ciò che puoi rilevare, non una preferenza o conclusione non verificata.'},
+    {id:'o05',cat:'osservazione',q:'Per verificare se un pezzo è più denso di un altro conviene misurare…',a:['massa e volume','solo il colore','solo il nome dell’essenza'],c:0,why:'Dalla massa e dal volume puoi calcolare e confrontare la densità.'},
+    {id:'o06',cat:'osservazione',q:'Un’ipotesi scientifica dovrebbe poter essere…',a:['messa alla prova','sempre accettata senza controlli','scelta soltanto perché piace'],c:0,why:'Una buona ipotesi deve poter essere confrontata con osservazioni o esperimenti.'},
+    {id:'o07',cat:'osservazione',q:'Osservare e spiegare sono la stessa cosa?',a:['No','Sì, sempre','Solo in chimica'],c:0,why:'Prima raccogliamo dati; poi possiamo proporre spiegazioni e verificarle.'},
+    {id:'o08',cat:'osservazione',q:'Qual è un buon ordine di lavoro?',a:['Osservo → ipotizzo → verifico','Decido → ignoro i dati → concludo','Concludo → poi invento la domanda'],c:0,why:'Il metodo scientifico parte dai dati e mette alla prova le ipotesi.'}
   ];
 
   const racers = [
@@ -154,16 +223,56 @@ canvas{display:block;width:100%;aspect-ratio:16/10;background:#76b656;border:4px
   ];
 
   let running=false, paused=false, finished=false, last=0, score=0, correct=0, answered=0;
-  let qPool=[], checkpointIndex=0;
+  let qPool=[], checkpointIndex=0, correctSlots=[];
+  let previousQuestionIds=[];
   const checkpointsPerLap=[.20,.42,.64,.84];
   const totalCheckpoints=12;
+
+  function shuffled(list){
+    const out=[...list];
+    for(let i=out.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [out[i],out[j]]=[out[j],out[i]];
+    }
+    return out;
+  }
+
+  function buildQuestionPool(){
+    const categories=[...new Set(questions.map(q=>q.cat))];
+    const previous=new Set(previousQuestionIds);
+    const chosen=[];
+
+    // Prima assicura varietà: una domanda per ogni categoria, evitando la gara precedente.
+    for(const cat of shuffled(categories)){
+      const candidates=shuffled(questions.filter(q=>q.cat===cat && !previous.has(q.id) && !chosen.some(x=>x.id===q.id)));
+      if(candidates.length) chosen.push(candidates[0]);
+    }
+
+    // Completa i 12 checkpoint con domande ancora non viste nella gara precedente.
+    const fresh=shuffled(questions.filter(q=>!previous.has(q.id) && !chosen.some(x=>x.id===q.id)));
+    while(chosen.length<totalCheckpoints && fresh.length) chosen.push(fresh.pop());
+
+    // Fallback teorico: se un giorno la banca diventasse troppo piccola, riusa solo ciò che serve.
+    const fallback=shuffled(questions.filter(q=>!chosen.some(x=>x.id===q.id)));
+    while(chosen.length<totalCheckpoints && fallback.length) chosen.push(fallback.pop());
+
+    const pool=shuffled(chosen.slice(0,totalCheckpoints));
+    previousQuestionIds=pool.map(q=>q.id);
+    return pool;
+  }
 
   function resetGame(){
     racers.forEach((r,i)=>{r.progress=0;r.boost=1;r.base=[.000105,.000103,.000102,.000101,.000104][i]});
     running=false; paused=false; finished=false; last=0; score=0; correct=0; answered=0; checkpointIndex=0;
-    qPool=[...questions].sort(()=>Math.random()-.5).slice(0,totalCheckpoints);
+    qPool=buildQuestionPool();
+    // Distribuisce in modo bilanciato le risposte corrette tra A, B e C, poi mescola l'ordine.
+    correctSlots=Array.from({length:totalCheckpoints},(_,i)=>i%3);
+    for(let i=correctSlots.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [correctSlots[i],correctSlots[j]]=[correctSlots[j],correctSlots[i]];
+    }
     quizOverlay.style.display='none'; finishOverlay.style.display='none'; startBtn.disabled=false; startBtn.textContent='Avvia la corsa';
-    statusEl.className='status'; statusEl.textContent='Premi “Avvia la corsa”. Le domande riguardano fibra, cellula, cellulosa, lignina, molecole, atomi e scale della materia.';
+    statusEl.className='status'; statusEl.textContent='Premi “Avvia la corsa”. Ogni gara pesca 12 domande diverse da una banca di 72: fibra, cellula, cellulosa, lignina, molecole, atomi, scale, proprietà e metodo scientifico.';
     renderCheckpointDots(); updateHud(); draw();
   }
 
@@ -195,7 +304,23 @@ canvas{display:block;width:100%;aspect-ratio:16/10;background:#76b656;border:4px
     cpLabel.textContent='Checkpoint '+(idx+1)+' / '+totalCheckpoints;
     qTitle.textContent=q.q;
     answersEl.innerHTML=''; quizFeedback.textContent='Scegli una risposta.'; quizBonus.textContent='';
-    q.a.forEach((txt,i)=>{
+
+    // La risposta corretta NON resta sempre in A: per ogni checkpoint viene assegnata
+    // a una posizione A/B/C bilanciata e i distrattori vengono mescolati.
+    const correctText=q.a[q.c];
+    const wrongAnswers=q.a.filter((_,i)=>i!==q.c);
+    for(let i=wrongAnswers.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [wrongAnswers[i],wrongAnswers[j]]=[wrongAnswers[j],wrongAnswers[i]];
+    }
+    const correctSlot=correctSlots[idx] ?? Math.floor(Math.random()*q.a.length);
+    const displayAnswers=[];
+    let w=0;
+    for(let i=0;i<q.a.length;i++) displayAnswers.push(i===correctSlot ? correctText : wrongAnswers[w++]);
+    q.displayAnswers=displayAnswers;
+    q.correctDisplayIndex=correctSlot;
+
+    displayAnswers.forEach((txt,i)=>{
       const b=document.createElement('button'); b.className='answer-btn'; b.textContent=String.fromCharCode(65+i)+'. '+txt;
       b.addEventListener('click',()=>answerQuestion(i,q,idx)); answersEl.appendChild(b);
     });
@@ -206,8 +331,8 @@ canvas{display:block;width:100%;aspect-ratio:16/10;background:#76b656;border:4px
     const buttons=[...answersEl.querySelectorAll('button')];
     buttons.forEach(b=>b.disabled=true);
     answered++;
-    const ok=choice===q.c;
-    buttons[q.c].classList.add('correct');
+    const ok=choice===q.correctDisplayIndex;
+    buttons[q.correctDisplayIndex].classList.add('correct');
     if(!ok) buttons[choice].classList.add('wrong');
     if(ok){
       correct++; score+=100; racers[0].progress+=.045; racers[0].boost=1.65;
