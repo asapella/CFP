@@ -101,7 +101,7 @@ const GAMES = [
   }
 ];
 
-const FILTERS = ["Tutte","1 Legno","1 Disegno","2 Legno","3 Legno"];
+const FILTERS = ["Tutte","1 Legno","1 Disegno","1 Informatica","2 Legno","2 Disegno","3 Legno"];
 let active="Tutte", query="";
 const filters=document.getElementById("filters"), grid=document.getElementById("grid"),
       empty=document.getElementById("empty"), q=document.getElementById("q");
