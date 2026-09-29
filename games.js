@@ -75,7 +75,7 @@ const GAMES = [
 },
 {
   "title": "Corsa dentro il legno",
-  "classes": ["2 Disegno","2 Disegno"],
+  "classes": ["2 Disegno","2 Legno"],
   "subject": "Scienze applicate",
   "description": "Gara a checkpoint su fibra, cellula, cellulosa, lignina, molecole, atomi e scale della materia.",
   "icon": "🏎️",
