@@ -87,7 +87,7 @@ const GAMES = [
   "subject": "CAD · Fondamenti",
   "description": "24 quesiti a difficoltà crescente su raster e vettoriale, coordinate, dimensioni e controllo degli errori. Entra con il codice classe per salvare i risultati.",
   "icon": "📐",
-  "url": "attivita/cad/"
+  "url": "https://cad-laboratorio-pella.asapella.chatgpt.site/studente"
 },
   {
     "title": "Trave Lab",
