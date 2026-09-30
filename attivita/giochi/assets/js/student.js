@@ -111,18 +111,47 @@ function renderFinal(){
 
 async function openLevel(summary){
   currentLevel=summary;
-  let level=summary;
+  let level={...summary,was_completed:summary.state==='completed'};
   if(navigator.onLine){
-    try{const data=await rpc('student_begin_level',{p_class_code:session.class_code,p_resume_code:session.resume_code,p_level_key:summary.key});level=data.level}catch(e){alert(e.message);return}
+    try{
+      const data=await rpc('student_begin_level',{p_class_code:session.class_code,p_resume_code:session.resume_code,p_level_key:summary.key});
+      level={...summary,...data.level,run_id:data.run_id,run_no:data.run_no,wrong_attempts:data.wrong_attempts||0,solution_after_wrong_attempts:data.solution_after_wrong_attempts||3,solution_available:!!data.solution_available,was_completed:summary.state==='completed'};
+    }catch(e){alert(e.message);return}
   }
   currentLevel=level; renderLevel(level); $('#levelPanel').classList.remove('hidden'); $('#levelPanel').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function renderLevel(l){
   const panel=$('#levelPanel');
-  panel.innerHTML=`<div class="hero-level"><div class="row space"><div><span class="badge ${diffClass(l.difficulty)}">${esc(l.difficulty)}</span> <span class="badge">${esc(skillLabel(l.skill_id))}</span></div><button id="closeLevel" class="btn ghost">Chiudi</button></div><h2 class="section-title">Livello ${l.order} · ${esc(l.title)}</h2><div class="prompt">${esc(l.prompt)}</div><div id="visualBox" class="visual"></div><div id="answerBox"></div><div class="row"><button id="verifyBtn" class="btn">Verifica</button><button id="hintBtn" class="btn secondary">Suggerimento</button><button id="solutionBtn" class="btn ghost">Mostra soluzione</button><button id="skipBtn" class="btn warn">Salta</button></div><div id="feedbackBox" class="hidden"></div></div>`;
+  panel.innerHTML=`<div class="hero-level"><div class="row space"><div><span class="badge ${diffClass(l.difficulty)}">${esc(l.difficulty)}</span> <span class="badge">${esc(skillLabel(l.skill_id))}</span></div><button id="closeLevel" class="btn ghost">Chiudi</button></div><h2 class="section-title">Livello ${l.order} · ${esc(l.title)}</h2><div class="prompt">${esc(l.prompt)}</div><div id="visualBox" class="visual"></div><div id="answerBox"></div><div class="row"><button id="verifyBtn" class="btn">Verifica</button><button id="hintBtn" class="btn secondary">Suggerimento</button><button id="solutionBtn" class="btn ghost hidden">Mostra soluzione</button><button id="skipBtn" class="btn warn">Salta</button><button id="nextLevelBtn" class="btn secondary hidden">Livello successivo →</button></div><div id="solutionGate" class="muted small" style="margin-top:10px"></div><div id="feedbackBox" class="hidden"></div></div>`;
   renderVisual($('#visualBox'),l.visual); renderAnswer($('#answerBox'),l);
-  $('#closeLevel').onclick=()=>panel.classList.add('hidden'); $('#verifyBtn').onclick=submitAnswer; $('#hintBtn').onclick=requestHint; $('#solutionBtn').onclick=revealSolution; $('#skipBtn').onclick=skipLevel;
+  $('#closeLevel').onclick=()=>panel.classList.add('hidden'); $('#verifyBtn').onclick=submitAnswer; $('#hintBtn').onclick=requestHint; $('#solutionBtn').onclick=revealSolution; $('#skipBtn').onclick=skipLevel; $('#nextLevelBtn').onclick=openNextLevel;
+  updateSolutionGate(); updateNextButton();
+}
+
+function updateSolutionGate(){
+  const btn=$('#solutionBtn'), gate=$('#solutionGate'); if(!btn||!gate||!currentLevel)return;
+  const threshold=Number(currentLevel.solution_after_wrong_attempts||3), wrong=Number(currentLevel.wrong_attempts||0);
+  const available=!!currentLevel.solution_available;
+  btn.classList.toggle('hidden',!available);
+  gate.textContent=available?'':`La soluzione diventa disponibile dopo ${threshold} tentativi errati (${Math.min(wrong,threshold)}/${threshold}).`;
+}
+function nextSummary(){
+  if(!dashboard||!currentLevel)return null;
+  return [...dashboard.levels].filter(x=>x.order>currentLevel.order&&x.unlocked).sort((a,b)=>a.order-b.order)[0]||null;
+}
+function updateNextButton(){
+  const btn=$('#nextLevelBtn'); if(!btn)return; const next=nextSummary();
+  const canGo=!!next && (currentLevel.was_completed || ['completed','completed_help','skipped'].includes(currentLevel.finished_status||''));
+  btn.classList.toggle('hidden',!canGo); if(next)btn.textContent=`Livello ${next.order} →`;
+}
+async function openNextLevel(){
+  const next=nextSummary(); if(!next)return; await openLevel(next);
+}
+function markLevelFinished(status){
+  currentLevel.finished_status=status; currentLevel.was_completed=true;
+  ['verifyBtn','hintBtn','solutionBtn','skipBtn'].forEach(id=>{const e=$('#'+id);if(e)e.classList.add('hidden')});
+  const gate=$('#solutionGate');if(gate)gate.textContent=''; updateNextButton();
 }
 
 function renderVisual(el,v){
@@ -151,6 +180,10 @@ function renderAnswer(el,l){
     el.innerHTML='<label for="answerValue">Risposta numerica</label><input id="answerValue" class="field" inputmode="decimal" placeholder="Scrivi il numero">';
   } else if(l.response_type==='text'){
     el.innerHTML='<label for="answerValue">Risposta</label><input id="answerValue" class="field" placeholder="es. 13/3">';
+  } else if(l.response_type==='open'){
+    el.innerHTML='<label for="answerValue">Risposta aperta</label><textarea id="answerValue" class="field" rows="5" placeholder="Scrivi il ragionamento e la risposta"></textarea>';
+  } else if(l.response_type==='procedure'){
+    el.innerHTML=`<div class="procedure">${(l.procedure_fields||[]).map((f,i)=>`<label><b>${i+1}. ${esc(f.label)}</b><input class="field procedure-step" data-step="${esc(f.id)}" placeholder="${esc(f.placeholder||'Scrivi questo passaggio')}"></label>`).join('')}</div>`;
   } else if(l.response_type==='coordinate'){
     el.innerHTML='<div class="grid two"><div><label>x</label><input id="coordX" class="field" inputmode="decimal"></div><div><label>y</label><input id="coordY" class="field" inputmode="decimal"></div></div>';
   } else if(l.response_type==='ordering'){
@@ -165,7 +198,11 @@ function collectAnswer(l){
     const c=document.querySelector('input[name="choice"]:checked'); if(!c) throw new Error('Scegli una risposta.');
     const a={choice:c.value}; if(l.response_type==='choice_reason') a.reason=$('#reason').value.trim(); return a;
   }
-  if(['number','text'].includes(l.response_type)){const v=$('#answerValue').value.trim();if(!v)throw new Error('Inserisci una risposta.');return {value:v}}
+  if(['number','text','open'].includes(l.response_type)){const v=$('#answerValue').value.trim();if(!v)throw new Error('Inserisci una risposta.');return {value:v}}
+  if(l.response_type==='procedure'){
+    const steps={};let missing=false;document.querySelectorAll('.procedure-step').forEach(i=>{steps[i.dataset.step]=i.value.trim();if(!i.value.trim())missing=true});
+    if(missing)throw new Error('Completa tutti i passaggi del procedimento.');return {steps};
+  }
   if(l.response_type==='coordinate') return {x:$('#coordX').value.trim(),y:$('#coordY').value.trim()};
   if(l.response_type==='ordering') return {order:$('#answerValue').value.split(',').map(x=>x.trim()).filter(Boolean)};
   if(l.response_type==='matching'){const pairs={};document.querySelectorAll('.match').forEach(s=>pairs[s.dataset.left]=s.value);return {pairs}}
@@ -186,8 +223,16 @@ async function submitAnswer(){
       if(!navigator.onLine || /fetch|network|rete|connessione/i.test(err.message)){queueEvent(event);setSaveState('salvataggio in attesa','pending');feedback('Connessione interrotta: il tentativo è in coda e verrà sincronizzato automaticamente.','warn');return}
       throw err;
     }
-    setSaveState('salvato','ok'); feedback(data.feedback|| (data.correct?'Risposta corretta.':'Riprova.'),data.correct?'ok':'bad');
-    if(data.correct){setTimeout(async()=>{await loadDashboard(); const next=dashboard.levels.find(x=>x.unlocked&&x.state!=='completed'); if(next && next.key!==currentLevel.key){feedback(`${data.feedback||'Corretto'} Il livello successivo è ora disponibile.`,'ok')}},500)}
+    setSaveState('salvato','ok');
+    currentLevel.wrong_attempts=Number(data.wrong_attempts??currentLevel.wrong_attempts??0);
+    currentLevel.solution_after_wrong_attempts=Number(data.solution_after_wrong_attempts??currentLevel.solution_after_wrong_attempts??3);
+    currentLevel.solution_available=!!data.solution_available;
+    updateSolutionGate();
+    feedback(data.feedback|| (data.correct?'Risposta corretta.':'Riprova.'),data.correct?'ok':'bad');
+    if(data.correct){
+      await loadDashboard(); markLevelFinished(data.completed_status||'completed');
+      const next=nextSummary(); if(next)feedback(`${data.feedback||'Corretto'} Puoi passare subito al livello ${next.order}.`,'ok');
+    }
   }catch(e){feedback(e.message,'bad')}
 }
 async function sendEvent(ev){
@@ -205,13 +250,14 @@ async function requestHint(){
 }
 async function revealSolution(){
   if(!navigator.onLine){feedback('La soluzione può essere mostrata solo online, così viene registrata come aiuto.','warn');return}
+  if(!currentLevel.solution_available){feedback('La soluzione non è ancora disponibile. Riprova il procedimento.','warn');return}
   if(!confirm('Mostrare la soluzione completerà questo livello “con aiuto”. Continuare?'))return;
-  try{const d=await rpc('student_reveal_solution',{p_class_code:session.class_code,p_resume_code:session.resume_code,p_level_key:currentLevel.key});feedback(`Soluzione: ${d.solution}. ${d.explanation}`,'info');await loadDashboard()}catch(e){feedback(e.message,'bad')}
+  try{const d=await rpc('student_reveal_solution',{p_class_code:session.class_code,p_resume_code:session.resume_code,p_level_key:currentLevel.key});feedback(`Soluzione: ${d.solution}. ${d.explanation}`,'info');await loadDashboard();markLevelFinished('completed_help')}catch(e){feedback(e.message,'bad')}
 }
 async function skipLevel(){
   if(!navigator.onLine){feedback('Per saltare un livello serve la connessione.','warn');return}
   if(!confirm('Vuoi saltare questo livello? Verrà registrato come “saltato”, non come superato autonomamente.'))return;
-  try{await rpc('student_skip_level',{p_class_code:session.class_code,p_resume_code:session.resume_code,p_level_key:currentLevel.key});feedback('Livello registrato come saltato.','warn');await loadDashboard()}catch(e){feedback(e.message,'bad')}
+  try{await rpc('student_skip_level',{p_class_code:session.class_code,p_resume_code:session.resume_code,p_level_key:currentLevel.key});feedback('Livello registrato come saltato.','warn');await loadDashboard();markLevelFinished('skipped')}catch(e){feedback(e.message,'bad')}
 }
 
 async function logout(){
