@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>I prodotti notevoli — Docente</title>
+  <link rel="stylesheet" href="../assets/css/app.css">
+</head>
+<body>
+<main class="wrap">
+  <div class="topbar">
+    <div class="brand"><h1>Area docente</h1><p>Classi, progressi, risultati e contenuti</p></div>
+    <div class="row"><span id="authBadge" class="badge">non autenticato</span><button id="logoutBtn" class="btn ghost hidden">Esci</button></div>
+  </div>
+
+  <section id="loginPanel" class="card" style="max-width:520px;margin:auto">
+    <h2 class="section-title">Accesso docente</h2>
+    <label>Email</label><input id="email" class="field" type="email" autocomplete="username">
+    <label>Password</label><input id="password" class="field" type="password" autocomplete="current-password">
+    <div style="height:12px"></div><button id="loginBtn" class="btn">Accedi</button>
+    <div id="loginError" class="alert bad hidden" style="margin-top:12px"></div>
+  </section>
+
+  <section id="appPanel" class="hidden">
+    <div class="tabs">
+      <button class="tab active" data-tab="classes">Classi</button>
+      <button class="tab" data-tab="content">Contenuti</button>
+      <button class="tab" data-tab="demo">Modalità dimostrazione</button>
+    </div>
+
+    <section id="tab-classes">
+      <div class="grid two">
+        <div class="card">
+          <h2 class="section-title">Crea una classe</h2>
+          <label>Nome classe</label><input id="newClassName" class="field" placeholder="es. 3ª Operatore del Legno">
+          <label>Percorso/versione</label><select id="newClassGame" class="field"></select>
+          <div style="height:12px"></div><button id="createClassBtn" class="btn">Crea classe e genera codice</button>
+        </div>
+        <div class="card">
+          <h2 class="section-title">Classi esistenti</h2>
+          <div id="classList"></div>
+        </div>
+      </div>
+
+      <div id="classPanel" class="hidden" style="margin-top:16px">
+        <div class="card">
+          <div class="row space">
+            <div><h2 id="classTitle" class="section-title"></h2><div id="classMeta" class="muted"></div></div>
+            <div class="row"><button id="refreshClassBtn" class="btn ghost">Aggiorna</button><button id="closeClassBtn" class="btn ghost">Chiudi pannello</button></div>
+          </div>
+          <div class="divider"></div>
+          <div class="row">
+            <button id="openClassBtn" class="btn secondary">Apri accesso</button>
+            <button id="closeAccessBtn" class="btn warn">Chiudi accesso</button>
+            <button id="archiveClassBtn" class="btn ghost">Archivia</button>
+            <span class="muted small">Il codice classe rimane invariato.</span>
+          </div>
+          <div class="divider"></div>
+          <div class="row">
+            <button id="exportSummaryBtn" class="btn ghost">CSV riepilogo classe</button>
+            <button id="exportLevelsBtn" class="btn ghost">CSV livelli/studenti</button>
+            <button id="exportAttemptsBtn" class="btn ghost">CSV cronologia tentativi</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <div class="row space"><h2 class="section-title">Panoramica difficoltà</h2><span id="autoRefreshText" class="muted small">aggiornamento automatico</span></div>
+          <div id="overviewKpis" class="kpis"></div>
+          <div class="grid two" style="margin-top:14px"><div><h3>Livelli più difficili</h3><div id="hardLevels"></div></div><div><h3>Competenze</h3><div id="skillOverview"></div></div></div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <div class="row space">
+            <h2 class="section-title">Studenti</h2>
+            <div class="row"><input id="studentFilter" class="field" style="width:220px" placeholder="Filtra nome/stato"><select id="studentSort" class="field" style="width:220px"><option value="progress_desc">Avanzamento ↓</option><option value="progress_asc">Avanzamento ↑</option><option value="attempts_desc">Tentativi ↓</option><option value="hints_desc">Suggerimenti ↓</option><option value="first_try_asc">Primo tentativo riuscito ↑</option><option value="last_desc">Ultima attività ↓</option><option value="name">Nome</option></select></div>
+          </div>
+          <div class="table-wrap"><table class="table"><thead><tr><th>Studente</th><th>Stato</th><th>Livello attuale</th><th>Completati</th><th>Corretti al 1° tentativo</th><th>Tentativi</th><th>Suggerimenti</th><th>Ultima attività</th><th></th></tr></thead><tbody id="studentsBody"></tbody></table></div>
+        </div>
+
+        <div class="card" style="margin-top:16px;border-color:#fda29b">
+          <h2 class="section-title">Zona pericolosa</h2>
+          <p class="muted">Prima di eliminare una classe esporta i CSV. L'eliminazione cancella studenti, sessioni, livelli, tentativi e note collegati.</p>
+          <button id="deleteClassBtn" class="btn danger">Elimina classe e tutti i dati</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-content" class="hidden">
+      <div class="grid two">
+        <div class="card">
+          <h2 class="section-title">Pubblica una nuova versione</h2>
+          <p class="muted">Carica un file JSON di contenuti. La piattaforma resta identica: vengono create nuove domande/soluzioni in una nuova versione. Le classi già esistenti restano agganciate alla versione usata.</p>
+          <input id="contentFile" type="file" accept="application/json,.json" class="field">
+          <div style="height:10px"></div><button id="publishContentBtn" class="btn" disabled>Pubblica come nuova versione</button>
+        </div>
+        <div class="card"><h2 class="section-title">Anteprima file</h2><div id="contentPreview" class="muted">Nessun file selezionato.</div></div>
+      </div>
+    </section>
+
+    <section id="tab-demo" class="hidden">
+      <div class="card">
+        <h2 class="section-title">Modalità dimostrazione</h2>
+        <p class="muted">Puoi aprire qualsiasi livello e vedere soluzione/spiegazione. Nessun tentativo viene scritto nei risultati studenti.</p>
+        <div class="grid two"><div><label>Versione</label><select id="demoGame" class="field"></select></div><div><label>Livello</label><select id="demoLevel" class="field"></select></div></div>
+        <div style="height:12px"></div><button id="loadDemoBtn" class="btn">Mostra livello</button>
+        <div id="demoView" style="margin-top:16px"></div>
+      </div>
+    </section>
+  </section>
+</main>
+
+<div id="studentModal" class="modal hidden"><div class="card"><div class="row space"><h2 id="studentModalTitle" class="section-title"></h2><button id="closeStudentModal" class="btn ghost">Chiudi</button></div><div id="studentModalBody"></div></div></div>
+<footer>Area riservata al docente autorizzato.</footer>
+<script type="module" src="../assets/js/teacher.js"></script>
+</body>
+</html>
