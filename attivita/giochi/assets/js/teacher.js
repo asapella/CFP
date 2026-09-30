@@ -48,8 +48,13 @@ function renderStudents(){
   const q=$('#studentFilter').value.trim().toLowerCase(),sort=$('#studentSort').value;let rows=[...activeDash.students].filter(s=>!q||s.alias.toLowerCase().includes(q)||s.state.toLowerCase().includes(q));
   const prog=s=>s.total?s.completed/s.total:0;
   rows.sort((a,b)=>sort==='progress_desc'?prog(b)-prog(a):sort==='progress_asc'?prog(a)-prog(b):sort==='attempts_desc'?b.attempts-a.attempts:sort==='hints_desc'?b.hints-a.hints:sort==='first_try_asc'?a.first_try_correct-b.first_try_correct:sort==='last_desc'?new Date(b.last_activity||0)-new Date(a.last_activity||0):a.alias.localeCompare(b.alias,'it'));
-  $('#studentsBody').innerHTML=rows.map(s=>`<tr><td><b>${esc(s.alias)}</b><br><span class="muted small">${esc(s.student_id.slice(0,8))}</span></td><td>${esc(s.state)}</td><td>${s.current_level}</td><td>${s.completed}/${s.total}</td><td>${s.first_try_correct}</td><td>${s.attempts}</td><td>${s.hints}</td><td>${fmt(s.last_activity)}</td><td><button class="btn ghost detail" data-id="${s.student_id}">Apri</button></td></tr>`).join('');
+  $('#studentsBody').innerHTML=rows.map(s=>`<tr><td><b>${esc(s.alias)}</b><br><span class="muted small">${esc(s.student_id.slice(0,8))}</span></td><td>${esc(s.state)}</td><td>${s.current_level}</td><td>${s.completed}/${s.total}</td><td>${s.first_try_correct}</td><td>${s.attempts}</td><td>${s.hints}</td><td>${fmt(s.last_activity)}</td><td><div class="row"><button class="btn ghost detail" data-id="${s.student_id}">Apri</button><button class="btn danger quick-delete" data-id="${s.student_id}" title="Elimina studente e percorso">Elimina</button></div></td></tr>`).join('');
   $('#studentsBody').querySelectorAll('.detail').forEach(b=>b.onclick=()=>openStudent(b.dataset.id));
+  $('#studentsBody').querySelectorAll('.quick-delete').forEach(b=>b.onclick=async()=>{
+    const s=activeDash.students.find(x=>x.student_id===b.dataset.id); if(!s)return;
+    if(!confirm(`Eliminare subito ${s.alias} e tutto il suo percorso? Verranno cancellati sessioni, livelli, tentativi e note. L'operazione non è annullabile.`))return;
+    try{b.disabled=true;await rpc('teacher_delete_student',{p_student_id:s.student_id},true);await refreshClass()}catch(e){alertBox(e.message);b.disabled=false}
+  });
 }
 function pct(w,a){return a?Math.round((w/a)*100):0}
 function renderOverview(){
