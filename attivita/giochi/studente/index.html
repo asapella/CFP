@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>I prodotti notevoli — Studente</title>
+  <link rel="stylesheet" href="../assets/css/app.css">
+</head>
+<body>
+  <main class="wrap">
+    <div class="topbar">
+      <div class="brand"><h1>I prodotti notevoli</h1><p>Matematica · algebra · percorso CPS</p></div>
+      <div class="row"><span id="saveState" class="badge">non connesso</span><button id="exitBtn" class="btn ghost hidden">Esci</button></div>
+    </div>
+
+    <section id="resumePanel" class="card hidden">
+      <h2 class="section-title">Vuoi continuare?</h2>
+      <p>Su questo computer c'è già una partita salvata per <b id="resumeAlias"></b>, classe <b id="resumeClass"></b>.</p>
+      <div class="row"><button id="continueBtn" class="btn">Continua</button><button id="forgetBtn" class="btn ghost">Non sono io</button></div>
+    </section>
+
+    <section id="loginPanel" class="grid two">
+      <div class="card">
+        <h2 class="section-title">Entra per la prima volta</h2>
+        <label for="classCode">Codice classe</label><input id="classCode" class="field" inputmode="numeric" maxlength="6" placeholder="123456">
+        <label for="alias">Nome o pseudonimo concordato</label><input id="alias" class="field" maxlength="60" placeholder="es. Simo17">
+        <div style="height:10px"></div><button id="joinBtn" class="btn">Entra nel gioco</button>
+        <p class="muted small">Non servono email o account personali.</p>
+      </div>
+      <div class="card">
+        <h2 class="section-title">Riprendi da un altro computer</h2>
+        <label for="resumeClassCode">Codice classe</label><input id="resumeClassCode" class="field" inputmode="numeric" maxlength="6" placeholder="123456">
+        <label for="resumeCode">Codice personale di ripresa</label><input id="resumeCode" class="field" maxlength="10" placeholder="A1B2C3D4E5">
+        <div style="height:10px"></div><button id="resumeBtn" class="btn secondary">Riprendi</button>
+      </div>
+    </section>
+
+    <div id="loginError" class="alert bad hidden" style="margin-top:16px"></div>
+
+    <section id="gamePanel" class="hidden">
+      <div class="card">
+        <div class="row space">
+          <div><h2 id="studentTitle" class="section-title"></h2><div id="gameMeta" class="muted"></div></div>
+          <div class="row"><span id="studentBadge" class="badge"></span><span id="classBadge" class="badge"></span></div>
+        </div>
+        <div class="divider"></div>
+        <div class="row space"><b id="progressText"></b><span id="versionText" class="muted small"></span></div>
+        <div class="progress" style="margin-top:8px"><span id="progressBar"></span></div>
+      </div>
+
+      <div id="finalPanel" class="card hidden" style="margin-top:16px"></div>
+      <div id="offlineNotice" class="alert warn hidden" style="margin-top:16px">Sei offline: i tentativi restano sul computer e verranno inviati appena torna la connessione.</div>
+
+      <div class="card" style="margin-top:16px">
+        <h2 class="section-title">Percorso</h2>
+        <div id="levelsGrid" class="levels"></div>
+      </div>
+
+      <div id="levelPanel" class="card hidden" style="margin-top:16px"></div>
+    </section>
+  </main>
+  <footer>Nessuna classifica pubblica. Ogni studente vede soltanto i propri risultati.</footer>
+  <script type="module" src="../assets/js/student.js"></script>
+</body>
+</html>
