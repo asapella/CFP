@@ -10,6 +10,22 @@ const GAMES = [
     "icon": "⚡",
     "url": "attivita/detective-energia/"
   },
+{
+  "title": "Parentesi e priorità",
+  "classes": ["1 Legno"],
+  "subject": "Matematica · Parentesi e operazioni",
+  "description": "16 livelli su gruppi, parentesi, distributiva, divisione e priorità delle operazioni.",
+  "icon": "➗",
+  "url": "attivita/giochi/studente/"
+},
+{
+  "title": "I prodotti notevoli",
+  "classes": ["1 Legno", "3 Legno"],
+  "subject": "Matematica · Algebra",
+  "description": "16 livelli su MCM, quadrati di binomi ed equazioni di primo e secondo grado.",
+  "icon": "²",
+  "url": "attivita/giochi/studente/"
+},
   {
     "title": "Colazione & proteine",
     "classes": [
