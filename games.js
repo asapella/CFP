@@ -26,6 +26,14 @@ const GAMES = [
   "icon": "²",
   "url": "attivita/giochi/studente/"
 },
+{
+  "title": "Equazioni di 1° grado · La bilancia",
+  "classes": ["3 Legno"],
+  "subject": "Matematica · Equazioni",
+  "description": "16 livelli CPS: equilibrio, termini, operazioni inverse, verifica ed equazioni di primo grado.",
+  "icon": "⚖",
+  "url": "attivita/giochi/studente/"
+},
   {
     "title": "Colazione & proteine",
     "classes": [
