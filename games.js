@@ -122,6 +122,14 @@ const GAMES = [
     "description": "Vincoli, gradi di libertà, reazioni, sforzi interni e sei sfide sulla trave.",
     "icon": "▰",
     "url": "attivita/trave-lab/"
+  },
+  {
+    "title": "Frazioni e divisioni",
+    "classes": ["1 Legno"],
+    "subject": "Matematica · Frazioni",
+    "description": "16 livelli CPS: significato delle frazioni, equivalenze e MCM, operazioni, divisione e segni. Progressi e varianti personali vengono salvati nella piattaforma.",
+    "icon": "½",
+    "url": "attivita/giochi/studente/"
   }
 ];
 
