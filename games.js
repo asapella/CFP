@@ -20,7 +20,7 @@ const GAMES = [
 },
 {
   "title": "I prodotti notevoli",
-  "classes": ["1 Legno", "3 Legno"],
+  "classes": ["1 Legno"],
   "subject": "Matematica · Algebra",
   "description": "16 livelli su MCM, quadrati di binomi ed equazioni di primo e secondo grado.",
   "icon": "²",
