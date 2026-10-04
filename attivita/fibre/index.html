@@ -1,15 +1,250 @@
-<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Missione Fibre</title><style>
-body{margin:0;background:#12263a;color:white;font-family:Arial,Helvetica,sans-serif;background-image:linear-gradient(180deg,#1d7bd1,#162740)}
-header{padding:18px 24px;background:#0b1828;border-bottom:4px solid #39e75f}h1{margin:0;font-size:34px;color:#7CFF4E;text-shadow:3px 3px #0a0a0a}p{margin:5px 0 0;color:#d7ecff}
-.wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;padding:18px;max-width:1500px;margin:auto}.panel{background:rgba(5,18,35,.88);border:3px solid #42d2ff;border-radius:18px;padding:16px;box-shadow:0 0 18px rgba(66,210,255,.4)}
-.levels{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin:16px 18px 0}.lv{background:#1f3e5e;border:2px solid #42d2ff;border-radius:12px;text-align:center;padding:8px;font-weight:900}.lv.active{background:#ffd44a;color:#172033}.lv.done{background:#40d95a;color:#102010}
-.foods{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.food{background:#244866;border:3px solid #76e94d;border-radius:16px;padding:10px;text-align:center;cursor:pointer;box-shadow:inset 0 -5px rgba(0,0,0,.25)}.food:hover{transform:translateY(-2px)}.ico{font-size:44px}.nm{font-weight:900;font-size:18px}.stats{font-size:13px;color:#fff3bf;margin-top:5px}
-.grid{min-height:330px;background:#06182d;border:3px solid #42d2ff;border-radius:18px;display:flex;flex-wrap:wrap;align-content:flex-end;gap:6px;padding:10px}.block{width:70px;height:70px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:36px;background:#2e8b57;border:3px solid #9fff61;cursor:pointer}
-.tot{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.tcard{background:#0b2038;border:2px solid #42d2ff;border-radius:14px;text-align:center;padding:12px}.num{font-size:38px;font-weight:900;color:#7CFF4E}.label{font-size:13px;color:#bfd7ff}
-.checks{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.chip{background:#263a4d;border:2px solid #8aa7bf;border-radius:999px;padding:8px 12px;font-weight:800}.chip.ok{background:#153b22;border-color:#7cff4e;color:#aaff84}button{border:0;border-radius:12px;padding:12px 16px;font-weight:900;margin:8px 6px 0 0;cursor:pointer}.next{background:#ffd44a;color:#172033}.clear{background:#ddd}.status{margin-top:12px;padding:13px;border-radius:14px;font-weight:900;background:#293247}.okstat{background:#17472b;color:#aaff84}
-@media(max-width:900px){.wrap{grid-template-columns:1fr}.foods{grid-template-columns:repeat(2,1fr)}}
-</style></head><body><header><h1>MISSIONE FIBRE</h1><p>Gioco a livelli: costruisci blocchi-alimento, controlla fibre e kcal, supera tutti gli 8 livelli.</p></header><div class="levels" id="levels"></div><div class="wrap"><section class="panel"><h2>Dispensa a blocchi</h2><div class="foods" id="foods"></div></section><section class="panel"><h2 id="ltitle"></h2><div id="goal"></div><div class="checks" id="checks"></div><div class="grid" id="grid"></div><div class="tot"><div class="tcard"><div class="num" id="fib">0</div><div class="label">g fibre</div></div><div class="tcard"><div class="num" id="kcal">0</div><div class="label">kcal</div></div></div><div id="status" class="status">Scegli i blocchi per iniziare.</div><button class="clear" onclick="clearAll()">Svuota</button><button class="next" id="next" onclick="nextLevel()" disabled>Livello successivo</button></section></div><script>
-const foods=[{"id": "apple", "name": "Mela", "icon": "\ud83c\udf4e", "kcal": 80, "fiber": 4, "cat": "frutta"}, {"id": "pear", "name": "Pera", "icon": "\ud83c\udf50", "kcal": 85, "fiber": 5, "cat": "frutta"}, {"id": "banana", "name": "Banana", "icon": "\ud83c\udf4c", "kcal": 105, "fiber": 3, "cat": "frutta"}, {"id": "bread", "name": "Pane integrale", "icon": "\ud83c\udf5e", "kcal": 100, "fiber": 3, "cat": "cereale"}, {"id": "cereal", "name": "Cereali", "icon": "\ud83e\udd63", "kcal": 114, "fiber": 2, "cat": "cereale"}, {"id": "legumes", "name": "Legumi", "icon": "\ud83e\uded8", "kcal": 110, "fiber": 6, "cat": "legume"}, {"id": "nuts", "name": "Frutta secca", "icon": "\ud83e\udd5c", "kcal": 120, "fiber": 2, "cat": "altro"}, {"id": "yogurt", "name": "Yogurt", "icon": "\ud83e\udd5b", "kcal": 100, "fiber": 0, "cat": "latticino"}, {"id": "biscuits", "name": "Biscotti", "icon": "\ud83c\udf6a", "kcal": 135, "fiber": 1, "cat": "dolce"}]; const levels=[{"title": "Livello 1", "goal": "Scegli almeno 1 alimento con fibre.", "checks": [{"t": "fiber_min", "v": 3, "l": "almeno 3 g fibre"}]}, {"title": "Livello 2", "goal": "Raggiungi almeno 5 g di fibre.", "checks": [{"t": "fiber_min", "v": 5, "l": "almeno 5 g fibre"}]}, {"title": "Livello 3", "goal": "Arriva tra 250 e 400 kcal con almeno 7 g di fibre.", "checks": [{"t": "kcal_range", "min": 250, "max": 400, "l": "250\u2013400 kcal"}, {"t": "fiber_min", "v": 7, "l": "almeno 7 g fibre"}]}, {"title": "Livello 4", "goal": "Usa almeno 1 frutto e 1 cereale, con almeno 6 g fibre.", "checks": [{"t": "cat_min", "cat": "frutta", "v": 1, "l": "almeno 1 frutto"}, {"t": "cat_min", "cat": "cereale", "v": 1, "l": "almeno 1 cereale"}, {"t": "fiber_min", "v": 6, "l": "almeno 6 g fibre"}]}, {"title": "Livello 5", "goal": "Raggiungi 8 g fibre usando massimo 3 blocchi.", "checks": [{"t": "fiber_min", "v": 8, "l": "almeno 8 g fibre"}, {"t": "count_max", "v": 3, "l": "massimo 3 blocchi"}]}, {"title": "Livello 6", "goal": "Stai tra 300 e 450 kcal con almeno 10 g di fibre.", "checks": [{"t": "kcal_range", "min": 300, "max": 450, "l": "300\u2013450 kcal"}, {"t": "fiber_min", "v": 10, "l": "almeno 10 g fibre"}]}, {"title": "Livello 7", "goal": "Usa legumi + frutta e raggiungi almeno 12 g fibre sotto 500 kcal.", "checks": [{"t": "cat_min", "cat": "legume", "v": 1, "l": "almeno 1 legume"}, {"t": "cat_min", "cat": "frutta", "v": 1, "l": "almeno 1 frutto"}, {"t": "fiber_min", "v": 12, "l": "almeno 12 g fibre"}, {"t": "kcal_max", "v": 499, "l": "meno di 500 kcal"}]}, {"title": "Livello 8 \u00b7 Boss", "goal": "Esattamente 4 blocchi: frutto + cereale + legume, 15 g fibre e 350\u2013500 kcal.", "checks": [{"t": "count_eq", "v": 4, "l": "esattamente 4 blocchi"}, {"t": "cat_min", "cat": "frutta", "v": 1, "l": "almeno 1 frutto"}, {"t": "cat_min", "cat": "cereale", "v": 1, "l": "almeno 1 cereale"}, {"t": "cat_min", "cat": "legume", "v": 1, "l": "almeno 1 legume"}, {"t": "fiber_min", "v": 15, "l": "almeno 15 g fibre"}, {"t": "kcal_range", "min": 350, "max": 500, "l": "350\u2013500 kcal"}]}]; let level=0, tray=[], done=Array(levels.length).fill(false);
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Missione Fibre</title>
+<style>
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body{
+  background:#12263a;
+  color:white;
+  font-family:Arial,Helvetica,sans-serif;
+  background-image:linear-gradient(180deg,#1d7bd1,#162740);
+}
+header{
+  height:9vh;
+  min-height:64px;
+  padding:1.3vh 1.5vw;
+  background:#0b1828;
+  border-bottom:4px solid #39e75f;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+}
+header h1{
+  margin:0;
+  font-size:clamp(24px,2.3vw,36px);
+  line-height:1;
+  color:#7CFF4E;
+  text-shadow:3px 3px #0a0a0a
+}
+header p{
+  margin:0;
+  max-width:70%;
+  color:#d7ecff;
+  font-size:clamp(11px,1vw,15px);
+  line-height:1.25;
+  text-align:right;
+}
+
+.levels{
+  height:6.5vh;
+  min-height:48px;
+  display:grid;
+  grid-template-columns:repeat(8,1fr);
+  gap:.55vw;
+  padding:.75vh 1.2vw;
+}
+.lv{
+  background:#1f3e5e;
+  border:2px solid #42d2ff;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  font-size:clamp(12px,1vw,16px);
+}
+.lv.active{background:#ffd44a;color:#172033}
+.lv.done{background:#40d95a;color:#102010}
+
+.wrap{
+  height:calc(100vh - 15.5vh);
+  min-height:0;
+  display:grid;
+  grid-template-columns:1.18fr .82fr;
+  gap:1vw;
+  padding:.7vh 1vw 1vh;
+  max-width:none;
+  margin:0;
+}
+.panel{
+  min-height:0;
+  background:rgba(5,18,35,.90);
+  border:3px solid #42d2ff;
+  border-radius:16px;
+  padding:1vh .9vw;
+  box-shadow:0 0 18px rgba(66,210,255,.4);
+  overflow:hidden;
+}
+.panel h2{
+  margin:0 0 .7vh;
+  font-size:clamp(17px,1.35vw,24px);
+  line-height:1.1;
+}
+
+.foods{
+  height:calc(100% - 3.2vh);
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  grid-template-rows:repeat(4,1fr);
+  gap:.55vw .55vh;
+}
+.food{
+  min-width:0;
+  min-height:0;
+  background:#244866;
+  border:2px solid #76e94d;
+  border-radius:12px;
+  padding:.45vh .45vw;
+  text-align:center;
+  cursor:pointer;
+  box-shadow:inset 0 -4px rgba(0,0,0,.25);
+  display:grid;
+  grid-template-rows:1fr auto auto;
+  align-items:center;
+}
+.food:hover{transform:translateY(-1px)}
+.ico{
+  font-size:clamp(24px,2.4vw,42px);
+  line-height:1;
+}
+.nm{
+  font-weight:900;
+  font-size:clamp(11px,.95vw,16px);
+  line-height:1.05;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.stats{
+  font-size:clamp(9px,.72vw,12px);
+  color:#fff3bf;
+  margin-top:.15vh;
+  line-height:1.05;
+}
+
+.wrap section.panel:nth-child(2){
+  display:grid;
+  grid-template-rows:auto auto auto minmax(90px,1fr) auto auto auto;
+  align-content:stretch;
+  gap:.45vh;
+}
+#ltitle{
+  margin:0;
+  font-size:clamp(18px,1.45vw,25px);
+}
+#goal{
+  font-size:clamp(11px,.9vw,14px);
+  line-height:1.22;
+  color:#e9f5ff;
+}
+.checks{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.35vw;
+  margin:0;
+  align-content:flex-start;
+}
+.chip{
+  background:#263a4d;
+  border:1.5px solid #8aa7bf;
+  border-radius:999px;
+  padding:.38vh .55vw;
+  font-weight:800;
+  font-size:clamp(9px,.68vw,12px);
+  line-height:1;
+}
+.chip.ok{background:#153b22;border-color:#7cff4e;color:#aaff84}
+
+.grid{
+  min-height:0;
+  background:#06182d;
+  border:2px solid #42d2ff;
+  border-radius:14px;
+  display:flex;
+  flex-wrap:wrap;
+  align-content:flex-end;
+  gap:.35vw;
+  padding:.55vh .45vw;
+  overflow:hidden;
+}
+.block{
+  width:clamp(42px,4vw,62px);
+  height:clamp(42px,4vw,62px);
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:clamp(22px,2.2vw,34px);
+  background:#2e8b57;
+  border:2px solid #9fff61;
+  cursor:pointer;
+}
+
+.tot{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:.5vw;
+  margin:0;
+}
+.tcard{
+  background:#0b2038;
+  border:2px solid #42d2ff;
+  border-radius:12px;
+  text-align:center;
+  padding:.45vh .4vw;
+}
+.num{
+  font-size:clamp(23px,2.1vw,34px);
+  line-height:1;
+  font-weight:900;
+  color:#7CFF4E;
+}
+.label{
+  font-size:clamp(9px,.72vw,12px);
+  color:#bfd7ff;
+  margin-top:.2vh;
+}
+
+.status{
+  margin:0;
+  padding:.55vh .6vw;
+  border-radius:11px;
+  font-weight:900;
+  background:#293247;
+  font-size:clamp(10px,.78vw,13px);
+  line-height:1.1;
+}
+.okstat{background:#17472b;color:#aaff84}
+
+button{
+  border:0;
+  border-radius:10px;
+  padding:.65vh .8vw;
+  font-weight:900;
+  font-size:clamp(10px,.8vw,13px);
+  margin:0 .3vw 0 0;
+  cursor:pointer;
+}
+.next{background:#ffd44a;color:#172033}
+.clear{background:#ddd;color:#222}
+
+@media(max-height:760px){
+  header{height:8.5vh;min-height:56px}
+  .levels{height:6vh;min-height:42px}
+  .wrap{height:calc(100vh - 14.5vh)}
+  .panel{padding:.7vh .75vw}
+  .food{padding:.3vh .35vw}
+  .ico{font-size:clamp(21px,2vw,34px)}
+  .block{width:40px;height:40px;font-size:22px}
+  .chip{padding:.28vh .45vw}
+}
+@media(max-width:1050px){
+  .wrap{grid-template-columns:1.08fr .92fr}
+  .foods{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head><body><header><h1>MISSIONE FIBRE</h1><p>Scegli bene: molti alimenti hanno poche o zero fibre. Controlla fibre e kcal e supera gli 8 livelli.</p></header><div class="levels" id="levels"></div><div class="wrap"><section class="panel"><h2>Dispensa a blocchi</h2><div class="foods" id="foods"></div></section><section class="panel"><h2 id="ltitle"></h2><div id="goal"></div><div class="checks" id="checks"></div><div class="grid" id="grid"></div><div class="tot"><div class="tcard"><div class="num" id="fib">0</div><div class="label">g fibre</div></div><div class="tcard"><div class="num" id="kcal">0</div><div class="label">kcal</div></div></div><div id="status" class="status">Scegli i blocchi per iniziare.</div><button class="clear" onclick="clearAll()">Svuota</button><button class="next" id="next" onclick="nextLevel()" disabled>Livello successivo</button></section></div><script>
+const foods=[{"id": "apple", "name": "Mela", "icon": "🍎", "kcal": 80, "fiber": 4, "cat": "frutta"}, {"id": "pear", "name": "Pera", "icon": "🍐", "kcal": 85, "fiber": 5, "cat": "frutta"}, {"id": "banana", "name": "Banana", "icon": "🍌", "kcal": 105, "fiber": 3, "cat": "frutta"}, {"id": "bread", "name": "Pane integrale", "icon": "🍞", "kcal": 100, "fiber": 3, "cat": "cereale"}, {"id": "cereal", "name": "Cereali", "icon": "🥣", "kcal": 114, "fiber": 2, "cat": "cereale"}, {"id": "legumes", "name": "Legumi", "icon": "🫘", "kcal": 110, "fiber": 6, "cat": "legume"}, {"id": "nuts", "name": "Frutta secca", "icon": "🥜", "kcal": 120, "fiber": 2, "cat": "altro"}, {"id": "yogurt", "name": "Yogurt", "icon": "🥛", "kcal": 100, "fiber": 0, "cat": "latticino"}, {"id": "biscuits", "name": "Biscotti", "icon": "🍪", "kcal": 135, "fiber": 1, "cat": "dolce"}, {"id": "milk", "name": "Latte", "icon": "🥛", "kcal": 120, "fiber": 0, "cat": "latticino"}, {"id": "egg", "name": "Uovo", "icon": "🥚", "kcal": 78, "fiber": 0, "cat": "proteina"}, {"id": "cheese", "name": "Formaggio", "icon": "🧀", "kcal": 110, "fiber": 0, "cat": "latticino"}, {"id": "whitebread", "name": "Pane bianco", "icon": "🥖", "kcal": 95, "fiber": 1, "cat": "cereale"}, {"id": "ham", "name": "Prosciutto", "icon": "🍖", "kcal": 85, "fiber": 0, "cat": "proteina"}, {"id": "juice", "name": "Succo", "icon": "🧃", "kcal": 90, "fiber": 0.5, "cat": "bevanda"}, {"id": "rice", "name": "Riso bianco", "icon": "🍚", "kcal": 130, "fiber": 0.5, "cat": "cereale"}]; const levels=[{"title": "Livello 1", "goal": "Trova una scelta che fornisca almeno 4 g di fibre usando al massimo 2 blocchi.", "checks": [{"t": "fiber_min", "v": 4, "l": "almeno 4 g fibre"}, {"t": "count_max", "v": 2, "l": "massimo 2 blocchi"}]}, {"title": "Livello 2", "goal": "Raggiungi almeno 7 g di fibre usando al massimo 2 blocchi.", "checks": [{"t": "fiber_min", "v": 7, "l": "almeno 7 g fibre"}, {"t": "count_max", "v": 2, "l": "massimo 2 blocchi"}]}, {"title": "Livello 3", "goal": "Arriva tra 250 e 360 kcal con almeno 9 g di fibre.", "checks": [{"t": "kcal_range", "min": 250, "max": 360, "l": "250–360 kcal"}, {"t": "fiber_min", "v": 9, "l": "almeno 9 g fibre"}]}, {"title": "Livello 4", "goal": "Usa almeno 1 frutto e 1 cereale, raggiungi 8 g fibre e resta tra 200 e 350 kcal.", "checks": [{"t": "cat_min", "cat": "frutta", "v": 1, "l": "almeno 1 frutto"}, {"t": "cat_min", "cat": "cereale", "v": 1, "l": "almeno 1 cereale"}, {"t": "fiber_min", "v": 8, "l": "almeno 8 g fibre"}, {"t": "kcal_range", "min": 200, "max": 350, "l": "200–350 kcal"}]}, {"title": "Livello 5", "goal": "Raggiungi almeno 11 g di fibre con massimo 3 blocchi e meno di 350 kcal.", "checks": [{"t": "fiber_min", "v": 11, "l": "almeno 11 g fibre"}, {"t": "count_max", "v": 3, "l": "massimo 3 blocchi"}, {"t": "kcal_max", "v": 349, "l": "meno di 350 kcal"}]}, {"title": "Livello 6", "goal": "Stai tra 300 e 430 kcal, raggiungi almeno 13 g fibre e usa massimo 4 blocchi.", "checks": [{"t": "kcal_range", "min": 300, "max": 430, "l": "300–430 kcal"}, {"t": "fiber_min", "v": 13, "l": "almeno 13 g fibre"}, {"t": "count_max", "v": 4, "l": "massimo 4 blocchi"}]}, {"title": "Livello 7", "goal": "Usa legumi + frutta, raggiungi almeno 15 g fibre, resta sotto 500 kcal e usa massimo 4 blocchi.", "checks": [{"t": "cat_min", "cat": "legume", "v": 1, "l": "almeno 1 legume"}, {"t": "cat_min", "cat": "frutta", "v": 1, "l": "almeno 1 frutto"}, {"t": "fiber_min", "v": 15, "l": "almeno 15 g fibre"}, {"t": "kcal_max", "v": 499, "l": "meno di 500 kcal"}, {"t": "count_max", "v": 4, "l": "massimo 4 blocchi"}]}, {"title": "Livello 8 · Boss", "goal": "Esattamente 4 blocchi: almeno 1 frutto, 1 cereale e 1 legume; almeno 18 g fibre e 350–480 kcal.", "checks": [{"t": "count_eq", "v": 4, "l": "esattamente 4 blocchi"}, {"t": "cat_min", "cat": "frutta", "v": 1, "l": "almeno 1 frutto"}, {"t": "cat_min", "cat": "cereale", "v": 1, "l": "almeno 1 cereale"}, {"t": "cat_min", "cat": "legume", "v": 1, "l": "almeno 1 legume"}, {"t": "fiber_min", "v": 18, "l": "almeno 18 g fibre"}, {"t": "kcal_range", "min": 350, "max": 480, "l": "350–480 kcal"}]}]; let level=0, tray=[], done=Array(levels.length).fill(false);
 function totals(){return {fiber:tray.reduce((s,f)=>s+f.fiber,0),kcal:tray.reduce((s,f)=>s+f.kcal,0),count:tray.length}};
 function cat(c){return tray.filter(f=>f.cat===c).length};
 function check(c,t){if(c.t==='fiber_min')return t.fiber>=c.v;if(c.t==='kcal_range')return t.kcal>=c.min&&t.kcal<=c.max;if(c.t==='kcal_max')return t.kcal<=c.v;if(c.t==='cat_min')return cat(c.cat)>=c.v;if(c.t==='count_max')return t.count<=c.v;if(c.t==='count_eq')return t.count===c.v;return false};
