@@ -123,6 +123,14 @@ const GAMES = [
     "icon": "▰",
     "url": "attivita/trave-lab/"
   },
+{
+  "title": "Atom Lab",
+  "classes": ["2 Disegno","2 Legno"],
+  "subject": "Scienze applicate",
+  "description": "Costruisci atomi con protoni, neutroni ed elettroni. Scopri numero atomico, numero di massa, ioni, configurazione elettronica, orbitali e valenza.",
+  "icon": "⚛️",
+  "url": "attivita/atom-lab/"
+},
   {
     "title": "Frazioni e divisioni",
     "classes": ["1 Legno"],
