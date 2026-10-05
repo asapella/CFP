@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Atom Lab — Costruisci e scopri l'atomo</title>
+<style>
+:root{
+  --ink:#142033;--muted:#5f718a;--line:#c8d8ea;--blue:#1675d1;--blue2:#0e5aa9;
+  --red:#e85a5a;--red2:#bf3636;--gray:#8895a6;--gold:#e8ad24;--green:#49a667;
+  --paper:#f8fbff;--panel:#ffffff;--soft:#edf5fd;--shadow:0 12px 30px rgba(40,70,110,.12);
+}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0}
+body{
+  margin:0;font-family:Inter,Arial,Helvetica,sans-serif;color:var(--ink);
+  background:linear-gradient(180deg,#f9fbfe,#edf5fb 52%,#f7f2e9);
+  min-height:100vh;
+  overflow:hidden;
+}
+button{font:inherit}
+.app{
+  width:100vw;
+  height:100dvh;
+  max-width:none;
+  margin:0;
+  padding:10px;
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto;
+  gap:10px;
+  overflow:hidden;
+}
+.topbar{
+  display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;
+  background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:22px;
+  padding:10px 16px;box-shadow:var(--shadow);position:relative;top:auto;z-index:30;
+  min-height:72px;
+}
+.brand{display:flex;align-items:center;gap:12px;white-space:nowrap}
+.brandIcon{font-size:38px}.brand h1{font-size:30px;margin:0;line-height:1}.brand h1 span{color:var(--blue)}
+.brand small{color:var(--muted);font-weight:800}
+.progressTop{display:flex;align-items:center;justify-content:center;gap:8px}
+.phase{
+  min-width:92px;text-align:center;font-size:12px;font-weight:900;color:#7d8998;
+}
+.phase .circle{
+  width:34px;height:34px;margin:auto;border-radius:50%;display:grid;place-items:center;
+  border:3px solid #cdd7e4;background:#fff;font-size:14px
+}
+.phase.done .circle{background:var(--green);border-color:var(--green);color:#fff}
+.phase.on .circle{background:var(--blue);border-color:var(--blue);color:#fff}
+.phase.on{color:var(--ink)}
+.phaseLine{height:3px;width:52px;background:#cdd7e4}.phaseLine.done{background:var(--blue)}
+.topActions{display:flex;gap:7px}.iconBtn{
+  width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#f4f8fc;
+  font-weight:900;cursor:pointer;color:#456079
+}
+
+.main{
+  display:grid;
+  grid-template-columns:minmax(230px,280px) minmax(480px,1fr) minmax(270px,310px);
+  gap:10px;
+  margin-top:0;
+  align-items:stretch;
+  min-height:0;
+  height:100%;
+  overflow:hidden;
+}
+.panel{
+  background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:20px;
+  box-shadow:var(--shadow);padding:13px;
+  min-height:0;
+  overflow:auto;
+}
+.panel h2{font-size:23px;margin:0 0 4px}.panelSub{color:var(--muted);font-weight:700;margin-bottom:14px}
+
+.particleCard{
+  border-radius:14px;border:1px solid var(--line);padding:8px;margin-bottom:8px;
+  display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;cursor:grab;
+  user-select:none;transition:.15s;
+}
+.particleCard:hover{transform:translateY(-2px);box-shadow:0 8px 16px rgba(70,100,140,.12)}
+.particleCard.proton{background:#fff0ef;border-color:#f4c5c1}
+.particleCard.neutron{background:#f0f4f8;border-color:#d4dde8}
+.particleCard.electron{background:#eef8ff;border-color:#c7e1fa}
+.ball{
+  width:50px;height:50px;border-radius:50%;display:grid;place-items:center;color:#fff;
+  font-weight:950;font-size:30px;border:3px solid rgba(20,32,51,.18);box-shadow:inset -8px -9px 14px rgba(0,0,0,.12),inset 8px 8px 16px rgba(255,255,255,.32)
+}
+.ball.p{background:radial-gradient(circle at 30% 25%,#ff9696,var(--red) 48%,var(--red2))}
+.ball.n{background:radial-gradient(circle at 30% 25%,#b9c1ca,var(--gray) 52%,#667181)}
+.ball.e{background:radial-gradient(circle at 30% 25%,#6dc1ff,var(--blue) 52%,var(--blue2))}
+.particleText b{display:block;font-size:18px}.particleText strong{font-size:21px}
+.particleCount{
+  background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;
+  font-weight:900;color:#52677e
+}
+.leftBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.btn{
+  border:1px solid #b9cde0;background:#fff;border-radius:12px;padding:10px 12px;font-weight:900;
+  cursor:pointer;color:#33536e
+}
+.btn:hover{background:#f2f8fd}.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn.danger{background:#fff4f3;color:#a54040;border-color:#efc8c5}
+
+.lab{
+  min-height:0;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:relative;
+}
+.modeRow{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px}
+.segmented{display:flex;background:#eaf3fb;border:1px solid #c9dced;border-radius:14px;padding:3px}
+.segBtn{border:0;background:transparent;padding:10px 18px;border-radius:11px;font-weight:900;color:#476680;cursor:pointer}
+.segBtn.on{background:var(--blue);color:#fff;box-shadow:0 4px 10px rgba(22,117,209,.2)}
+.atomArea{
+  flex:1;border:2px dashed #bcd3e7;border-radius:20px;background:
+  radial-gradient(circle at 50% 50%,rgba(183,221,252,.35),rgba(248,252,255,.75) 50%,#fff 78%);
+  position:relative;min-height:0;overflow:hidden;
+  flex:1 1 auto;
+}
+.atomArea.dropHover{outline:6px solid rgba(232,173,36,.35);background:#fff9df}
+#atomSvg{width:100%;height:100%;position:absolute;inset:0}
+.dropHint{
+  position:absolute;left:50%;top:16px;transform:translateX(-50%);background:rgba(255,255,255,.85);
+  border:1px solid #d4e0ec;border-radius:999px;padding:7px 13px;font-size:12px;color:#5e728a;font-weight:800
+}
+.liveStrip{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px
+}
+.liveBox{background:#f8fbfe;border:1px solid #d8e4ef;border-radius:12px;padding:8px;text-align:center}
+.liveBox span{display:block;font-size:11px;color:#72849a;font-weight:800}.liveBox b{font-size:18px}
+
+.periodicTile{
+  border:2px solid #8fc0ef;border-radius:16px;background:linear-gradient(145deg,#f9fcff,#eaf4ff);
+  padding:9px 12px;text-align:center;margin:4px auto 9px;max-width:220px;min-height:165px;position:relative
+}
+.ptZ{position:absolute;left:16px;top:10px;font-size:27px;font-weight:950;color:var(--blue)}
+.ptSym{font-size:62px;font-weight:950;line-height:1;margin-top:28px}
+.ptName{font-weight:900;font-size:18px;margin-top:2px}.ptMass{font-size:22px;font-weight:950;color:#d39700;margin-top:10px}
+.ptUnknown{color:#9ba9b7}
+.dataList{border-top:1px solid #d9e4ef;margin-top:8px}
+.dataRow{
+  display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #e4ecf3
+}
+.dataRow b:last-child{font-size:18px}.dotIcon{width:23px;height:23px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px;font-weight:950}
+.chargeBox{font-weight:950}.neutral{color:#4b7a66}.positive{color:#c64848}.negative{color:#176fc4}
+.configCard{margin-top:12px;background:#f5f9fd;border:1px solid #d7e4ef;border-radius:14px;padding:11px}
+.configTitle{font-size:12px;color:#71839a;font-weight:800}
+.configValue{font-family:Cambria,Georgia,serif;font-size:24px;font-weight:900;margin-top:5px}
+.configSmall{font-size:13px;color:#61768c;margin-top:4px}
+
+.mission{
+  margin-top:0;
+  background:rgba(255,255,255,.98);
+  border:1px solid var(--line);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  padding:10px 16px;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:14px;
+  align-items:center;
+  min-height:88px;
+}
+.missionIcon{width:58px;height:58px;border-radius:50%;background:#fff0bc;display:grid;place-items:center;font-size:30px;border:2px solid #f0c84a}
+.missionLabel{font-size:12px;font-weight:950;color:#c88a00}.mission h3{margin:3px 0;font-size:23px}.mission p{margin:0;color:#61758b;font-weight:700}
+.verify{min-width:160px;padding:14px 18px;border:0;border-radius:14px;background:var(--blue);color:#fff;font-weight:950;font-size:19px;cursor:pointer}
+.verify:disabled{opacity:.45;cursor:default}
+
+.toast{
+  position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(120px);opacity:0;
+  background:#17324d;color:#fff;padding:12px 18px;border-radius:12px;font-weight:850;z-index:99;transition:.25s;
+  box-shadow:0 10px 30px rgba(0,0,0,.22)
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.good{background:#2e7d4f}.toast.bad{background:#a94444}
+
+.orbitalBoard{
+  position:absolute;inset:52px 30px 30px;display:none;align-items:center;justify-content:center
+}
+.orbitalBoard.on{display:flex}
+.orbitWrap{display:grid;grid-template-columns:140px 140px 1fr;gap:18px;align-items:center;width:100%;max-width:720px}
+.orbitCard{background:#fff;border:1px solid #cfddeb;border-radius:16px;padding:12px;text-align:center}
+.orbitGraphic{height:110px;position:relative;margin-bottom:8px}
+.cloudS{width:82px;height:82px;border-radius:50%;background:radial-gradient(circle,#166fd0aa,#4f9ce84d 55%,transparent 72%);margin:14px auto}
+.cloudP{height:95px;display:flex;align-items:center;justify-content:center}
+.lobe{width:58px;height:42px;border-radius:50%;background:radial-gradient(circle at 65% 50%,#166fd0aa,#4f9ce84d 65%,transparent 80%)}.lobe.r{transform:scaleX(-1)}
+.orbitBoxes{display:flex;justify-content:center;gap:5px}.orbBox{width:40px;height:54px;border:2px solid #8ea8be;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:950;letter-spacing:-2px}
+.orbitCard h4{margin:5px 0}.orbitalExplain{background:#fff;border:1px solid #cfddeb;border-radius:16px;padding:14px}
+.orbitalExplain h3{margin:0 0 8px}.orbitalExplain p{color:#5f718a;font-weight:700;margin:6px 0}
+.legendTiny{font-size:11px;color:#7b8da1;margin-top:7px}
+
+.modal{
+  position:fixed;inset:0;background:rgba(20,32,51,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:16px
+}
+.modal.on{display:flex}.modalCard{background:#fff;border-radius:20px;max-width:640px;width:100%;padding:20px;box-shadow:0 24px 60px rgba(0,0,0,.22)}
+.modalCard h2{margin-top:0}.closeModal{float:right;border:0;background:#eff5fa;border-radius:50%;width:36px;height:36px;cursor:pointer;font-weight:950}
+.helpGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.helpBox{background:#f5f9fd;border-radius:12px;padding:12px}
+.small{font-size:12px;color:#71849a;font-weight:700}
+
+@media(max-width:1120px){
+  .main{grid-template-columns:240px 1fr}.rightPanel{grid-column:1/-1}
+  .rightPanelInner{display:grid;grid-template-columns:260px 1fr;gap:16px}
+}
+@media(max-width:760px){
+  .topbar{grid-template-columns:1fr auto}.progressTop{grid-column:1/-1;order:3;overflow:auto;justify-content:flex-start}
+  .brand h1{font-size:24px}.main{grid-template-columns:1fr}.mission{grid-template-columns:auto 1fr}.verify{grid-column:1/-1}
+  .particleCard{grid-template-columns:52px 1fr auto}.ball{width:48px;height:48px}
+  .rightPanelInner{grid-template-columns:1fr}.liveStrip{grid-template-columns:repeat(2,1fr)}
+  .orbitWrap{grid-template-columns:1fr 1fr}.orbitalExplain{grid-column:1/-1}
+}
+
+@media(max-height:820px) and (min-width:761px){
+  .topbar{min-height:62px;padding:7px 14px}
+  .brandIcon{font-size:30px}.brand h1{font-size:25px}
+  .phase .circle{width:29px;height:29px}
+  .panel h2{font-size:19px}.panelSub{margin-bottom:8px;font-size:13px}
+  .particleCard{padding:6px;margin-bottom:6px}
+  .ball{width:44px;height:44px;font-size:24px}
+  .particleText b{font-size:16px}.particleText strong{font-size:18px}
+  .liveStrip{margin-top:7px}.liveBox{padding:5px}
+  .mission{min-height:74px;padding:7px 14px}
+  .missionIcon{width:48px;height:48px;font-size:24px}
+  .mission h3{font-size:19px}.mission p{font-size:13px}
+}
+@media(max-width:760px){
+  body{overflow:auto}
+  .app{height:auto;min-height:100dvh;overflow:visible;display:block;padding:8px}
+  .main{height:auto;overflow:visible;margin-top:8px}
+  .panel{overflow:visible}
+  .mission{margin-top:8px}
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brandIcon">⚛️</div>
+      <div><h1>ATOM <span>LAB</span></h1><small>Costruisci e scopri l'atomo</small></div>
+    </div>
+    <div class="progressTop" id="phaseProgress">
+      <div class="phase on" data-phase="0"><div class="circle">1</div>struttura</div>
+      <div class="phaseLine"></div>
+      <div class="phase" data-phase="1"><div class="circle">2</div>identità</div>
+      <div class="phaseLine"></div>
+      <div class="phase" data-phase="2"><div class="circle">3</div>orbitali</div>
+      <div class="phaseLine"></div>
+      <div class="phase" data-phase="3"><div class="circle">4</div>valenza</div>
+    </div>
+    <div class="topActions">
+      <button class="iconBtn" id="fullscreenBtn" title="Schermo intero">⛶</button>
+      <button class="iconBtn" id="helpBtn">?</button>
+      <button class="iconBtn" id="newGameBtn">↻</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <aside class="panel">
+      <h2>Particelle</h2>
+      <div class="panelSub">Trascina o clicca le particelle per costruire l'atomo.</div>
+
+      <div class="particleCard proton" draggable="true" data-particle="p">
+        <div class="ball p">+</div>
+        <div class="particleText"><b>protone</b><strong>p⁺</strong></div>
+        <div class="particleCount">× 12</div>
+      </div>
+      <div class="particleCard neutron" draggable="true" data-particle="n">
+        <div class="ball n"></div>
+        <div class="particleText"><b>neutrone</b><strong>n⁰</strong></div>
+        <div class="particleCount">× 14</div>
+      </div>
+      <div class="particleCard electron" draggable="true" data-particle="e">
+        <div class="ball e">−</div>
+        <div class="particleText"><b>elettrone</b><strong>e⁻</strong></div>
+        <div class="particleCount">× 12</div>
+      </div>
+
+      <div class="leftBtns">
+        <button class="btn" id="undoBtn">− 1 particella</button>
+        <button class="btn danger" id="clearBtn">Rimuovi tutto</button>
+      </div>
+
+      <div class="configCard" style="margin-top:15px">
+        <div class="configTitle">Regole rapide</div>
+        <div class="configSmall">• Z = numero di protoni</div>
+        <div class="configSmall">• A = protoni + neutroni</div>
+        <div class="configSmall">• carica = protoni − elettroni</div>
+        <div class="configSmall">• massa atomica in tavola ≠ A</div>
+      </div>
+    </aside>
+
+    <section class="panel lab">
+      <div class="modeRow">
+        <div class="segmented">
+          <button class="segBtn on" id="shellModeBtn">◉ Gusci elettronici</button>
+          <button class="segBtn" id="orbitalModeBtn">✤ Orbitali</button>
+        </div>
+        <button class="btn" id="randomAtomBtn">🎲 Atomo casuale</button>
+      </div>
+
+      <div class="atomArea" id="atomArea">
+        <div class="dropHint">Trascina qui protoni, neutroni ed elettroni</div>
+        <svg id="atomSvg" viewBox="0 0 800 500" aria-label="modello dell'atomo"></svg>
+
+        <div class="orbitalBoard" id="orbitalBoard">
+          <div class="orbitWrap">
+            <div class="orbitCard">
+              <div class="orbitGraphic"><div class="cloudS"></div></div>
+              <h4>1s</h4><div class="orbitBoxes"><div class="orbBox" id="box1s"></div></div>
+            </div>
+            <div class="orbitCard">
+              <div class="orbitGraphic"><div class="cloudS" style="width:96px;height:96px;margin-top:8px"></div></div>
+              <h4>2s</h4><div class="orbitBoxes"><div class="orbBox" id="box2s"></div></div>
+            </div>
+            <div class="orbitCard">
+              <div class="orbitGraphic"><div class="cloudP"><div class="lobe"></div><div class="lobe r"></div></div></div>
+              <h4>2p</h4>
+              <div class="orbitBoxes"><div class="orbBox" id="box2p1"></div><div class="orbBox" id="box2p2"></div><div class="orbBox" id="box2p3"></div></div>
+            </div>
+            <div class="orbitalExplain">
+              <h3>Orbita ≠ orbitale</h3>
+              <p><b>Orbita:</b> immagina una traiettoria precisa, come nel modello di Bohr.</p>
+              <p><b>Orbitale:</b> regione dello spazio dove è probabile trovare l'elettrone.</p>
+              <p><b>s</b> ≈ sferico · <b>p</b> ≈ due lobi.</p>
+              <div class="legendTiny">Per i primi 10 elementi: 1s → 2s → 2p. Ogni orbitale contiene al massimo 2 elettroni.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="liveStrip">
+        <div class="liveBox"><span>protoni</span><b id="liveP">0</b></div>
+        <div class="liveBox"><span>neutroni</span><b id="liveN">0</b></div>
+        <div class="liveBox"><span>elettroni</span><b id="liveE">0</b></div>
+        <div class="liveBox"><span>numero di massa A</span><b id="liveA">0</b></div>
+        <div class="liveBox"><span>carica</span><b id="liveCharge">0</b></div>
+      </div>
+    </section>
+
+    <aside class="panel rightPanel">
+      <div class="rightPanelInner">
+        <div>
+          <h2>Elemento risultante</h2>
+          <div class="periodicTile" id="periodicTile">
+            <div class="ptZ ptUnknown" id="ptZ">?</div>
+            <div class="ptSym ptUnknown" id="ptSym">?</div>
+            <div class="ptName ptUnknown" id="ptName">nessun elemento</div>
+            <div class="ptMass ptUnknown" id="ptMass">— u</div>
+          </div>
+        </div>
+
+        <div>
+          <h2 style="font-size:20px">Dati dell'atomo</h2>
+          <div class="dataList">
+            <div class="dataRow"><div class="dotIcon" style="background:var(--red)">+</div><span>Protoni (Z)</span><b id="dataP">0</b></div>
+            <div class="dataRow"><div class="dotIcon" style="background:var(--gray)">0</div><span>Neutroni (N)</span><b id="dataN">0</b></div>
+            <div class="dataRow"><div class="dotIcon" style="background:var(--blue)">−</div><span>Elettroni</span><b id="dataE">0</b></div>
+            <div class="dataRow"><div>⚖️</div><span>Numero di massa A</span><b id="dataA">0</b></div>
+            <div class="dataRow"><div>⚡</div><span>Carica totale</span><b class="chargeBox neutral" id="dataCharge">0</b></div>
+            <div class="dataRow"><div>✤</div><span>Elettroni di valenza</span><b id="dataValence">0</b></div>
+          </div>
+          <div class="configCard">
+            <div class="configTitle">Configurazione elettronica</div>
+            <div class="configValue" id="configValue">—</div>
+            <div class="configSmall" id="configShells">gusci: —</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <section class="mission">
+    <div class="missionIcon">🎯</div>
+    <div>
+      <div class="missionLabel" id="missionLabel">MISSIONE 1 DI 10</div>
+      <h3 id="missionTitle">Costruisci un atomo</h3>
+      <p id="missionText">Trascina le particelle per completare la missione.</p>
+    </div>
+    <button class="verify" id="verifyBtn">Verifica ✓</button>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal" id="helpModal">
+  <div class="modalCard">
+    <button class="closeModal" id="closeHelp">×</button>
+    <h2>Come usare Atom Lab</h2>
+    <div class="helpGrid">
+      <div class="helpBox"><b>1 · Costruisci</b><br><span class="small">Trascina o clicca p⁺, n⁰ ed e⁻. Cliccando una particella viene aggiunta direttamente.</span></div>
+      <div class="helpBox"><b>2 · Osserva</b><br><span class="small">La tessera della tavola cambia quando cambia il numero di protoni.</span></div>
+      <div class="helpBox"><b>3 · Confronta</b><br><span class="small">A = p+n. La massa atomica in tavola è una media isotopica in u.</span></div>
+      <div class="helpBox"><b>4 · Cambia modello</b><br><span class="small">Passa dai gusci agli orbitali per vedere 1s, 2s e 2p.</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+const ELEMENTS={
+  1:{sym:"H",name:"Idrogeno",mass:"1,008"},
+  2:{sym:"He",name:"Elio",mass:"4,0026"},
+  3:{sym:"Li",name:"Litio",mass:"6,94"},
+  4:{sym:"Be",name:"Berillio",mass:"9,0122"},
+  5:{sym:"B",name:"Boro",mass:"10,81"},
+  6:{sym:"C",name:"Carbonio",mass:"12,011"},
+  7:{sym:"N",name:"Azoto",mass:"14,007"},
+  8:{sym:"O",name:"Ossigeno",mass:"15,999"},
+  9:{sym:"F",name:"Fluoro",mass:"18,998"},
+  10:{sym:"Ne",name:"Neon",mass:"20,180"}
+};
+
+const ISO_DEFAULT={1:0,2:2,3:4,4:5,5:6,6:6,7:7,8:8,9:10,10:10};
+
+let atom={p:0,n:0,e:0};
+let history=[];
+let mode="shells";
+let missionIndex=0;
+let missions=[];
+
+function phaseForMission(i){
+  if(i<=2)return 0;
+  if(i<=5)return 1;
+  if(i<=7)return 2;
+  return 3;
+}
+
+function buildMissions(){
+  const elems=[3,4,5,6,7,8,9,10];
+  const z1=elems[Math.floor(Math.random()*elems.length)];
+  const z2=elems[Math.floor(Math.random()*elems.length)];
+  const z3=elems[Math.floor(Math.random()*elems.length)];
+  const z4=elems[Math.floor(Math.random()*elems.length)];
+  const ionZ=[3,6,7,8,9][Math.floor(Math.random()*5)];
+  const ionCharge=ionZ===3?1:([-1,1][Math.floor(Math.random()*2)]);
+  const neutronOffset=[-1,1,2][Math.floor(Math.random()*3)];
+  const baseN=Math.max(0,ISO_DEFAULT[z2]+neutronOffset);
+
+  return [
+    {
+      title:"Costruisci un atomo neutro",
+      text:`Costruisci ${ELEMENTS[z1].name}: ${z1} protoni, ${ISO_DEFAULT[z1]} neutroni e ${z1} elettroni.`,
+      test:a=>a.p===z1 && a.n===ISO_DEFAULT[z1] && a.e===z1,
+      hint:"In un atomo neutro protoni ed elettroni sono in ugual numero."
+    },
+    {
+      title:"Chi decide l'elemento?",
+      text:`Costruisci ${ELEMENTS[z2].name}. Puoi scegliere liberamente neutroni ed elettroni: ciò che deve essere corretto è Z.`,
+      test:a=>a.p===z2,
+      hint:`${ELEMENTS[z2].name} ha numero atomico Z = ${z2}: servono ${z2} protoni.`
+    },
+    {
+      title:"Numero di massa",
+      text:`Costruisci ${ELEMENTS[z2].name} con numero di massa A = ${z2+baseN}.`,
+      test:a=>a.p===z2 && (a.p+a.n)===(z2+baseN),
+      hint:"A = protoni + neutroni. La massa atomica scritta sulla tavola è invece una media in u."
+    },
+    {
+      title:"Costruisci un isotopo",
+      text:`Costruisci un isotopo di ${ELEMENTS[z3].name} diverso da quello più comune mostrato all'inizio.`,
+      test:a=>a.p===z3 && a.n!==ISO_DEFAULT[z3],
+      hint:"Gli isotopi hanno lo stesso numero di protoni ma un diverso numero di neutroni."
+    },
+    {
+      title:"Crea uno ione",
+      text:`Costruisci uno ione di ${ELEMENTS[ionZ].name} con carica ${ionCharge>0?"+":""}${ionCharge}.`,
+      test:a=>a.p===ionZ && (a.p-a.e)===ionCharge,
+      hint:"La ionizzazione cambia il numero di elettroni, non quello dei protoni."
+    },
+    {
+      title:"Atomo o ione?",
+      text:`Costruisci ${ELEMENTS[z4].name} neutro, poi controlla che la carica totale sia 0.`,
+      test:a=>a.p===z4 && a.e===z4,
+      hint:"Carica = protoni − elettroni."
+    },
+    {
+      title:"Leggi i gusci elettronici",
+      text:`Costruisci ${ELEMENTS[z1].name} neutro e osserva quanti elettroni finiscono nel primo e nel secondo livello.`,
+      test:a=>a.p===z1 && a.e===z1,
+      hint:"Per i primi 10 elementi: il primo livello ospita 2 elettroni; i successivi vanno nel secondo."
+    },
+    {
+      title:"Passa agli orbitali",
+      text:`Costruisci ${ELEMENTS[z4].name} neutro, passa alla modalità ORBITALI e osserva 1s, 2s e 2p.`,
+      test:a=>a.p===z4 && a.e===z4 && mode==="orbitals",
+      hint:"Il modello a orbitali non mostra una traiettoria: mostra regioni di probabilità."
+    },
+    {
+      title:"Trova la valenza",
+      text:`Costruisci ${ELEMENTS[z3].name} neutro. La missione è completata quando la valenza visualizzata è corretta.`,
+      test:a=>a.p===z3 && a.e===z3 && valenceElectrons(a.e)===valenceForZ(z3),
+      hint:"Gli elettroni di valenza sono quelli del livello energetico più esterno occupato."
+    },
+    {
+      title:"ATOM CHALLENGE",
+      text:`Costruisci un atomo con Z = 8, A = 16 e carica = −2.`,
+      test:a=>a.p===8 && a.n===8 && a.e===10,
+      hint:"Z = 8 → 8 protoni. A = 16 → 8 neutroni. Carica −2 → 10 elettroni."
+    }
+  ];
+}
+
+function configForElectrons(e){
+  let rem=Math.max(0,Math.min(10,e));
+  const oneS=Math.min(2,rem); rem-=oneS;
+  const twoS=Math.min(2,rem); rem-=twoS;
+  const twoP=Math.min(6,rem); rem-=twoP;
+  return {oneS,twoS,twoP};
+}
+function configText(e){
+  if(e<=0)return "—";
+  const c=configForElectrons(e), parts=[];
+  if(c.oneS)parts.push(`1s${sup(c.oneS)}`);
+  if(c.twoS)parts.push(`2s${sup(c.twoS)}`);
+  if(c.twoP)parts.push(`2p${sup(c.twoP)}`);
+  return parts.join("  ");
+}
+function sup(n){return ["","¹","²","³","⁴","⁵","⁶","⁷","⁸","⁹"][n]||n}
+function shellCounts(e){
+  const first=Math.min(2,Math.max(0,e));
+  const second=Math.min(8,Math.max(0,e-first));
+  return [first,second];
+}
+function valenceElectrons(e){
+  if(e<=0)return 0;
+  const sh=shellCounts(Math.min(e,10));
+  return sh[1]>0?sh[1]:sh[0];
+}
+function valenceForZ(z){return valenceElectrons(z)}
+function charge(){return atom.p-atom.e}
+function currentElement(){return ELEMENTS[atom.p]||null}
+function pushHistory(){history.push({...atom});if(history.length>30)history.shift()}
+function setAtom(next,record=true){
+  if(record)pushHistory();
+  atom={
+    p:Math.max(0,Math.min(10,next.p)),
+    n:Math.max(0,Math.min(14,next.n)),
+    e:Math.max(0,Math.min(10,next.e))
+  };
+  render();
+}
+
+function addParticle(type){
+  const next={...atom};
+  if(type==="p" && next.p<10)next.p++;
+  if(type==="n" && next.n<14)next.n++;
+  if(type==="e" && next.e<10)next.e++;
+  setAtom(next);
+}
+function removeLast(){
+  if(!history.length){toast("Non c'è nulla da annullare.","bad");return}
+  atom=history.pop();render();
+}
+function clearAll(){
+  pushHistory();atom={p:0,n:0,e:0};render();
+}
+function buildRandom(){
+  const z=1+Math.floor(Math.random()*10);
+  const n=Math.max(0,ISO_DEFAULT[z]+[-1,0,0,1][Math.floor(Math.random()*4)]);
+  const e=Math.max(0,Math.min(10,z+[-1,0,0,1][Math.floor(Math.random()*4)]));
+  setAtom({p:z,n,e});
+}
+
+function render(){
+  renderAtomSvg();
+  renderData();
+  renderOrbitals();
+  renderMission();
+  renderPhases();
+}
+
+function renderData(){
+  const el=currentElement();
+  $("#liveP").textContent=atom.p;$("#liveN").textContent=atom.n;$("#liveE").textContent=atom.e;
+  $("#liveA").textContent=atom.p+atom.n;$("#liveCharge").textContent=formatCharge(charge());
+  $("#dataP").textContent=atom.p;$("#dataN").textContent=atom.n;$("#dataE").textContent=atom.e;$("#dataA").textContent=atom.p+atom.n;
+  const ch=$("#dataCharge");ch.textContent=formatCharge(charge());ch.className="chargeBox "+(charge()===0?"neutral":charge()>0?"positive":"negative");
+  $("#dataValence").textContent=valenceElectrons(atom.e);
+  $("#configValue").textContent=configText(atom.e);
+  const sh=shellCounts(atom.e);$("#configShells").textContent=atom.e?`gusci: ${sh[0]}, ${sh[1]}`:"gusci: —";
+
+  if(el){
+    $("#ptZ").textContent=atom.p;$("#ptSym").textContent=el.sym;$("#ptName").textContent=el.name;$("#ptMass").textContent=el.mass+" u";
+    $$("#periodicTile .ptUnknown").forEach(x=>x.classList.remove("ptUnknown"));
+  }else{
+    $("#ptZ").textContent="?";$("#ptSym").textContent="?";$("#ptName").textContent="nessun elemento";$("#ptMass").textContent="— u";
+    ["ptZ","ptSym","ptName","ptMass"].forEach(id=>$("#"+id).classList.add("ptUnknown"));
+  }
+}
+function formatCharge(c){return c===0?"0":(c>0?`+${c}`:`${c}`)}
+
+function renderAtomSvg(){
+  const svg=$("#atomSvg");
+  if(mode==="orbitals"){svg.style.display="none";$("#orbitalBoard").classList.add("on");return}
+  svg.style.display="block";$("#orbitalBoard").classList.remove("on");
+
+  const W=800,H=500,cx=400,cy=260;
+  let parts=[];
+  parts.push(`<defs>
+    <radialGradient id="gp"><stop offset="0" stop-color="#ff9b9b"/><stop offset=".55" stop-color="#e85a5a"/><stop offset="1" stop-color="#bd3535"/></radialGradient>
+    <radialGradient id="gn"><stop offset="0" stop-color="#cad1d8"/><stop offset=".6" stop-color="#8a96a5"/><stop offset="1" stop-color="#687482"/></radialGradient>
+    <radialGradient id="ge"><stop offset="0" stop-color="#78c7ff"/><stop offset=".55" stop-color="#1675d1"/><stop offset="1" stop-color="#0b559e"/></radialGradient>
+  </defs>`);
+
+  // shells
+  parts.push(`<circle cx="${cx}" cy="${cy}" r="125" fill="none" stroke="#8fbde5" stroke-width="2.5" stroke-dasharray="7 6"/>`);
+  parts.push(`<circle cx="${cx}" cy="${cy}" r="198" fill="none" stroke="#8fbde5" stroke-width="2.5" stroke-dasharray="7 6"/>`);
+
+  // nucleus nucleons
+  const nucleons=[];
+  for(let i=0;i<atom.p;i++)nucleons.push({t:"p"});
+  for(let i=0;i<atom.n;i++)nucleons.push({t:"n"});
+  nucleons.forEach((nu,i)=>{
+    const ang=i*2.399963,rad=11*Math.sqrt(i);
+    const x=cx+Math.cos(ang)*rad,y=cy+Math.sin(ang)*rad;
+    const fill=nu.t==="p"?"url(#gp)":"url(#gn)";
+    parts.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="24" fill="${fill}" stroke="#ffffffaa" stroke-width="2"/>`);
+    if(nu.t==="p")parts.push(`<text x="${x.toFixed(1)}" y="${(y+8).toFixed(1)}" text-anchor="middle" fill="white" font-size="28" font-weight="900">+</text>`);
+  });
+  if(!nucleons.length)parts.push(`<circle cx="${cx}" cy="${cy}" r="38" fill="#eef5fb" stroke="#c7d9e8" stroke-width="3"/><text x="${cx}" y="${cy+5}" text-anchor="middle" fill="#7f91a5" font-size="13" font-weight="800">nucleo</text>`);
+
+  // electrons
+  const sh=shellCounts(atom.e);
+  const drawShell=(count,r,start)=>{
+    for(let i=0;i<count;i++){
+      const ang=start+(Math.PI*2*i/count);
+      const x=cx+Math.cos(ang)*r,y=cy+Math.sin(ang)*r;
+      parts.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="18" fill="url(#ge)" stroke="#fff" stroke-width="2.2"/>`);
+      parts.push(`<text x="${x.toFixed(1)}" y="${(y+6).toFixed(1)}" text-anchor="middle" fill="white" font-size="21" font-weight="900">−</text>`);
+    }
+  };
+  if(sh[0])drawShell(sh[0],125,-Math.PI/2);
+  if(sh[1])drawShell(sh[1],198,-Math.PI/2);
+
+  // labels
+  parts.push(`<text x="400" y="42" text-anchor="middle" fill="#5f718a" font-size="15" font-weight="800">modello a gusci energetici</text>`);
+  if(atom.e>10)parts.push(`<text x="400" y="475" text-anchor="middle" fill="#a44" font-size="13">visualizzazione limitata ai primi 10 elettroni</text>`);
+  svg.innerHTML=parts.join("");
+}
+
+function renderOrbitals(){
+  const c=configForElectrons(atom.e);
+  $("#box1s").textContent=orbText(c.oneS);
+  $("#box2s").textContent=orbText(c.twoS);
+  const p=[0,0,0];
+  // Hund semplificata: prima uno per orbitale, poi appaiamento
+  for(let i=0;i<c.twoP;i++){
+    if(i<3)p[i]++; else p[i-3]++;
+  }
+  $("#box2p1").textContent=orbText(p[0]);$("#box2p2").textContent=orbText(p[1]);$("#box2p3").textContent=orbText(p[2]);
+}
+function orbText(n){return n===0?"":n===1?"↑":"↑↓"}
+
+function renderMission(){
+  const m=missions[missionIndex];
+  $("#missionLabel").textContent=`MISSIONE ${missionIndex+1} DI ${missions.length}`;
+  $("#missionTitle").textContent=m.title;
+  $("#missionText").textContent=m.text;
+  $("#verifyBtn").disabled=false;
+}
+function renderPhases(){
+  const ph=phaseForMission(missionIndex);
+  $$(".phase").forEach((x,i)=>{
+    x.classList.toggle("on",i===ph);x.classList.toggle("done",i<ph);
+  });
+  $$(".phaseLine").forEach((x,i)=>x.classList.toggle("done",i<ph));
+}
+
+function verify(){
+  const m=missions[missionIndex];
+  if(m.test(atom)){
+    toast("Missione completata! ✓","good");
+    if(missionIndex<missions.length-1){
+      missionIndex++;
+      // Don't always clear: force conceptual changes sometimes, but start cleaner on next
+      if([1,3,4,6,7,9].includes(missionIndex)){history.push({...atom});atom={p:0,n:0,e:0}}
+      render();
+    }else{
+      $("#missionTitle").textContent="ATOM LAB COMPLETATO 🏆";
+      $("#missionText").textContent="Hai collegato struttura, identità, massa, ionizzazione, orbitali e valenza.";
+      $("#verifyBtn").disabled=true;$("#verifyBtn").textContent="Completato";
+    }
+  }else{
+    toast(m.hint,"bad");
+  }
+}
+function toast(msg,type){
+  const t=$("#toast");t.textContent=msg;t.className="toast show "+(type||"");
+  clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>t.className="toast",2600);
+}
+
+function setMode(m){
+  mode=m;
+  $("#shellModeBtn").classList.toggle("on",m==="shells");
+  $("#orbitalModeBtn").classList.toggle("on",m==="orbitals");
+  render();
+}
+
+function newGame(){
+  atom={p:0,n:0,e:0};history=[];mode="shells";missionIndex=0;missions=buildMissions();
+  $("#verifyBtn").textContent="Verifica ✓";render();
+  toast("Nuova partita: missioni randomizzate.","good");
+}
+
+// drag & click
+$$(".particleCard").forEach(card=>{
+  card.addEventListener("dragstart",e=>e.dataTransfer.setData("text/plain",card.dataset.particle));
+  card.addEventListener("click",()=>addParticle(card.dataset.particle));
+});
+const area=$("#atomArea");
+area.addEventListener("dragover",e=>{e.preventDefault();area.classList.add("dropHover")});
+area.addEventListener("dragleave",()=>area.classList.remove("dropHover"));
+area.addEventListener("drop",e=>{
+  e.preventDefault();area.classList.remove("dropHover");
+  const t=e.dataTransfer.getData("text/plain");if(["p","n","e"].includes(t))addParticle(t)
+});
+
+$("#undoBtn").onclick=removeLast;$("#clearBtn").onclick=clearAll;$("#randomAtomBtn").onclick=buildRandom;
+$("#shellModeBtn").onclick=()=>setMode("shells");$("#orbitalModeBtn").onclick=()=>setMode("orbitals");
+$("#verifyBtn").onclick=verify;$("#newGameBtn").onclick=newGame;
+
+function toggleFullscreen(){
+  if(!document.fullscreenElement){
+    const el=document.documentElement;
+    if(el.requestFullscreen) el.requestFullscreen();
+  }else{
+    if(document.exitFullscreen) document.exitFullscreen();
+  }
+}
+$("#fullscreenBtn").onclick=toggleFullscreen;
+document.addEventListener("fullscreenchange",()=>{
+  $("#fullscreenBtn").textContent=document.fullscreenElement?"⛶":"⛶";
+});
+
+$("#helpBtn").onclick=()=>$("#helpModal").classList.add("on");
+$("#closeHelp").onclick=()=>$("#helpModal").classList.remove("on");
+$("#helpModal").onclick=e=>{if(e.target.id==="helpModal")$("#helpModal").classList.remove("on")};
+
+missions=buildMissions();
+render();
+})();
+</script>
+</body>
+</html>
