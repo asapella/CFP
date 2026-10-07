@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Workshop Misure — Pixel Lab</title>
+<style>
+:root{--bg:#101827;--panel:#162238;--ink:#fff4c7;--muted:#a9b5c7;--yellow:#f5cb4b;--blue:#6acdf0;--green:#78d879;--orange:#f28b39;--red:#ef6477;--line:#385171}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#101827;color:var(--ink);font-family:ui-monospace,SFMono-Regular,Consolas,monospace}body{background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);background-size:24px 24px}.game{height:100vh;display:grid;grid-template-rows:auto auto 1fr auto;gap:8px;padding:10px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.title{font-weight:1000;font-size:clamp(20px,3vw,38px);letter-spacing:-1px}.level{font-weight:1000;background:#0b1220;border:2px solid var(--line);padding:8px 12px;box-shadow:4px 4px 0 #050912}.path{display:flex;align-items:center;gap:6px;justify-content:center}.dot{width:34px;height:34px;border:2px solid var(--line);background:#17243b;color:var(--muted);display:grid;place-items:center;font-weight:1000;box-shadow:3px 3px 0 #060a12}.dot.done{border-color:var(--green);color:var(--green)}.dot.current{border-color:var(--yellow);color:#111;background:var(--yellow)}.screen{min-height:0;border:3px solid var(--line);background:rgba(13,21,35,.96);box-shadow:7px 7px 0 #060a12;padding:14px;display:grid;grid-template-rows:auto auto 1fr auto;gap:10px}.mission{text-align:center;font-size:clamp(20px,2.7vw,34px);font-weight:1000;line-height:1.15}.hint{text-align:center;color:var(--muted);font-size:13px;min-height:18px}.stage{min-height:0;display:grid;place-items:center;overflow:auto}.builder{width:min(100%,980px);display:grid;gap:14px}.buildLabel{text-align:center;font-size:15px;color:var(--muted)}.buildArea{min-height:150px;border:2px dashed #45617f;background:#0c1422;padding:16px;display:flex;align-content:flex-start;align-items:flex-end;gap:5px;flex-wrap:wrap}.measure{font-size:clamp(24px,3vw,40px);font-weight:1000;text-align:center;color:#fff}.controls{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.btn{cursor:pointer;border:0;padding:12px 8px;font:inherit;font-weight:1000;box-shadow:4px 4px 0 #060a12}.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #060a12}.mBtn{background:var(--yellow);color:#111}.dmBtn{background:var(--blue);color:#111}.cmBtn{background:var(--green);color:#111}.mmBtn{background:var(--orange);color:#111}.dark{background:#243753;color:var(--ink)}.ok{background:var(--green);color:#101827}.tile{height:44px;display:grid;place-items:center;color:#101827;font-size:12px;font-weight:1000;box-shadow:3px 3px 0 rgba(0,0,0,.32);cursor:pointer;transition:transform .08s,filter .08s}.tile:hover{filter:brightness(1.12);transform:translateY(-2px)}.tile.m{width:116px;background:var(--yellow)}.tile.dm{width:54px;background:var(--blue)}.tile.cm{width:18px;background:var(--green);font-size:0}.tile.mm{width:7px;background:var(--orange);font-size:0}.choiceBox{width:min(820px,100%);display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.choice{min-height:86px;background:#1a2b46;border:3px solid var(--yellow);color:var(--ink);font:inherit;font-size:clamp(16px,2vw,24px);font-weight:1000;cursor:pointer;box-shadow:5px 5px 0 #060a12}.calc{width:min(720px,100%);display:grid;grid-template-columns:1fr auto;gap:10px}.calc input{min-width:0;background:#0a111d;color:#fff;border:3px solid var(--blue);padding:14px;font:inherit;font-size:24px;font-weight:1000}.feedback{text-align:center;min-height:24px;font-weight:1000}.goodText{color:var(--green)}.badText{color:var(--red)}
+.operation{width:min(980px,100%);display:grid;gap:12px}.opRow{display:grid;grid-template-columns:120px 1fr 90px;gap:10px;align-items:center}.opName{font-size:14px;color:var(--muted);text-align:right}.bar{height:66px;background:#0b1320;border:2px solid var(--line);display:flex;align-items:center;padding:8px;overflow:hidden}.barPieces{display:flex;align-items:center;gap:2px;min-width:0}.opValue{font-size:20px;font-weight:1000;text-align:right}.minusSign{text-align:center;font-size:32px;font-weight:1000;color:var(--orange)}.resultBar{border-color:var(--green)}.removeOverlay .tile{opacity:.7;outline:2px solid var(--red)}.opExplain{text-align:center;color:var(--muted);font-size:13px}.smallActions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.subBuilder{width:min(980px,100%);display:grid;gap:10px}.subRow{display:grid;grid-template-columns:110px 1fr 105px;gap:10px;align-items:center}.subRow.active .buildArea{border-color:var(--yellow);box-shadow:0 0 0 2px rgba(245,203,75,.15)}.subRowName{text-align:right;color:var(--muted);font-weight:1000}.subRowValue{text-align:right;font-size:20px;font-weight:1000}.subControls{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:4px}.subExplain{text-align:center;color:var(--muted);font-size:12px}.resultPrompt{margin-top:4px;padding-top:10px;border-top:2px solid var(--line)}.buildArea.compact{min-height:90px}.ghostTile{opacity:.28;outline:2px solid var(--red)}.hide{display:none!important}@media(max-width:760px){html,body{overflow:auto}.game{height:auto;min-height:100vh}.controls{grid-template-columns:repeat(3,1fr)}.choiceBox{grid-template-columns:1fr}.opRow{grid-template-columns:78px 1fr 66px}.bar{height:58px}.tile.m{width:90px}.tile.dm{width:42px}}
+</style></head>
+<body>
+<div class="game">
+  <div class="top"><div class="title">PIXEL LAB · MISURE</div><div class="level" id="level">01 / 12</div></div>
+  <div class="path" id="path"></div>
+  <main class="screen">
+    <div class="mission" id="mission"></div>
+    <div class="hint" id="hint"></div>
+    <div class="stage" id="stage"></div>
+    <div class="feedback" id="feedback"></div>
+  </main>
+  <div class="smallActions"><button class="btn dark" id="prev">← livello</button><button class="btn dark" id="restart">ricomincia</button><button class="btn dark" id="full">full screen</button></div>
+</div>
+<script>
+const levels=[
+ {type:'build',q:'Costruisci 0,63 m.',target:.63,h:'Usa decimetri e centimetri.'},
+ {type:'choose',q:'Qual è più lungo?',choices:['0,92 m','0,89 m','0,902 m'],a:0,h:'Confronta prima i decimi, poi i centesimi.'},
+ {type:'build',q:'Costruisci 1,27 m.',target:1.27,h:'Un metro, poi completa la parte decimale.'},
+ {type:'subtract',q:'Da 1,32 m togli 0,46 m.',start:1.32,remove:.46,result:.86,h:'Guarda i due pezzi allineati prima di calcolare.'},
+ {type:'build',q:'Costruisci 1,03 m.',target:1.03,h:'Attenzione: tra metri e centimetri ci sono 0 decimetri.'},
+ {type:'choose',q:'Quale stima è plausibile per 4 × 1,2 m?',choices:['circa 0,5 m','circa 5 m','circa 50 m'],a:1,h:'Quattro volte poco più di 1 metro.'},
+ {type:'build',q:'Costruisci il totale di 3 pezzi da 0,40 m.',target:1.2,h:'Puoi pensare a 0,40 + 0,40 + 0,40.'},
+ {type:'subtract',q:'Un pannello misura 1,18 m. Ne uso 0,39 m.',start:1.18,remove:.39,result:.79,h:'Il pezzo tolto è mostrato sotto quello iniziale.'},
+ {type:'calc',q:'Quanto resta?',exact:.79,unit:'m',h:'Usa quello che hai appena visto, non partire dall’algoritmo.'},
+ {type:'build',q:'Costruisci una quota di 2,06 m.',target:2.06,h:'Attenzione: 0 decimetri, 6 centimetri.'},
+ {type:'choose',q:'3,6 m divisi in 4 parti: quale misura è plausibile per ogni parte?',choices:['0,9 m','9 m','0,09 m'],a:0,h:'Quattro parti devono ricostruire 3,6 m.'},
+ {type:'subtract',q:'Boss: da 2,04 m togli 0,58 m.',start:2.04,remove:.58,result:1.46,h:'Prima osserva i due segmenti; poi verifica il resto.'}
+];
+let i=0,pieces=[],val=0,subPhase=0;
+let subState={active:'start',startPieces:[],removePieces:[],resultPieces:[],startVal:0,removeVal:0,resultVal:0,phase:'inputs'};
+const $=s=>document.querySelector(s);
+function fmt(v,d=2){return Number(v).toLocaleString('it-IT',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function setFb(t,k=''){let e=$('#feedback');e.textContent=t;e.className='feedback '+k}
+function path(){let p=$('#path');p.innerHTML='';levels.forEach((_,n)=>{let d=document.createElement('button');d.className='dot '+(n<i?'done':n===i?'current':'');d.textContent=n+1;d.onclick=()=>{i=n;render()};p.appendChild(d)})}
+function tile(type,onRemove){let d=document.createElement('div');d.className='tile '+type;d.textContent=type==='m'?'1 m':type==='dm'?'1 dm':'';d.title='Clicca per togliere questo blocco';if(onRemove)d.onclick=onRemove;return d}
+function typeValue(t){return {m:1,dm:.1,cm:.01,mm:.001}[t]}
+function valueType(v){return v===1?'m':v===.1?'dm':v===.01?'cm':'mm'}
+function decompose(v){let mm=Math.round(v*1000);let out=[];let m=Math.floor(mm/1000);mm%=1000;let dm=Math.floor(mm/100);mm%=100;let cm=Math.floor(mm/10);let rest=mm%10;for(let j=0;j<m;j++)out.push('m');for(let j=0;j<dm;j++)out.push('dm');for(let j=0;j<cm;j++)out.push('cm');for(let j=0;j<rest;j++)out.push('mm');return out}
+function piecesHTML(arr,cls=''){let w=document.createElement('div');w.className='barPieces '+cls;arr.forEach(t=>w.appendChild(tile(t)));return w}
+function render(){pieces=[];val=0;subPhase=0;subState={active:'start',startPieces:[],removePieces:[],resultPieces:[],startVal:0,removeVal:0,resultVal:0,phase:'inputs'};path();$('#level').textContent=String(i+1).padStart(2,'0')+' / '+levels.length;let L=levels[i];$('#mission').textContent=L.q;$('#hint').textContent=L.h||'';$('#stage').innerHTML='';setFb('');if(L.type==='build')showBuild(L);if(L.type==='choose')showChoose(L);if(L.type==='calc')showCalc(L);if(L.type==='subtract')showSubtract(L)}
+function showBuild(L){let wrap=document.createElement('div');wrap.className='builder';wrap.innerHTML='<div class="buildLabel">AGGIUNGI I BLOCCHI · CLICCA SU UN BLOCCO PER TOGLIERLO</div><div class="buildArea" id="build"></div><div class="measure" id="measure">0,00 m</div><div class="controls"><button class="btn mBtn" data-v="1">+ 1 m</button><button class="btn dmBtn" data-v=".1">+ 1 dm</button><button class="btn cmBtn" data-v=".01">+ 1 cm</button><button class="btn mmBtn" data-v=".001">+ 1 mm</button><button class="btn ok" id="check">CONFERMA</button></div>';$('#stage').appendChild(wrap);wrap.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{let v=+b.dataset.v;val=Math.round((val+v)*1000)/1000;pieces.push(valueType(v));drawBuild()});$('#check').onclick=()=>{if(Math.abs(val-L.target)<.0005){setFb('CORRETTO ✓','goodText');setTimeout(next,700)}else setFb('Non ancora: clicca sui blocchi sbagliati per toglierli.','badText')}}
+function drawBuild(){let a=$('#build');a.innerHTML='';pieces.forEach((t,idx)=>a.appendChild(tile(t,()=>{val=Math.round((val-typeValue(t))*1000)/1000;pieces.splice(idx,1);drawBuild()})));$('#measure').textContent=fmt(val, val%1===0?0:3).replace(/,?0+$/,'')+' m'}
+function showChoose(L){let b=document.createElement('div');b.className='choiceBox';L.choices.forEach((c,n)=>{let x=document.createElement('button');x.className='choice';x.textContent=c;x.onclick=()=>{if(n===L.a){setFb('CORRETTO ✓','goodText');setTimeout(next,700)}else setFb('Riprova guardando il valore delle cifre.','badText')};b.appendChild(x)});$('#stage').appendChild(b)}
+function showCalc(L){let b=document.createElement('div');b.className='calc';b.innerHTML='<input id="ans" placeholder="risultato"><button class="btn ok" id="go">CONTROLLA</button>';$('#stage').appendChild(b);$('#go').onclick=()=>{let v=parseFloat($('#ans').value.replace(',','.'));if(Math.abs(v-L.exact)<.011){setFb('CORRETTO ✓','goodText');setTimeout(next,700)}else setFb('Riprova.','badText')};$('#ans').onkeydown=e=>{if(e.key==='Enter')$('#go').click()}}
+function showSubtract(L){
+  subState={active:'start',startPieces:[],removePieces:[],resultPieces:[],startVal:0,removeVal:0,resultVal:0,phase:'inputs'};
+  let op=document.createElement('div');op.className='subBuilder';op.id='subBuilder';
+  op.innerHTML=`
+    <div class="subExplain">Costruisci entrambe le lunghezze. Clicca su una riga per scegliere dove aggiungere i blocchi.</div>
+    <div class="subRow active" id="rowStart">
+      <div class="subRowName">PARTO DA</div><div class="buildArea compact" id="subStart"></div><div class="subRowValue" id="subStartVal">0,00 m</div>
+    </div>
+    <div class="minusSign">−</div>
+    <div class="subRow" id="rowRemove">
+      <div class="subRowName">TOLGO</div><div class="buildArea compact" id="subRemove"></div><div class="subRowValue" id="subRemoveVal">0,00 m</div>
+    </div>
+    <div class="subControls" id="subControls">
+      <button class="btn mBtn" data-v="1">+ 1 m</button><button class="btn dmBtn" data-v=".1">+ 1 dm</button><button class="btn cmBtn" data-v=".01">+ 1 cm</button><button class="btn mmBtn" data-v=".001">+ 1 mm</button><button class="btn ok" id="checkSubInputs">CONFERMA</button>
+    </div>`;
+  $('#stage').appendChild(op);
+  $('#rowStart').onclick=()=>setSubActive('start');
+  $('#rowRemove').onclick=()=>setSubActive('remove');
+  op.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>addSubPiece(+b.dataset.v));
+  $('#checkSubInputs').onclick=()=>checkSubInputs(L);
+  drawSub();
+}
+function setSubActive(which){
+  subState.active=which;
+  $('#rowStart')?.classList.toggle('active',which==='start');
+  $('#rowRemove')?.classList.toggle('active',which==='remove');
+  $('#rowResult')?.classList.toggle('active',which==='result');
+}
+function addSubPiece(v){
+  const key=subState.active || (subState.phase==='result'?'result':'start');
+  subState[key+'Pieces'].push(valueType(v));
+  subState[key+'Val']=Math.round((subState[key+'Val']+v)*1000)/1000;
+  drawSub();
+}
+function removeSubPiece(group,idx){
+  const arr=subState[group+'Pieces'];
+  const t=arr[idx]; if(!t)return;
+  arr.splice(idx,1);
+  subState[group+'Val']=Math.round((subState[group+'Val']-typeValue(t))*1000)/1000;
+  drawSub();
+}
+function fillSubArea(id,group){
+  const el=$(id); if(!el)return; el.innerHTML='';
+  subState[group+'Pieces'].forEach((t,idx)=>el.appendChild(tile(t,()=>removeSubPiece(group,idx))));
+}
+function drawSub(){
+  fillSubArea('#subStart','start');
+  fillSubArea('#subRemove','remove');
+  fillSubArea('#subResult','result');
+  if($('#subStartVal')) $('#subStartVal').textContent=fmt(subState.startVal,2)+' m';
+  if($('#subRemoveVal')) $('#subRemoveVal').textContent=fmt(subState.removeVal,2)+' m';
+  if($('#subResultVal')) $('#subResultVal').textContent=fmt(subState.resultVal,2)+' m';
+}
+function checkSubInputs(L){
+  const okStart=Math.abs(subState.startVal-L.start)<.0005;
+  const okRemove=Math.abs(subState.removeVal-L.remove)<.0005;
+  if(!okStart||!okRemove){
+    let msg='Controlla ';
+    if(!okStart&&!okRemove)msg+='entrambi i pezzi.'; else if(!okStart)msg+='il pezzo iniziale.'; else msg+='il pezzo da togliere.';
+    setFb(msg+' Clicca sui blocchi sbagliati per toglierli.','badText');
+    return;
+  }
+  showSubtractResultBuilder(L);
+}
+function showSubtractResultBuilder(L){
+  subState.phase='result';
+  subState.active='result';
+  const op=$('#subBuilder');
+  op.innerHTML=`
+    <div class="subExplain">Ora costruisci il resto. Se noti un errore, puoi ancora cliccare sui blocchi di PARTO DA o TOLGO per modificarli.</div>
+    <div class="subRow" id="rowStart">
+      <div class="subRowName">PARTO DA</div><div class="buildArea compact" id="subStart"></div><div class="subRowValue" id="subStartVal">0,00 m</div>
+    </div>
+    <div class="minusSign">−</div>
+    <div class="subRow" id="rowRemove">
+      <div class="subRowName">TOLGO</div><div class="buildArea compact" id="subRemove"></div><div class="subRowValue" id="subRemoveVal">0,00 m</div>
+    </div>
+    <div class="resultPrompt">
+      <div class="subRow active" id="rowResult">
+        <div class="subRowName">RESTA</div><div class="buildArea compact" id="subResult"></div><div class="subRowValue" id="subResultVal">0,00 m</div>
+      </div>
+    </div>
+    <div class="subControls">
+      <button class="btn mBtn" data-v="1">+ 1 m</button><button class="btn dmBtn" data-v=".1">+ 1 dm</button><button class="btn cmBtn" data-v=".01">+ 1 cm</button><button class="btn mmBtn" data-v=".001">+ 1 mm</button><button class="btn ok" id="checkSubResult">CONFERMA</button>
+    </div>`;
+  $('#rowStart').onclick=()=>setSubActive('start');
+  $('#rowRemove').onclick=()=>setSubActive('remove');
+  $('#rowResult').onclick=()=>setSubActive('result');
+  op.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>addSubPiece(+b.dataset.v));
+  $('#checkSubResult').onclick=()=>{
+    const okStart=Math.abs(subState.startVal-L.start)<.0005;
+    const okRemove=Math.abs(subState.removeVal-L.remove)<.0005;
+    const okResult=Math.abs(subState.resultVal-L.result)<.0005;
+    if(okStart && okRemove && okResult){setFb(`${fmt(L.start,2)} − ${fmt(L.remove,2)} = ${fmt(L.result,2)} m ✓`,'goodText');setTimeout(next,900)}
+    else if(!okStart || !okRemove) setFb('Hai modificato PARTO DA o TOLGO: sistemali e poi controlla di nuovo il resto.','badText');
+    else setFb('Il resto non è ancora corretto: clicca sui blocchi da togliere e ricostruisci.','badText');
+  };
+  drawSub();
+}
+function next(){if(i<levels.length-1){i++;render()}else{setFb('MISSIONE COMPLETATA ★','goodText')}}
+$('#prev').onclick=()=>{if(i>0){i--;render()}};$('#restart').onclick=()=>{i=0;render()};$('#full').onclick=()=>document.documentElement.requestFullscreen?.();render();
+</script></body></html>
