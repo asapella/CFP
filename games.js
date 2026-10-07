@@ -148,6 +148,14 @@ const GAMES = [
   "icon": "🐸",
   "url": "attivita/decimal-frog/"
 },
+{
+  "title": "Operation Bobble",
+  "classes": ["1 Legno"],
+  "subject": "Matematica · Operazioni",
+  "description": "Raggruppa e spara le bolle per risolvere moltiplicazioni, divisioni e regole dei segni.",
+  "icon": "🫧",
+  "url": "attivita/operation-bobble/"
+},
   {
     "title": "Frazioni e divisioni",
     "classes": ["1 Legno"],
