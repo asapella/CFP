@@ -131,6 +131,23 @@ const GAMES = [
   "icon": "⚛️",
   "url": "attivita/atom-lab/"
 },
+{
+  "title": "Decimal Workshop",
+  "classes": ["1 Legno"],
+  "subject": "Matematica · Decimali e misure",
+  "description": "Costruisci misure con blocchi da m, dm, cm e mm e visualizza le operazioni con i decimali.",
+  "icon": "📏",
+  "url": "attivita/decimal-workshop/"
+},
+
+{
+  "title": "Decimal Frog",
+  "classes": ["1 Legno"],
+  "subject": "Matematica · Decimali e stime",
+  "description": "Salta sulle risposte in movimento e supera 16 livelli su decimali, misure, calcoli e stime.",
+  "icon": "🐸",
+  "url": "attivita/decimal-frog/"
+},
   {
     "title": "Frazioni e divisioni",
     "classes": ["1 Legno"],
