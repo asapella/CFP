@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Decimal Frog</title>
+<style>
+:root{
+  --bg:#151326;--panel:#201c37;--ink:#f5f0dc;--muted:#b9b2cb;--yellow:#efc64b;
+  --water:#285f9c;--water2:#214f82;--bank:#387b47;--bank2:#2d6339;
+  --pad:#67c66e;--padEdge:#164826;--bad:#df6670;--line:#0d0b16;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:Verdana,Arial,sans-serif}
+body{image-rendering:pixelated}
+#game{height:100vh;display:grid;grid-template-rows:auto 1fr auto;gap:6px;padding:7px;background:var(--bg)}
+.top{min-height:68px;background:var(--panel);border:3px solid var(--line);padding:8px 12px;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+.badge{font-size:11px;font-weight:900;color:var(--yellow);white-space:nowrap;text-transform:uppercase}
+.question{font-size:clamp(17px,2.2vw,28px);font-weight:900;text-align:center;line-height:1.12}
+.pond{position:relative;min-height:0;overflow:hidden;border:3px solid var(--line);background:repeating-linear-gradient(90deg,var(--water) 0 44px,var(--water2) 44px 88px);outline:none}
+.pond:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 3px,transparent 3px 30px);pointer-events:none}
+.bank{position:absolute;left:0;right:0;height:64px;background:repeating-linear-gradient(90deg,var(--bank) 0 32px,var(--bank2) 32px 64px);z-index:1;border-top:4px solid #214d2c}
+.bank.bottom{bottom:0}
+.base{position:absolute;height:68px;width:clamp(120px,20vw,180px);left:50%;bottom:64px;transform:translateX(-50%);display:none;align-items:center;justify-content:center;background:#4d9f59;border:4px solid var(--padEdge);color:#102316;font-weight:900;text-align:center;z-index:2}
+.base.show{display:flex}
+.lane{position:absolute;left:0;right:0;height:84px;top:38%;border-top:2px solid rgba(255,255,255,.08);border-bottom:2px solid rgba(0,0,0,.15);z-index:2}
+.pad{position:absolute;top:7px;width:clamp(120px,19vw,175px);height:66px;border:4px solid var(--padEdge);background:var(--pad);color:#102316;font-weight:900;font-size:clamp(14px,1.7vw,22px);display:grid;place-items:center;text-align:center;padding:6px;user-select:none}
+.pad::after{content:"";position:absolute;inset:7px;border:2px solid rgba(255,255,255,.16);pointer-events:none}
+.pad.sink{animation:sink .55s steps(6) forwards}
+@keyframes sink{to{transform:translateY(140px);opacity:.25}}
+.frog{position:absolute;width:50px;height:48px;left:50%;bottom:75px;transform:translateX(-50%);z-index:5;transition:left .09s linear, top .12s linear, bottom .12s linear}
+.frog.jump{transition:left .22s linear, top .22s cubic-bezier(.25,.8,.4,1)}
+.frog.dead{animation:die .6s steps(7) forwards}
+@keyframes die{30%{transform:translate(-50%,-20px) rotate(-12deg)}100%{transform:translate(-50%,180px) rotate(90deg);opacity:0}}
+.frog .body{position:absolute;left:3px;right:3px;bottom:0;height:31px;background:#67d96b;border:4px solid #174c27}
+.frog .head{position:absolute;left:8px;right:8px;top:0;height:25px;background:#82ec7b;border:4px solid #174c27}
+.eye{position:absolute;top:3px;width:8px;height:8px;background:#fff;border:2px solid #174c27}.eye:after{content:"";position:absolute;width:2px;height:2px;left:2px;top:2px;background:#000}.eye.l{left:5px}.eye.r{right:5px}
+.feedback{position:absolute;left:50%;top:19%;transform:translateX(-50%);background:#151226;border:4px solid var(--yellow);padding:9px 13px;font-weight:900;font-size:clamp(15px,1.8vw,22px);text-align:center;z-index:8;opacity:0;pointer-events:none}
+.feedback.show{opacity:1}.feedback.bad{border-color:var(--bad)}
+.bottom{display:flex;align-items:center;justify-content:center;gap:8px;min-height:38px;color:var(--muted);font-size:12px}
+.key{display:inline-block;min-width:28px;padding:3px 6px;background:var(--panel);border:2px solid var(--line);color:#fff;text-align:center;font-weight:900}
+@media(max-width:620px){.top{grid-template-columns:1fr;gap:5px}.badge{text-align:center}.question{font-size:17px}.pad{width:128px;font-size:13px}.feedback{top:23%}}
+</style>
+</head>
+<body>
+<div id="game">
+  <div class="top">
+    <div class="badge" id="badge">BASE · 1/4</div>
+    <div class="question" id="question"></div>
+  </div>
+
+  <main class="pond" id="pond" tabindex="0" aria-label="Muovi la rana con sinistra e destra. Premi su per saltare sulla risposta.">
+    <div class="lane" id="lane"></div>
+    <div class="base" id="base"></div>
+    <div class="bank bottom"></div>
+
+    <div class="frog" id="frog" aria-hidden="true">
+      <div class="head"><span class="eye l"></span><span class="eye r"></span></div>
+      <div class="body"></div>
+    </div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+  </main>
+
+  <div class="bottom"><span class="key">←</span><span class="key">→</span> sposta · <span class="key">↑</span> salta</div>
+</div>
+
+<script>
+const levels=[
+  // BASE 1-4
+  {d:'BASE',q:'Quale misura equivale a 0,7 m?',o:['0,07 m','0,70 m','7,0 m'],a:1,e:'0,7 = 0,70'},
+  {d:'BASE',q:'Quale misura è più lunga?',o:['1,09 m','1,19 m','1,01 m'],a:1,e:'1,19 m = 119 cm'},
+  {d:'BASE',q:'1 m + 3 dm + 4 cm = ?',o:['1,34 m','1,304 m','1,43 m'],a:0,e:'1,34 m'},
+  {d:'BASE',q:'Quanto manca da 0,64 m a 1 m?',o:['0,36 m','0,46 m','3,6 m'],a:0,e:'0,36 m'},
+
+  // MEDIO 5-8
+  {d:'MEDIO',q:'Stima: 2,7 × 3 è vicino a…',o:['0,8','8','80'],a:1,e:'2,7 × 3 = 8,1'},
+  {d:'MEDIO',q:'Stima: 6,3 : 3 è vicino a…',o:['21','2,1','0,21'],a:1,e:'6,3 : 3 = 2,1'},
+  {d:'MEDIO',q:'0,56 m + 0,30 m = ?',o:['0,86 m','0,806 m','8,6 m'],a:0,e:'0,86 m'},
+  {d:'MEDIO',q:'Quale numero sta tra 1,4 e 1,5?',o:['1,04','1,46','1,54'],a:1,e:'1,46 è tra 1,4 e 1,5'},
+
+  // DIFFICILE 9-12
+  {d:'DIFFICILE',q:'4 pezzi da €1,75 costano…',o:['€7,00','€0,70','€70'],a:0,e:'1,75 × 4 = 7,00'},
+  {d:'DIFFICILE',q:'1,28 m − 0,39 m = ?',o:['0,89 m','0,99 m','8,9 m'],a:0,e:'0,89 m'},
+  {d:'DIFFICILE',q:'Quale ordine è corretto?',o:['0,98 < 1,08 < 1,18','1,08 < 0,98 < 1,18','1,18 < 1,08 < 0,98'],a:0,e:'98 < 108 < 118 cm'},
+  {d:'DIFFICILE',q:'Quale risultato è plausibile per 7,6 : 4?',o:['1,9','19','0,19'],a:0,e:'7,6 : 4 = 1,9'},
+
+  // GOAT 13-16
+  {d:'GOAT',q:'Quale è il maggiore?',o:['1,405','1,45','1,054'],a:1,e:'1,45 = 1,450'},
+  {d:'GOAT',q:'0,48 × 3 = ?',o:['1,44','0,144','14,4'],a:0,e:'0,48 × 3 = 1,44'},
+  {d:'GOAT',q:'2,04 m − 0,875 m è circa…',o:['1,2 m','12 m','0,12 m'],a:0,e:'Il risultato esatto è 1,165 m'},
+  {d:'GOAT',q:'Boss: €2,35 × 3 + €0,80 = ?',o:['€7,85','€7,05','€78,5'],a:0,e:'7,05 + 0,80 = 7,85'}
+];
+
+const pond=document.getElementById('pond');
+const lane=document.getElementById('lane');
+const frog=document.getElementById('frog');
+const base=document.getElementById('base');
+const feedback=document.getElementById('feedback');
+const badge=document.getElementById('badge');
+const question=document.getElementById('question');
+
+let level=0;
+let pads=[];
+let running=true;
+let locked=false;
+let frogX=0;
+let raf=0;
+let last=performance.now();
+let currentBaseText='';
+const moveStep=34;
+
+function blockIndex(){return Math.floor(level/4);}
+function speedForLevel(){return [72,92,114,138][blockIndex()];}
+function rowInBlock(){return level%4+1;}
+
+function resetFrog(){
+  frog.className='frog';
+  frog.style.opacity='1';
+  const w=pond.clientWidth;
+  frogX=Math.max(0,w/2-25);
+  frog.style.left=frogX+'px';
+  frog.style.bottom=base.classList.contains('show')?'126px':'75px';
+  frog.style.top='auto';
+  frog.style.transform='none';
+}
+
+function spawnPads(){
+  lane.innerHTML='';
+  pads=[];
+  const L=levels[level];
+  const W=Math.max(pond.clientWidth,340);
+  const gap=Math.max(215,W/2.2);
+  const direction=(level%2===0)?1:-1;
+  const speed=speedForLevel()*direction;
+  const start=direction>0?-150:W+20;
+  const positions=direction>0?[start,start+gap,start+gap*2]:[start,start-gap,start-gap*2];
+  L.o.forEach((text,i)=>{
+    const el=document.createElement('div');
+    el.className='pad';
+    el.textContent=text;
+    lane.appendChild(el);
+    pads.push({el,index:i,x:positions[i],speed});
+  });
+  drawPads();
+}
+
+function drawPads(){pads.forEach(p=>p.el.style.left=p.x+'px');}
+function movePads(dt){
+  if(!running)return;
+  const W=pond.clientWidth;
+  for(const p of pads){
+    const w=p.el.offsetWidth||150;
+    p.x+=p.speed*dt;
+    if(p.speed>0 && p.x>W+20)p.x=-w-20;
+    if(p.speed<0 && p.x<-w-20)p.x=W+20;
+  }
+  drawPads();
+}
+
+function moveFrog(dx){
+  if(locked)return;
+  const maxX=pond.clientWidth-frog.offsetWidth;
+  frogX=Math.max(0,Math.min(maxX,frogX+dx));
+  frog.style.left=frogX+'px';
+}
+
+function jump(){
+  if(locked)return;
+  locked=true;
+  running=true;
+  frog.classList.add('jump');
+  const laneRect=lane.getBoundingClientRect();
+  const pondRect=pond.getBoundingClientRect();
+  const landingTop=laneRect.top-pondRect.top + 15;
+  frog.style.top=landingTop+'px';
+  frog.style.bottom='auto';
+  setTimeout(resolveLanding,230);
+}
+
+function overlapX(a,b){return a.left < b.right-8 && a.right > b.left+8;}
+function resolveLanding(){
+  const fr=frog.getBoundingClientRect();
+  const hit=pads.find(p=>overlapX(fr,p.el.getBoundingClientRect()));
+  if(!hit){die(null);return;}
+  const L=levels[level];
+  if(hit.index===L.a){
+    running=false;
+    const pr=hit.el.getBoundingClientRect();
+    const pondRect=pond.getBoundingClientRect();
+    frogX=pr.left-pondRect.left+(pr.width-frog.offsetWidth)/2;
+    frog.style.left=frogX+'px';
+    frog.style.top=(pr.top-pondRect.top-34)+'px';
+    hit.el.style.animation='none';
+    currentBaseText=L.o[hit.index];
+    show('GIUSTO',false);
+    setTimeout(advance,620);
+  }else die(hit);
+}
+
+function die(hit){
+  running=false;
+  if(hit)hit.el.classList.add('sink');
+  feedback.textContent='SBAGLIATO';
+  feedback.className='feedback show bad';
+  frog.classList.remove('jump');
+  frog.classList.add('dead');
+  setTimeout(()=>{
+    feedback.className='feedback';
+    locked=false;
+    running=true;
+    spawnPads();
+    resetFrog();
+    pond.focus();
+  },900);
+}
+
+function show(text,bad){
+  feedback.textContent=text;
+  feedback.className='feedback show'+(bad?' bad':'');
+}
+
+function advance(){
+  base.textContent=currentBaseText;
+  base.classList.add('show');
+  feedback.className='feedback';
+  level++;
+  if(level>=levels.length){finish();return;}
+  load(false);
+}
+
+function load(resetBase=false){
+  locked=false;
+  running=true;
+  if(resetBase){base.classList.remove('show');currentBaseText='';}
+  const L=levels[level];
+  badge.textContent=`${L.d} · ${rowInBlock()}/4`;
+  question.textContent=L.q;
+  spawnPads();
+  resetFrog();
+  pond.focus();
+}
+
+function finish(){
+  locked=true;running=false;
+  lane.innerHTML='';
+  question.textContent='Percorso completato';
+  badge.textContent='GOAT · 4/4';
+  base.textContent='🏁';
+  base.classList.add('show');
+  show('TRAGUARDO',false);
+  resetFrog();
+}
+
+function loop(now){
+  const dt=Math.min(.04,(now-last)/1000);
+  last=now;
+  movePads(dt);
+  raf=requestAnimationFrame(loop);
+}
+
+pond.addEventListener('keydown',e=>{
+  if(['ArrowLeft','ArrowRight','ArrowUp'].includes(e.key))e.preventDefault();
+  if(e.key==='ArrowLeft')moveFrog(-moveStep);
+  if(e.key==='ArrowRight')moveFrog(moveStep);
+  if(e.key==='ArrowUp')jump();
+});
+
+document.addEventListener('keydown',e=>{
+  if(document.activeElement!==pond && ['ArrowLeft','ArrowRight','ArrowUp'].includes(e.key)){
+    pond.focus();
+    e.preventDefault();
+    if(e.key==='ArrowLeft')moveFrog(-moveStep);
+    if(e.key==='ArrowRight')moveFrog(moveStep);
+    if(e.key==='ArrowUp')jump();
+  }
+});
+
+window.addEventListener('resize',resetFrog);
+raf=requestAnimationFrame(loop);
+load(true);
+</script>
+</body>
+</html>
