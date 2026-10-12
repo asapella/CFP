@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>I prodotti notevoli — Docente</title>
+  <title>Missioni di matematica — Docente</title>
   <link rel="stylesheet" href="../assets/css/app.css">
 </head>
 <body>
@@ -60,6 +60,31 @@
             <button id="exportLevelsBtn" class="btn ghost">CSV livelli/studenti</button>
             <button id="exportAttemptsBtn" class="btn ghost">CSV cronologia tentativi</button>
           </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <div class="row space">
+            <div>
+              <h2 class="section-title">Elenco studenti ammessi</h2>
+              <p class="muted">Incolla l’elenco così com’è: un nominativo per riga. Il sistema ripulisce numerazioni, righe vuote e spazi.</p>
+            </div>
+            <button id="reloadRosterBtn" class="btn ghost">Ricarica elenco</button>
+          </div>
+
+          <label for="rosterInput">Incolla qui gli studenti</label>
+          <textarea id="rosterInput" class="field" rows="9" spellcheck="false" placeholder="Mario Rossi&#10;Luca Bianchi&#10;Andrea Verdi"></textarea>
+          <div id="rosterPreview" class="muted small" style="margin-top:7px">Incolla un nominativo per riga.</div>
+
+          <div class="row" style="margin-top:12px">
+            <button id="saveRosterBtn" class="btn">Salva elenco studenti</button>
+          </div>
+
+          <div class="divider"></div>
+          <div class="row space">
+            <h3 style="margin:0">Elenco attuale</h3>
+            <div id="rosterStatus"></div>
+          </div>
+          <div id="rosterList" style="margin-top:10px"><p class="muted">Apri una classe per caricare l’elenco.</p></div>
         </div>
 
         <div class="card" style="margin-top:16px">
