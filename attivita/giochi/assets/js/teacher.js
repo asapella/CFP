@@ -113,11 +113,20 @@ function renderRoster(){
   const claimed=activeRoster.filter(x=>x.claimed).length;
   status.innerHTML=`<span class="badge ok">${activeRoster.length} ammessi</span> <span class="badge">${claimed} già entrati</span>`;
   box.innerHTML=`<div class="table-wrap"><table class="table">
-    <thead><tr><th>Studente ammesso</th><th>Stato</th></tr></thead>
-    <tbody>${activeRoster.map(r=>`<tr><td><b>${esc(r.student_name)}</b></td><td>${r.claimed?'<span class="badge ok">✓ accesso usato</span>':'<span class="badge">in attesa</span>'}</td></tr>`).join('')}</tbody>
+    <thead><tr><th>Studente ammesso</th><th>Stato</th><th></th></tr></thead>
+    <tbody>${activeRoster.map(r=>`<tr>
+      <td><b>${esc(r.student_name)}</b></td>
+      <td>${r.claimed?'<span class="badge ok">✓ accesso usato</span>':'<span class="badge">in attesa</span>'}</td>
+      <td>${r.claimed
+        ? `<button class="btn ghost roster-open-student" data-student-id="${esc(r.claimed_by_student_id||'')}">Apri studente</button>`
+        : `<button class="btn danger roster-remove" data-roster-id="${esc(r.id)}" data-name="${esc(r.student_name)}">Togli</button>`}
+      </td>
+    </tr>`).join('')}</tbody>
   </table></div>`;
-}
 
+  box.querySelectorAll('.roster-remove').forEach(b=>b.onclick=()=>removeRosterMember(b.dataset.rosterId,b.dataset.name));
+  box.querySelectorAll('.roster-open-student').forEach(b=>b.onclick=()=>b.dataset.studentId&&openStudent(b.dataset.studentId));
+}
 async function loadRoster(silent=false){
   if(!activeClassId)return;
   try{
@@ -131,6 +140,29 @@ async function loadRoster(silent=false){
     if(box)box.innerHTML='<p class="muted">Esegui prima il file SQL delle funzioni roster in Supabase.</p>';
     if(!silent)console.warn(e);
   }
+}
+
+
+async function addRosterMember(){
+  if(!activeClassId)return;
+  const input=$('#rosterAddName');
+  const name=input?.value.trim();
+  if(!name)return alertBox('Scrivi il nome dello studente da aggiungere.');
+  try{
+    $('#addRosterBtn').disabled=true;
+    await rpc('teacher_add_class_roster_member',{p_class_id:activeClassId,p_student_name:name},true);
+    input.value='';
+    await loadRoster();
+  }catch(e){alertBox(e.message)}
+  finally{$('#addRosterBtn').disabled=false}
+}
+
+async function removeRosterMember(rosterId,name){
+  if(!confirm(`Togliere ${name} dall'elenco degli studenti ammessi?`))return;
+  try{
+    await rpc('teacher_remove_class_roster_member',{p_roster_id:rosterId},true);
+    await loadRoster();
+  }catch(e){alertBox(e.message)}
 }
 
 async function saveRoster(){
@@ -236,7 +268,7 @@ $('#loginBtn').onclick=login;$('#logoutBtn').onclick=()=>{teacherSignOut();if(ti
 $('#openClassBtn').onclick=()=>setStatus('open');$('#closeAccessBtn').onclick=()=>setStatus('closed');$('#archiveClassBtn').onclick=()=>setStatus('archived');$('#deleteClassBtn').onclick=deleteClass;
 $('#studentFilter').oninput=()=>activeDash&&renderStudents();$('#studentSort').onchange=()=>activeDash&&renderStudents();$('#closeStudentModal').onclick=()=>$('#studentModal').classList.add('hidden');
 $('#exportSummaryBtn').onclick=exportSummary;$('#exportLevelsBtn').onclick=exportLevels;$('#exportAttemptsBtn').onclick=exportAttempts;
-$('#rosterInput').oninput=renderRosterPreview;$('#saveRosterBtn').onclick=saveRoster;$('#reloadRosterBtn').onclick=()=>loadRoster();
+$('#rosterInput').oninput=renderRosterPreview;$('#saveRosterBtn').onclick=saveRoster;$('#reloadRosterBtn').onclick=()=>loadRoster();$('#addRosterBtn').onclick=addRosterMember;$('#rosterAddName').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addRosterMember()}};
 $('#contentFile').onchange=e=>e.target.files[0]&&readContentFile(e.target.files[0]);$('#publishContentBtn').onclick=publishContent;$('#demoGame').onchange=loadDemoLevels;$('#loadDemoBtn').onclick=renderDemo;
 
 if(!configured())showLogin('Backend non configurato: modifica assets/js/config.js.');else if(teacherSession()){showApp();boot().catch(e=>showLogin(e.message))}else showLogin();
