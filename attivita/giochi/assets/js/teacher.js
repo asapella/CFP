@@ -3,7 +3,7 @@ import {rpc, teacherSignIn, teacherSignOut, teacherSession, configured, CONFIG} 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 const fmt=s=>s?new Date(s).toLocaleString('it-IT'):'—';
-let versions=[], classes=[], activeClassId=null, activeDash=null, activeOverview=null, timer=null, uploadPayload=null, demoContent=null;
+let versions=[], classes=[], activeClassId=null, activeDash=null, activeOverview=null, activeRoster=[], timer=null, uploadPayload=null, demoContent=null;
 
 function alertBox(msg){alert(msg)}
 function showApp(){
@@ -37,6 +37,7 @@ async function openClass(id){activeClassId=id;$('#classPanel').classList.remove(
 async function refreshClass(silent=false){
   if(!activeClassId)return;try{
     [activeDash,activeOverview]=await Promise.all([rpc('teacher_class_dashboard',{p_class_id:activeClassId},true),rpc('teacher_class_overview',{p_class_id:activeClassId},true)]);renderClass();
+    await loadRoster(true);
     if(!silent)$('#autoRefreshText').textContent=`aggiornato ${new Date().toLocaleTimeString('it-IT')}`;
   }catch(e){if(!silent)alertBox(e.message)}
 }
@@ -64,6 +65,102 @@ function renderOverview(){
   $('#hardLevels').innerHTML=hard.map(x=>`<div class="row space" style="margin:7px 0"><span>L${x.order} ${esc(x.title)}</span><span class="badge">${pct(x.wrong_attempts,x.attempts)}% errori</span></div>`).join('')||'<span class="muted">Nessun tentativo.</span>';
   $('#skillOverview').innerHTML=o.skills.map(x=>`<div class="row space" style="margin:7px 0"><span>${esc(x.label)}</span><span class="badge">${x.wrong_attempts}/${x.attempts} errori/tentativi</span></div>`).join('');
 }
+
+function parseRosterText(text){
+  const seen=new Set(), out=[];
+  String(text||'').split(/\r?\n/).forEach(raw=>{
+    let line=raw.trim();
+    if(!line || /^[-=_|•\s]+$/.test(line))return;
+
+    // Toglie numerazioni/bullet iniziali: "1. Mario Rossi", "2 | Luca Bianchi", "- Mario Rossi"
+    line=line.replace(/^\s*(?:[-•*]\s*|\d+\s*(?:[.)\-:]|\|)\s*)/,'').trim();
+
+    // Se arriva da una tabella copiata, sceglie la cella testuale più plausibile.
+    if(line.includes('\t') || line.includes('|')){
+      const cells=line.split(/\t|\|/).map(x=>x.trim()).filter(Boolean);
+      const candidates=cells.filter(x=>/[A-Za-zÀ-ÖØ-öø-ÿ]/.test(x) && !/^(nome|studente|alunno|cognome)$/i.test(x));
+      if(candidates.length) line=candidates.sort((a,b)=>b.length-a.length)[0];
+    }
+
+    line=line.replace(/\s+/g,' ').replace(/^["'“”]+|["'“”]+$/g,'').trim();
+    if(line.length<2 || !/[A-Za-zÀ-ÖØ-öø-ÿ]/.test(line))return;
+
+    const key=line.toLocaleLowerCase('it-IT');
+    if(!seen.has(key)){seen.add(key);out.push(line)}
+  });
+  return out;
+}
+
+function renderRosterPreview(){
+  const input=$('#rosterInput'), preview=$('#rosterPreview');
+  if(!input||!preview)return;
+  const names=parseRosterText(input.value);
+  preview.textContent=names.length
+    ? `${names.length} nominativ${names.length===1?'o':'i'} rilevat${names.length===1?'o':'i'}.`
+    : 'Incolla un nominativo per riga.';
+}
+
+function renderRoster(){
+  const box=$('#rosterList'), status=$('#rosterStatus');
+  if(!box||!status)return;
+
+  if(!Array.isArray(activeRoster) || !activeRoster.length){
+    status.innerHTML='<span class="badge warn">elenco vuoto</span> <span class="muted small">Con elenco vuoto la funzione student_join considera il roster non attivo.</span>';
+    box.innerHTML='<p class="muted">Nessuno studente ancora inserito nell’elenco.</p>';
+    return;
+  }
+
+  const claimed=activeRoster.filter(x=>x.claimed).length;
+  status.innerHTML=`<span class="badge ok">${activeRoster.length} ammessi</span> <span class="badge">${claimed} già entrati</span>`;
+  box.innerHTML=`<div class="table-wrap"><table class="table">
+    <thead><tr><th>Studente ammesso</th><th>Stato</th></tr></thead>
+    <tbody>${activeRoster.map(r=>`<tr><td><b>${esc(r.student_name)}</b></td><td>${r.claimed?'<span class="badge ok">✓ accesso usato</span>':'<span class="badge">in attesa</span>'}</td></tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+async function loadRoster(silent=false){
+  if(!activeClassId)return;
+  try{
+    const data=await rpc('teacher_get_class_roster',{p_class_id:activeClassId},true);
+    activeRoster=Array.isArray(data)?data:(data?.students||[]);
+    renderRoster();
+  }catch(e){
+    activeRoster=[];
+    const status=$('#rosterStatus'), box=$('#rosterList');
+    if(status)status.innerHTML='<span class="badge warn">backend roster non installato</span>';
+    if(box)box.innerHTML='<p class="muted">Esegui prima il file SQL delle funzioni roster in Supabase.</p>';
+    if(!silent)console.warn(e);
+  }
+}
+
+async function saveRoster(){
+  if(!activeClassId)return;
+  const names=parseRosterText($('#rosterInput').value);
+  if(!names.length)return alertBox('Incolla almeno un nominativo.');
+
+  const sample=names.slice(0,5).join('\n');
+  const more=names.length>5?`\n… e altri ${names.length-5}`:'';
+  if(!confirm(`Salvare ${names.length} studenti ammessi per questa classe?\n\n${sample}${more}\n\nI nominativi già associati a studenti non verranno cancellati.`))return;
+
+  try{
+    $('#saveRosterBtn').disabled=true;
+    const result=await rpc('teacher_save_class_roster',{
+      p_class_id:activeClassId,
+      p_names:names
+    },true);
+
+    $('#rosterInput').value='';
+    renderRosterPreview();
+    await loadRoster();
+    alertBox(`Elenco salvato: ${result?.total ?? activeRoster.length} studenti ammessi.`);
+  }catch(e){
+    alertBox(e.message);
+  }finally{
+    $('#saveRosterBtn').disabled=false;
+  }
+}
+
+
 async function setStatus(status){try{await rpc('teacher_set_class_status',{p_class_id:activeClassId,p_status:status},true);await Promise.all([loadClasses(),refreshClass()])}catch(e){alertBox(e.message)}}
 
 async function openStudent(id){
@@ -139,6 +236,7 @@ $('#loginBtn').onclick=login;$('#logoutBtn').onclick=()=>{teacherSignOut();if(ti
 $('#openClassBtn').onclick=()=>setStatus('open');$('#closeAccessBtn').onclick=()=>setStatus('closed');$('#archiveClassBtn').onclick=()=>setStatus('archived');$('#deleteClassBtn').onclick=deleteClass;
 $('#studentFilter').oninput=()=>activeDash&&renderStudents();$('#studentSort').onchange=()=>activeDash&&renderStudents();$('#closeStudentModal').onclick=()=>$('#studentModal').classList.add('hidden');
 $('#exportSummaryBtn').onclick=exportSummary;$('#exportLevelsBtn').onclick=exportLevels;$('#exportAttemptsBtn').onclick=exportAttempts;
+$('#rosterInput').oninput=renderRosterPreview;$('#saveRosterBtn').onclick=saveRoster;$('#reloadRosterBtn').onclick=()=>loadRoster();
 $('#contentFile').onchange=e=>e.target.files[0]&&readContentFile(e.target.files[0]);$('#publishContentBtn').onclick=publishContent;$('#demoGame').onchange=loadDemoLevels;$('#loadDemoBtn').onclick=renderDemo;
 
 if(!configured())showLogin('Backend non configurato: modifica assets/js/config.js.');else if(teacherSession()){showApp();boot().catch(e=>showLogin(e.message))}else showLogin();
