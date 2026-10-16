@@ -62,6 +62,16 @@ canvas{display:block;position:fixed;inset:0;touch-action:none}
 #avatarSetup{position:fixed;inset:0;z-index:100;background:#101c2ae8;display:grid;place-items:center;padding:16px;overflow:auto;touch-action:pan-y}#avatarSetup[hidden]{display:none}#avatarForm{width:min(100%,510px);max-height:95dvh;overflow:auto;padding:24px;border:1px solid #607184;border-radius:22px;background:#1b2c3f;touch-action:pan-y}#avatarForm h1{font-size:27px;line-height:1.1;color:#ffd264;margin:8px 0}#avatarForm p{font-size:13px;color:#bdcbd9;line-height:1.4}.kicker{font-size:10px;letter-spacing:2px;color:#69d7dc}.formGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}#avatarForm label{display:block;font-size:12px;color:#dbe7f0;font-weight:700}#avatarForm input,#avatarForm select{display:block;width:100%;min-height:44px;background:#142231;border:1px solid #587086;border-radius:10px;padding:10px;color:white;margin:5px 0 12px;font-size:15px}#avatarForm .enter{width:100%;padding:14px;border:0;border-radius:12px;background:#ffd264;color:#172d42;font-size:16px;font-weight:800;cursor:pointer}.small{font-size:11px!important}
 #avatarPreview{--skin:#be845c;--hoodie:#298cff;position:relative;height:140px;width:140px;margin:8px auto;background:#142231;border-radius:20px}.previewHead{position:absolute;left:48px;top:25px;width:44px;height:40px;background:var(--skin);color:#142231;text-align:center;letter-spacing:9px;padding-left:7px;font-size:23px;border-radius:8px}.previewHair{position:absolute;z-index:2;left:46px;top:18px;width:48px;height:15px;background:#3a251e;border-radius:8px 8px 0 0}.previewBody{position:absolute;left:40px;top:67px;width:60px;height:43px;background:var(--hoodie);border-radius:10px}.previewLegs{position:absolute;left:47px;top:110px;width:18px;height:20px;background:#a6b9cd;box-shadow:28px 0 #a6b9cd}.previewGlasses{display:none;position:absolute;z-index:3;left:48px;top:38px;width:44px;height:12px;border:4px solid #142231}#avatarPreview[data-accessory=glasses] .previewGlasses{display:block}#avatarPreview[data-accessory=backpack] .previewBody{box-shadow:-7px 2px #856c4d,7px 2px #856c4d}#avatarPreview[data-hair=long] .previewHair{height:58px;clip-path:polygon(0 0,100% 0,100% 100%,82% 100%,82% 25%,18% 25%,18% 100%,0 100%)}#avatarPreview[data-hair=bald] .previewHair{display:none}#avatarPreview[data-hair=spiky] .previewHair{clip-path:polygon(0 100%,5% 0,25% 40%,40% 0,55% 40%,75% 0,100% 100%);height:23px;top:10px}
 @media(max-width:1000px){#mission{display:none}}@media(max-width:600px){#plazaNav{top:80px;left:10px;right:10px;justify-content:center}#plazaNav a,#plazaNav button{font-size:12px;padding:10px}#zone{top:135px}#loadStatus{top:145px}#avatarForm{padding:18px}#avatarForm h1{font-size:23px}#avatarPreview{height:125px;transform:scale(.85);margin:-3px auto}#mobileLabel{display:none}#joystick{left:14px;bottom:max(14px,env(safe-area-inset-bottom));width:116px;height:116px}#stick{left:33px;top:33px}#mobileBtns{right:14px;bottom:max(16px,env(safe-area-inset-bottom));gap:7px}.roundBtn{width:62px;height:62px}#jumpBtn{width:70px;height:70px}}
+#avatarPreview[data-accessory="beard"] .previewHead::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  bottom: -3px;
+  height: 16px;
+  background: #3a251e;
+  border-radius: 0 0 12px 12px;
+}
 </style>
 <script type="importmap">
 {"imports":{"three":"./vendor/three.module.js"}}
@@ -105,7 +115,7 @@ canvas{display:block;position:fixed;inset:0;touch-action:none}
 <label>Felpa<select id="avatarHoodie"><option value="blue">Blu</option><option value="green">Verde</option><option value="orange">Arancione</option><option value="purple">Viola</option><option value="gold">Oro</option></select></label>
 <label>Carnagione<select id="avatarSkin"><option value="light">Chiara</option><option value="medium">Media</option><option value="dark">Scura</option></select></label>
 <label>Capelli<select id="avatarHair"><option value="short">Corti</option><option value="long">Lunghi</option><option value="spiky">A punta</option><option value="bald">Rasati</option></select></label>
-<label>Accessorio<select id="avatarAccessory"><option value="none">Nessuno</option><option value="backpack">Zaino</option><option value="glasses">Occhiali</option></select></label></div>
+<label>Accessorio<select id="avatarAccessory"><option value="none">Nessuno</option><option value="backpack">Zaino</option><option value="glasses">Occhiali</option><option value="beard">Barba</option></select></label></div>
 <p class="small">Salvato solo in questo browser. Non serve un account.</p><button class="enter" type="submit">Entra nella plaza →</button></form></div>
 <script>
 (()=>{
@@ -329,13 +339,24 @@ function makePlayer(){
   const backpack=makeBox(1.15,1.25,.35,pack,0,2.02,-.53,g);
   const packStripe=makeBox(.75,.13,.38,mat('pb',0x2ca4ff),0,2.1,-.72,g);
 
+const beard = new THREE.Group();
+g.add(beard);
+
+// Mento e lati della barba
+makeBox(.85, .36, .16, hair, 0, 2.97, .49, beard);
+for (const x of [-.43, .43]) {
+  makeBox(.18, .42, .16, hair, x, 3.10, .49, beard);
+}
+
   g.traverse(o=>{if(o.isMesh){o.castShadow=!MOBILE; o.receiveShadow=!MOBILE}});
-  g.userData={leftArm,rightArm,leftLeg,rightLeg,longHair,hairTop,spikes,glasses,backpack,packStripe};
+  g.userData={leftArm,rightArm,leftLeg,rightLeg,longHair,hairTop,spikes,glasses,backpack,packStripe,beard};
   scene.add(g);
   return g;
+
+
 }
 const player = makePlayer();
-function applyAvatar(){const a=window.plazaProfile.avatar;const colors={blue:0x298cff,green:0x36c879,orange:0xff9b44,purple:0x9c71ff,gold:0xd5aa5c},skins={light:0xf1c5a0,medium:0xbe845c,dark:0x744c38};mats.hood.color.setHex(colors[a.hoodie]||colors.blue);mats.skin.color.setHex(skins[a.skin]||skins.medium);const u=player.userData;u.hairTop.visible=a.hair!=='bald';u.spikes.visible=a.hair==='spiky';u.longHair.visible=a.hair==='long';u.glasses.visible=a.accessory==='glasses';u.backpack.visible=u.packStripe.visible=a.accessory==='backpack';}
+function applyAvatar(){const a=window.plazaProfile.avatar;const colors={blue:0x298cff,green:0x36c879,orange:0xff9b44,purple:0x9c71ff,gold:0xd5aa5c},skins={light:0xf1c5a0,medium:0xbe845c,dark:0x744c38};mats.hood.color.setHex(colors[a.hoodie]||colors.blue);mats.skin.color.setHex(skins[a.skin]||skins.medium);const u=player.userData;u.hairTop.visible=a.hair!=='bald';u.spikes.visible=a.hair==='spiky';u.longHair.visible=a.hair==='long';u.glasses.visible=a.accessory==='glasses';u.backpack.visible=u.packStripe.visible=a.accessory==='backpack';u.beard.visible = a.accessory === 'beard';}
 applyAvatar();addEventListener('avatar-changed',()=>{applyAvatar();Object.keys(keys).forEach(k=>keys[k]=false);joy.x=joy.y=0;joy.pointer=null});
 window.plazaReady=true;document.getElementById('loadStatus').hidden=true;
 
