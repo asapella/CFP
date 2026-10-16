@@ -1,0 +1,61 @@
+DIGITAL PLAZA — PACCHETTO PER GITHUB PAGES
+
+CONTENUTO
+index.html                  Plaza 3D e personalizzazione avatar
+cyber-tower-turbo.html       Cyber Tower con comandi touch e sfide automatiche
+build-a-bot.html            Gioco del robot con ritorno alla plaza
+vendor/                    Motore Three.js incluso e relativa licenza
+
+PUBBLICAZIONE NEL REPOSITORY CFP
+1. Estrai lo ZIP: ottieni la cartella digital-lab.
+2. Apri https://github.com/asapella/CFP e scegli il ramo usato da Pages.
+3. Dalla radice del repository scegli Add file > Upload files.
+4. Trascina la CARTELLA digital-lab estratta, non lo ZIP.
+5. Controlla che i percorsi inizino con digital-lab/; devono esserci
+   index.html, i due giochi e anche i file nella cartella vendor.
+6. Premi Commit changes e conferma il commit.
+7. Se GitHub Pages è già attivo, conserva le impostazioni esistenti.
+   In caso contrario: Settings > Pages > Build and deployment >
+   Source: Deploy from a branch; Branch: main; Folder: /(root); Save.
+   Usa main solo se è il ramo in cui hai caricato i file.
+8. Aspetta il completamento del deploy nella scheda Actions.
+9. Apri https://asapella.github.io/CFP/digital-lab/
+
+Questo indirizzo sarà valido DOPO il caricamento nel repository CFP
+con pubblicazione dalla radice. Il pacchetto non è ancora pubblicato.
+Se Pages pubblica da /docs, carica la cartella digital-lab dentro docs.
+Se usi un repository diverso, cambia CFP nel link con il suo nome.
+
+NON sostituire l'index.html nella radice del repository: il nuovo index
+rimane dentro digital-lab, così la home della Sala giochi resta al suo posto.
+Per aggiungere il collegamento alla home puoi usare:
+<a href="digital-lab/">Entra nella Digital Plaza</a>
+
+AVATAR
+Al primo ingresso scegli nickname, felpa, carnagione, capelli e accessorio.
+Il pulsante Avatar permette di cambiarli. Le preferenze restano in quel
+browser (localStorage); non sono un account e non si sincronizzano tra PC
+né tra studenti. Il nome e il colore della felpa sono ripresi in Cyber Tower.
+La plaza ripropone l'avatar salvato al ritorno dai giochi.
+
+COMANDI
+PC: WASD/frecce, spazio per saltare, trascina per ruotare la camera, E per
+entrare nei portali. Telefono: joystick, SALTA e AZIONE/ENTRA.
+I pulsanti Torre e Computer permettono anche l'accesso diretto ai giochi.
+Nei giochi premi ← Plaza per tornare. La partita in corso viene lasciata;
+la plaza conserva l'avatar, ma non ripristina una partita interrotta.
+
+ANTEPRIMA LOCALE
+La plaza 3D usa moduli JavaScript e va aperta tramite un server locale
+oppure GitHub Pages, non con un semplice doppio clic sull'HTML.
+Se Python è installato: dalla cartella che contiene digital-lab esegui
+python -m http.server 8000
+poi apri http://localhost:8000/digital-lab/
+I due giochi possono essere aperti singolarmente. Per navigare tra tutti
+usa un server. Nessuna CDN è richiesta: vendor contiene il motore 3D.
+Il primo caricamento del sito pubblico richiede rete; non è una PWA con
+cache offline automatica. Il 3D richiede WebGL nel browser.
+
+FONTI
+https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
+https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
