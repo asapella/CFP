@@ -58,8 +58,9 @@ canvas{display:block;position:fixed;inset:0;touch-action:none}
 :root{--glass:rgba(27,44,63,.95);--line:#40536a}button,a,input,select{touch-action:manipulation}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #ffd264;outline-offset:3px}
 #hint{top:auto;bottom:16px;right:16px}#mission b{color:#ffd264}#plazaNav{position:fixed;right:14px;top:14px;z-index:32;display:flex;gap:7px}#plazaNav a,#plazaNav button{font:700 13px system-ui;color:#fff7e3;background:#1b2c3ff0;border:1px solid #617386;border-radius:12px;text-decoration:none;padding:12px;cursor:pointer}
 #loadStatus{position:fixed;left:50%;top:100px;transform:translateX(-50%);z-index:33;background:#172d42;padding:14px;border-radius:14px;max-width:90vw;text-align:center;font-size:13px}#loadStatus[hidden]{display:none}
+#gestureHint{display:none}@media(pointer:coarse){#gestureHint{display:block;position:fixed;top:124px;left:12px;right:12px;z-index:20;text-align:center;color:#142231;font:600 12px system-ui;pointer-events:none}}
 #avatarSetup{position:fixed;inset:0;z-index:100;background:#101c2ae8;display:grid;place-items:center;padding:16px;overflow:auto;touch-action:pan-y}#avatarSetup[hidden]{display:none}#avatarForm{width:min(100%,510px);max-height:95dvh;overflow:auto;padding:24px;border:1px solid #607184;border-radius:22px;background:#1b2c3f;touch-action:pan-y}#avatarForm h1{font-size:27px;line-height:1.1;color:#ffd264;margin:8px 0}#avatarForm p{font-size:13px;color:#bdcbd9;line-height:1.4}.kicker{font-size:10px;letter-spacing:2px;color:#69d7dc}.formGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}#avatarForm label{display:block;font-size:12px;color:#dbe7f0;font-weight:700}#avatarForm input,#avatarForm select{display:block;width:100%;min-height:44px;background:#142231;border:1px solid #587086;border-radius:10px;padding:10px;color:white;margin:5px 0 12px;font-size:15px}#avatarForm .enter{width:100%;padding:14px;border:0;border-radius:12px;background:#ffd264;color:#172d42;font-size:16px;font-weight:800;cursor:pointer}.small{font-size:11px!important}
-#avatarPreview{--skin:#be845c;--hoodie:#298cff;position:relative;height:140px;width:140px;margin:8px auto;background:#142231;border-radius:20px}.previewHead{position:absolute;left:48px;top:25px;width:44px;height:40px;background:var(--skin);color:#142231;text-align:center;letter-spacing:9px;padding-left:7px;font-size:23px;border-radius:8px}.previewHair{position:absolute;z-index:2;left:46px;top:18px;width:48px;height:15px;background:#3a251e;border-radius:8px 8px 0 0}.previewBody{position:absolute;left:40px;top:67px;width:60px;height:43px;background:var(--hoodie);border-radius:10px}.previewLegs{position:absolute;left:47px;top:110px;width:18px;height:20px;background:#a6b9cd;box-shadow:28px 0 #a6b9cd}.previewGlasses{display:none;position:absolute;z-index:3;left:48px;top:38px;width:44px;height:12px;border:4px solid #142231}#avatarPreview[data-accessory=glasses] .previewGlasses{display:block}#avatarPreview[data-accessory=backpack] .previewBody{box-shadow:-7px 2px #856c4d,7px 2px #856c4d}#avatarPreview[data-hair=bald] .previewHair{display:none}#avatarPreview[data-hair=spiky] .previewHair{clip-path:polygon(0 100%,5% 0,25% 40%,40% 0,55% 40%,75% 0,100% 100%);height:23px;top:10px}
+#avatarPreview{--skin:#be845c;--hoodie:#298cff;position:relative;height:140px;width:140px;margin:8px auto;background:#142231;border-radius:20px}.previewHead{position:absolute;left:48px;top:25px;width:44px;height:40px;background:var(--skin);color:#142231;text-align:center;letter-spacing:9px;padding-left:7px;font-size:23px;border-radius:8px}.previewHair{position:absolute;z-index:2;left:46px;top:18px;width:48px;height:15px;background:#3a251e;border-radius:8px 8px 0 0}.previewBody{position:absolute;left:40px;top:67px;width:60px;height:43px;background:var(--hoodie);border-radius:10px}.previewLegs{position:absolute;left:47px;top:110px;width:18px;height:20px;background:#a6b9cd;box-shadow:28px 0 #a6b9cd}.previewGlasses{display:none;position:absolute;z-index:3;left:48px;top:38px;width:44px;height:12px;border:4px solid #142231}#avatarPreview[data-accessory=glasses] .previewGlasses{display:block}#avatarPreview[data-accessory=backpack] .previewBody{box-shadow:-7px 2px #856c4d,7px 2px #856c4d}#avatarPreview[data-hair=long] .previewHair{height:58px;clip-path:polygon(0 0,100% 0,100% 100%,82% 100%,82% 25%,18% 25%,18% 100%,0 100%)}#avatarPreview[data-hair=bald] .previewHair{display:none}#avatarPreview[data-hair=spiky] .previewHair{clip-path:polygon(0 100%,5% 0,25% 40%,40% 0,55% 40%,75% 0,100% 100%);height:23px;top:10px}
 @media(max-width:1000px){#mission{display:none}}@media(max-width:600px){#plazaNav{top:80px;left:10px;right:10px;justify-content:center}#plazaNav a,#plazaNav button{font-size:12px;padding:10px}#zone{top:135px}#loadStatus{top:145px}#avatarForm{padding:18px}#avatarForm h1{font-size:23px}#avatarPreview{height:125px;transform:scale(.85);margin:-3px auto}#mobileLabel{display:none}#joystick{left:14px;bottom:max(14px,env(safe-area-inset-bottom));width:116px;height:116px}#stick{left:33px;top:33px}#mobileBtns{right:14px;bottom:max(16px,env(safe-area-inset-bottom));gap:7px}.roundBtn{width:62px;height:62px}#jumpBtn{width:70px;height:70px}}
 </style>
 <script type="importmap">
@@ -76,14 +77,14 @@ canvas{display:block;position:fixed;inset:0;touch-action:none}
       <div id="xpText">Scegli il tuo stile</div>
     </div>
   </div>
-  <div id="mission" class="glass"><b>DIGITAL PLAZA</b>A sinistra: Cyber Tower. A destra: Build-a-Bot. Avvicinati a un portale e premi AZIONE o E.</div>
+  <div id="mission" class="glass"><b>DIGITAL PLAZA</b>A sinistra: Cyber Tower. A destra: Build-a-Bot. Attraversa il cerchio davanti a un edificio per entrare nel gioco.</div>
 </div>
-<div id="hint" class="glass">WASD / frecce · SPACE salta · trascina per ruotare la camera · E interagisce</div>
+<div id="hint" class="glass">WASD / frecce · SPACE salta · trascina per ruotare · rotella per zoomare · attraversa i cerchi per giocare</div>
 <div id="zone" class="glass"></div>
-<div id="prompt"><button id="promptBtn"><span class="key">E</span><span id="promptText">ENTRA</span></button></div>
+<div id="prompt"><button id="promptBtn"><span class="key">E</span><span id="promptText">PARLA CON BYTE</span></button></div>
 <div id="npcBubble"></div>
 <div id="joystick"><div id="stick"></div></div>
-<div id="mobileLabel">Trascina sul lato destro per ruotare la camera</div>
+<div id="mobileLabel">Trascina per ruotare · allarga due dita per avvicinare</div>
 <div id="mobileBtns"><button class="roundBtn" id="actionBtn">AZIONE</button><button class="roundBtn" id="jumpBtn">SALTA</button></div>
 <div id="modal">
   <div id="modalBox">
@@ -97,13 +98,13 @@ canvas{display:block;position:fixed;inset:0;touch-action:none}
   </div>
 </div>
 
-<nav id="plazaNav" aria-label="Navigazione plaza"><button id="editAvatar">✎ Avatar</button><a href="cyber-tower-turbo.html">🏢 Torre</a><a href="build-a-bot.html">🖥 Computer</a></nav>
+<nav id="plazaNav" aria-label="Navigazione plaza"><button id="editAvatar">✎ Avatar</button></nav><div id="gestureHint">Attraversa i cerchi per giocare · Due dita per zoomare</div>
 <div id="loadStatus" role="status">Caricamento della plaza 3D… Puoi anche usare i collegamenti ai giochi.</div>
 <div id="avatarSetup"><form id="avatarForm"><div class="kicker">BENVENUTO NEL DIGITAL LAB</div><h1>Il tuo avatar, la tua plaza.</h1><p>Scegli un nickname e il tuo stile. Potrai cambiarli quando vuoi.</p><div id="avatarPreview" aria-label="Anteprima avatar"><div class="previewHair"></div><div class="previewHead">••</div><div class="previewBody"></div><div class="previewLegs"></div><div class="previewGlasses"></div></div>
 <label>Nickname<input id="avatarName" maxlength="20" required autocomplete="off" placeholder="Es. Pixel"></label><div class="formGrid">
 <label>Felpa<select id="avatarHoodie"><option value="blue">Blu</option><option value="green">Verde</option><option value="orange">Arancione</option><option value="purple">Viola</option><option value="gold">Oro</option></select></label>
 <label>Carnagione<select id="avatarSkin"><option value="light">Chiara</option><option value="medium">Media</option><option value="dark">Scura</option></select></label>
-<label>Capelli<select id="avatarHair"><option value="short">Corti</option><option value="spiky">A punta</option><option value="bald">Rasati</option></select></label>
+<label>Capelli<select id="avatarHair"><option value="short">Corti</option><option value="long">Lunghi</option><option value="spiky">A punta</option><option value="bald">Rasati</option></select></label>
 <label>Accessorio<select id="avatarAccessory"><option value="none">Nessuno</option><option value="backpack">Zaino</option><option value="glasses">Occhiali</option></select></label></div>
 <p class="small">Salvato solo in questo browser. Non serve un account.</p><button class="enter" type="submit">Entra nella plaza →</button></form></div>
 <script>
@@ -119,7 +120,7 @@ canvas{display:block;position:fixed;inset:0;touch-action:none}
  $('avatarForm').addEventListener('input',preview);preview();profileHud();
  $('editAvatar').onclick=()=>{$('avatarSetup').hidden=false;$('avatarName').focus()};
  $('avatarForm').onsubmit=e=>{e.preventDefault();p.name=$('avatarName').value.trim()||'PIXEL';p.avatar={hoodie:$('avatarHoodie').value,skin:$('avatarSkin').value,hair:$('avatarHair').value,accessory:$('avatarAccessory').value};p.avatarConfigured=true;try{localStorage.setItem(KEY,JSON.stringify(p))}catch(e){}profileHud();$('avatarSetup').hidden=true;window.dispatchEvent(new Event('avatar-changed'))};
- setTimeout(()=>{if(!window.plazaReady)$('loadStatus').textContent='La vista 3D non si è avviata. Apri la pagina pubblicata su GitHub Pages oppure usa Torre / Computer qui sopra.'},12000);
+ setTimeout(()=>{if(!window.plazaReady)$('loadStatus').textContent='La vista 3D non si è avviata. Apri la pagina pubblicata su GitHub Pages e verifica che la cartella vendor sia presente.'},12000);
 })();
 </script>
 
@@ -303,6 +304,7 @@ function makePlayer(){
 
   makeBox(1.35,1.55,.72,hood,0,2.05,0,g);
   makeBox(1.05,.93,.9,skin,0,3.28,0,g);
+  const longHair=new THREE.Group();g.add(longHair);makeBox(1.18,1.65,.28,hair,0,3.12,-.48,longHair);for(const x of [-.56,.56])makeBox(.22,1.5,.82,hair,x,3.17,0,longHair);
   const hairTop=makeBox(1.12,.25,.95,hair,0,3.83,0,g);const spikes=new THREE.Group();g.add(spikes);for(let i=-1;i<=1;i++)makeBox(.24,.4,.55,hair,i*.34,4.05,0,spikes);const glasses=new THREE.Group();g.add(glasses);for(const x of [-.24,.24])makeBox(.37,.26,.12,mat('glasses',0x15263f),x,3.3,.53,glasses);makeBox(.15,.06,.12,mat('glasses',0x15263f),0,3.3,.53,glasses);
   makeBox(.11,.11,.08,hair,0,3.23,.49,g);
   [-.17,.17].forEach(x=>makeBox(.1,.1,.06,mat('eye',0x182238),x,3.28,.47,g));
@@ -328,12 +330,12 @@ function makePlayer(){
   const packStripe=makeBox(.75,.13,.38,mat('pb',0x2ca4ff),0,2.1,-.72,g);
 
   g.traverse(o=>{if(o.isMesh){o.castShadow=!MOBILE; o.receiveShadow=!MOBILE}});
-  g.userData={leftArm,rightArm,leftLeg,rightLeg,hairTop,spikes,glasses,backpack,packStripe};
+  g.userData={leftArm,rightArm,leftLeg,rightLeg,longHair,hairTop,spikes,glasses,backpack,packStripe};
   scene.add(g);
   return g;
 }
 const player = makePlayer();
-function applyAvatar(){const a=window.plazaProfile.avatar;const colors={blue:0x298cff,green:0x36c879,orange:0xff9b44,purple:0x9c71ff,gold:0xd5aa5c},skins={light:0xf1c5a0,medium:0xbe845c,dark:0x744c38};mats.hood.color.setHex(colors[a.hoodie]||colors.blue);mats.skin.color.setHex(skins[a.skin]||skins.medium);const u=player.userData;u.hairTop.visible=a.hair!=='bald';u.spikes.visible=a.hair==='spiky';u.glasses.visible=a.accessory==='glasses';u.backpack.visible=u.packStripe.visible=a.accessory==='backpack';}
+function applyAvatar(){const a=window.plazaProfile.avatar;const colors={blue:0x298cff,green:0x36c879,orange:0xff9b44,purple:0x9c71ff,gold:0xd5aa5c},skins={light:0xf1c5a0,medium:0xbe845c,dark:0x744c38};mats.hood.color.setHex(colors[a.hoodie]||colors.blue);mats.skin.color.setHex(skins[a.skin]||skins.medium);const u=player.userData;u.hairTop.visible=a.hair!=='bald';u.spikes.visible=a.hair==='spiky';u.longHair.visible=a.hair==='long';u.glasses.visible=a.accessory==='glasses';u.backpack.visible=u.packStripe.visible=a.accessory==='backpack';}
 applyAvatar();addEventListener('avatar-changed',()=>{applyAvatar();Object.keys(keys).forEach(k=>keys[k]=false);joy.x=joy.y=0;joy.pointer=null});
 window.plazaReady=true;document.getElementById('loadStatus').hidden=true;
 
@@ -369,22 +371,32 @@ joystick.addEventListener('pointermove',e=>{if(e.pointerId===joy.pointer) joyMov
 function joyEnd(e){ if(e.pointerId!==joy.pointer) return; joy.pointer=null; joy.x=joy.y=0; stick.style.transform='translate(0,0)'; }
 joystick.addEventListener('pointerup',joyEnd); joystick.addEventListener('pointercancel',joyEnd);
 
-// camera drag
+// Camera: one pointer rotates; two pointers pinch without rotating.
 let yaw=0, pitch=.28, camDist=MOBILE?70:27, drag=null, cameraAutoCooldown=0;
+const cameraPointers=new Map();let pinch=null;
+function pinchDistance(){const [a,b]=[...cameraPointers.values()];return Math.hypot(a.x-b.x,a.y-b.y)}
+renderer.domElement.style.touchAction='none';
 renderer.domElement.addEventListener('pointerdown',e=>{
-  if(e.clientY>innerHeight-165&&(e.clientX<175||e.clientX>innerWidth-190)) return;
-  drag={id:e.pointerId,x:e.clientX,y:e.clientY}; renderer.domElement.setPointerCapture(e.pointerId); cameraAutoCooldown=1.2;
-});
-renderer.domElement.addEventListener('pointermove',e=>{
-  if(!drag||drag.id!==e.pointerId) return;
-  const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
-  drag.x=e.clientX; drag.y=e.clientY;
-  yaw-=dx*.006;
-  pitch=THREE.MathUtils.clamp(pitch+dy*.004,.10,.72);
+  cameraPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});renderer.domElement.setPointerCapture(e.pointerId);
+  if(cameraPointers.size===1)drag={id:e.pointerId,x:e.clientX,y:e.clientY};
+  else if(cameraPointers.size===2){pinch={distance:Math.max(1,pinchDistance()),camera:camDist};drag=null;}
   cameraAutoCooldown=1.2;
 });
-renderer.domElement.addEventListener('pointerup',e=>{if(drag?.id===e.pointerId) drag=null;});
-renderer.domElement.addEventListener('wheel',e=>{ camDist=THREE.MathUtils.clamp(camDist+e.deltaY*.007,10,80); },{passive:true});
+renderer.domElement.addEventListener('pointermove',e=>{
+  if(!cameraPointers.has(e.pointerId))return;
+  cameraPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(cameraPointers.size>=2&&pinch){camDist=THREE.MathUtils.clamp(pinch.camera*pinch.distance/Math.max(1,pinchDistance()),10,80);}
+  else if(drag&&drag.id===e.pointerId){
+    yaw-=(e.clientX-drag.x)*.006;pitch=THREE.MathUtils.clamp(pitch+(e.clientY-drag.y)*.004,.10,.72);
+    drag.x=e.clientX;drag.y=e.clientY;
+  }
+  cameraAutoCooldown=1.2;
+});
+function endCameraPointer(e){cameraPointers.delete(e.pointerId);pinch=null;drag=null;
+ if(cameraPointers.size===1){const [id,p]=[...cameraPointers.entries()][0];drag={id,x:p.x,y:p.y};}}
+for(const type of ['pointerup','pointercancel','lostpointercapture'])renderer.domElement.addEventListener(type,endCameraPointer);
+addEventListener('blur',()=>{cameraPointers.clear();pinch=drag=null;Object.keys(keys).forEach(k=>keys[k]=false)});
+renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();camDist=THREE.MathUtils.clamp(camDist+e.deltaY*.025,10,80);cameraAutoCooldown=1.2;},{passive:false});
 
 // collisions
 function collides(x,z){
@@ -423,7 +435,20 @@ function smartCameraYaw(currentCamPos){
 // interaction
 const prompt=document.getElementById('prompt'), promptText=document.getElementById('promptText');
 const bubble=document.getElementById('npcBubble');
+let previousPortalPosition=player.position.clone(),enteringGame=false;
 function updateNear(){
+  const previous=previousPortalPosition;const current=player.position;
+  if(!enteringGame && document.getElementById('avatarSetup').hidden){
+    for(const p of portals){
+      const before=previous.z-p.z,after=current.z-p.z;
+      if(before!==after && ((before>0&&after<=0)||(before<0&&after>=0))){
+        const t=before/(before-after),x=previous.x+(current.x-previous.x)*t;
+        const y=previous.y+(current.y-previous.y)*t+1.9;
+        if(Math.hypot(x-p.x,y-(p.group.position.y+2.4))<1.8){enteringGame=true;location.assign(p.target);break;}
+      }
+    }
+  }
+  previousPortalPosition.copy(current);
   state.near=null; state.nearNpc=false;
   let best=999;
   for(const p of portals){
@@ -431,9 +456,9 @@ function updateNear(){
     if(d<4.2 && d<best){ state.near=p; best=d; }
   }
   if(Math.hypot(player.position.x-npc.position.x, player.position.z-npc.position.z)<3.3) state.nearNpc=true;
-  document.getElementById('actionBtn').textContent=state.near?'ENTRA':state.nearNpc?'PARLA':'AZIONE';
+  document.getElementById('actionBtn').textContent=state.nearNpc?'PARLA':'AZIONE';
   if(!MOBILE){
-    if(state.near||state.nearNpc){ prompt.style.display='block'; promptText.textContent=state.nearNpc?'PARLA CON BYTE':'ENTRA'; }
+    if(state.nearNpc){ prompt.style.display='block'; promptText.textContent='PARLA CON BYTE'; }
     else prompt.style.display='none';
   }
 }
@@ -446,14 +471,7 @@ function interact(){
     clearTimeout(interact.t); interact.t=setTimeout(()=>bubble.style.display='none',3300);
     return;
   }
-  if(state.near) openPortal(state.near);
-}
-function openPortal(p){
-  document.getElementById('modalIcon').textContent=p.icon;
-  document.getElementById('modalTitle').textContent=p.name;
-  document.getElementById('modalText').textContent=p.text;
-  document.getElementById('openGame').href=p.target;
-  document.getElementById('modal').classList.add('open');
+
 }
 document.getElementById('closeModal').onclick=()=>document.getElementById('modal').classList.remove('open');
 
@@ -545,7 +563,7 @@ function animate(now){
   }
 
   camera.position.lerp(desiredCam,1-Math.pow(.001,dt));
-  look.set(player.position.x,player.position.y+8,player.position.z);
+  look.set(player.position.x,player.position.y+THREE.MathUtils.clamp(camDist*.3,2.5,8),player.position.z);
   camera.lookAt(look);
 
   updateNear(); showZone(getZone());
