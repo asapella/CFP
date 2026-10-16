@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cyber Tower · Officina digitale</title>
+<style>
+:root{
+  --dl-bg:#101c2a;--dl-panel:rgba(10,17,31,.84);--dl-panel-solid:#1b2c3f;--dl-line:rgba(255,255,255,.12);
+  --dl-text:#f4f8ff;--dl-muted:#9fb0c8;--accent:#ffd264;--accent2:#69d7dc;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:var(--dl-bg);color:var(--dl-text);overflow:hidden;touch-action:none}
+button{font:inherit}
+.dl-glass{background:var(--dl-panel);backdrop-filter:blur(10px);border:1px solid var(--dl-line);box-shadow:0 10px 35px rgba(0,0,0,.28)}
+.dl-hud{position:fixed;left:12px;right:12px;top:max(10px,env(safe-area-inset-top));z-index:50;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none}
+.dl-profile{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:16px;min-width:215px}
+.dl-avatar{width:42px;height:42px;border-radius:12px;position:relative;overflow:hidden;background:linear-gradient(180deg,var(--accent),#175ed0);border:1px solid rgba(255,255,255,.22)}
+.dl-avatar .head{position:absolute;width:21px;height:18px;left:10px;top:8px;background:#efb278;border-radius:4px}
+.dl-avatar .hair{position:absolute;width:25px;height:7px;left:8px;top:5px;background:#39261f;border-radius:8px 8px 2px 2px}
+.dl-avatar .body{position:absolute;width:25px;height:15px;left:8px;top:27px;background:var(--accent);border-radius:5px 5px 2px 2px}
+.dl-avatar .eye{position:absolute;width:3px;height:3px;top:13px;background:#192238;border-radius:50%}.dl-avatar .eye.a{left:15px}.dl-avatar .eye.b{left:24px}
+.dl-pname{font-weight:950;font-size:12px;white-space:nowrap}.dl-xpbar{height:6px;width:126px;background:#26334a;border-radius:20px;overflow:hidden;margin-top:4px}.dl-xpfill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:42%}.dl-pstats{font-size:10px;color:var(--dl-muted);margin-top:3px}
+.dl-mission{max-width:315px;padding:9px 11px;border-radius:16px;font-size:11px;line-height:1.35}.dl-mission b{display:block;font-size:10px;letter-spacing:.1em;color:var(--accent);margin-bottom:2px}
+.dl-zone-tag{position:fixed;left:50%;top:max(12px,env(safe-area-inset-top));transform:translateX(-50%);z-index:49;padding:8px 12px;border-radius:14px;font-size:10px;font-weight:950;letter-spacing:.11em;color:var(--accent);pointer-events:none}
+.dl-overlay{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:18px;background:rgba(2,6,14,.82);backdrop-filter:blur(9px)}
+.dl-card{width:min(94vw,620px);border-radius:27px;padding:24px;background:linear-gradient(180deg,#121c31,#09101e);border:1px solid color-mix(in srgb,var(--accent) 36%,transparent);box-shadow:0 24px 90px rgba(0,0,0,.55)}
+.dl-kicker{font-size:11px;font-weight:950;color:var(--accent);letter-spacing:.16em}.dl-card h1{font-size:clamp(38px,9vw,64px);line-height:.94;margin:5px 0 10px;letter-spacing:-.045em}.dl-card p{color:#bdc9da;line-height:1.45;margin:9px 0}
+.dl-npcrow{display:flex;gap:12px;align-items:center;margin:14px 0;padding:10px;border-radius:17px;background:#0b1426;border:1px solid rgba(255,255,255,.07)}
+.dl-npcface{flex:0 0 58px;width:58px;height:58px;border-radius:16px;background:linear-gradient(150deg,var(--accent),#283c71);position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+.dl-npcface:before{content:"";position:absolute;width:31px;height:26px;left:13px;top:12px;border-radius:7px;background:#eef5ff}.dl-npcface:after{content:"••";position:absolute;left:20px;top:12px;color:#132039;font-weight:1000;letter-spacing:6px}
+.dl-npctext{font-size:12px;line-height:1.4;color:#d9e4f3}.dl-npctext b{display:block;color:white;margin-bottom:2px}.dl-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:14px 0}.dl-chip{padding:9px;border-radius:13px;background:#0a1427;border:1px solid rgba(255,255,255,.07);text-align:center;font-size:10px;font-weight:900;color:#dce6f5}
+.dl-btns{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}.dl-btn{flex:1;border:0;border-radius:15px;padding:13px 15px;font-weight:950;cursor:pointer;text-align:center;text-decoration:none}.dl-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#08101a}.dl-btn.secondary{background:#26344d;color:white}
+.dl-reward{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.dl-reward div{padding:12px 8px;border-radius:14px;background:#0a1427;border:1px solid rgba(255,255,255,.07);text-align:center}.dl-reward b{display:block;font-size:20px;color:white}.dl-reward span{font-size:9px;color:var(--dl-muted);font-weight:850}
+.dl-toast{position:fixed;z-index:90;left:50%;top:48%;transform:translate(-50%,-50%);max-width:min(88vw,460px);padding:12px 16px;border-radius:16px;background:rgba(7,14,29,.96);border:1px solid var(--dl-line);font-weight:950;text-align:center;opacity:0;pointer-events:none}.dl-toast.pop{animation:dlPop .9s ease}@keyframes dlPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.76)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.04)}72%{opacity:1}100%{opacity:0;transform:translate(-50%,-55%)}}
+
+#game{position:fixed;inset:0;width:100%;height:100%;display:block;background:#142231}
+#stats{position:fixed;right:12px;top:78px;z-index:45;display:flex;gap:6px;pointer-events:none;flex-wrap:wrap;justify-content:flex-end}
+.stat{padding:7px 9px;border-radius:13px;background:rgba(7,14,31,.84);border:1px solid rgba(255,210,100,.25);font-size:11px;font-weight:950}
+#question{position:fixed;z-index:44;left:50%;top:80px;transform:translateX(-50%);width:min(92vw,700px);padding:12px 15px;border-radius:17px;background:rgba(5,11,27,.94);border:1px solid rgba(255,210,100,.34);text-align:center;font-weight:950;opacity:0;transition:.18s;pointer-events:none}
+#question.show{opacity:1}#question small{display:block;color:#93a8c7;margin-top:4px;font-size:9px;letter-spacing:.08em}
+#learn{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:44;width:min(90vw,600px);padding:10px 13px;border-radius:15px;background:rgba(5,12,28,.95);border-left:4px solid #75ffc1;font-size:11px;color:#dce8f8;font-weight:800;opacity:0;pointer-events:none}#learn.show{animation:tip 2.4s ease}@keyframes tip{0%{opacity:0;transform:translate(-50%,10px)}12%,78%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
+#mobileControls{position:fixed;z-index:60;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none}
+.pad{display:flex;gap:10px;pointer-events:auto}.ctrl{width:64px;height:64px;border:1px solid rgba(255,255,255,.22);border-radius:20px;background:rgba(8,18,38,.75);color:#fff;font-size:25px;font-weight:1000;backdrop-filter:blur(7px);box-shadow:0 8px 24px rgba(0,0,0,.25);touch-action:none}.ctrl.jump{width:82px;height:82px;border-radius:27px;background:linear-gradient(145deg,rgba(255,210,100,.88),rgba(105,215,220,.72));color:#06101f;font-size:29px}
+#hint{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:43;font-size:10px;color:#93a8c7;font-weight:800;pointer-events:none}
+@media(pointer:fine){#mobileControls{display:none}#hint{bottom:18px}}
+@media(max-width:720px){.dl-mission{display:none}.dl-zone-tag{display:none}.dl-profile{min-width:0;padding:7px 9px}.dl-xpbar{width:92px}.dl-chips{grid-template-columns:1fr 1fr}.dl-chip:last-child{grid-column:1/-1}.dl-card{padding:20px}.dl-reward{gap:5px}#stats{top:66px;max-width:55vw}.stat{font-size:9px;padding:6px 8px}#question{top:112px;font-size:13px}#learn{bottom:104px}}
+
+:root{--dl-bg:#101c2a;--dl-panel:rgba(27,44,63,.96);--dl-line:#40536a;--dl-muted:#adbfcd}
+.dl-card{background:#1b2c3f;border:1px solid #566777;border-radius:22px;max-height:92dvh;overflow:auto;touch-action:pan-y}
+.dl-card h1,.dl-card h2{color:#ffd264}.dl-btn.primary{background:#ffd264;color:#172d42}.dl-btn.secondary{background:#344c60}
+.dl-npcface{background:linear-gradient(140deg,#efd497,#a06c26)}.dl-npcrow,.dl-chip,.dl-reward div{background:#142231;border-color:#344c60}
+.dl-profile{min-width:200px}.dl-zone-tag{color:#ffd264}.dl-avatar{background:#ae7d3c}.stat{background:#1b2c3ff2;border-color:#40536a}
+#question{top:140px;background:#fff7e3;color:#172d42;border:2px solid #d7b262;box-shadow:0 6px 24px #0005;font-size:16px;max-width:680px}
+#question small{color:#526777;font-size:10px}#learn{background:#fff7e3;color:#172d42;border-left-color:#c99b3c}
+#powerDock{position:fixed;z-index:60;left:12px;top:84px;max-width:280px}#powerBtn{min-height:44px;border:1px solid #e5b862;border-radius:12px;background:#ffd264;color:#142231;font-weight:800;padding:10px 14px;cursor:pointer}#powerBtn:disabled{background:#30465b;color:#adbdc9;border-color:#52677b;cursor:default}#powerStatus{font-size:11px;padding:6px 9px;max-width:280px;background:#142231ec;border-radius:8px;line-height:1.4;color:#d6e1ec}
+#fullBtn{position:fixed;bottom:12px;right:12px;z-index:60;width:44px;height:44px;background:#22374b;color:#ffd264;border:1px solid #587086;border-radius:12px;font-size:24px;cursor:pointer}
+#challenge[hidden]{display:none}#challenge h2{font-size:27px;margin:8px 0}#challengeQuestion{font-size:18px;color:#f1f5fa;font-weight:650}#challengeAnswers{display:grid;gap:9px;margin:18px 0}#challengeAnswers button{padding:13px;text-align:left;min-height:48px;background:#2c455b;border:1px solid #60798b;color:white;border-radius:12px;cursor:pointer;line-height:1.35}#challengeAnswers button:disabled{opacity:.5}#challengeAnswers button.correct{background:#205642;border-color:#79e5b0;opacity:1}#challengeFeedback{font-size:14px;color:#ffdc83;line-height:1.5}.challengeNote{font-size:12px!important;color:#a9bed0!important}button:focus-visible{outline:3px solid #69d7dc;outline-offset:3px}
+@media(max-width:720px){.dl-profile{min-width:0}.dl-profile .dl-avatar{display:none}.dl-pname{font-size:10px}.dl-pstats{font-size:9px}#stats{right:8px;top:10px;max-width:56vw;gap:4px}.stat{font-size:9px;padding:5px}#powerDock{top:72px;left:10px;right:10px;max-width:none;display:flex;align-items:center;gap:7px}#powerBtn{font-size:11px;padding:8px;flex-shrink:0}#powerStatus{font-size:10px;padding:5px;max-width:none}#question{top:133px;font-size:13px;padding:9px;max-width:96vw}#question small{font-size:8px}#fullBtn{display:none}#hint{display:none}#challenge .dl-card{padding:17px}#challengeQuestion{font-size:16px}#challengeAnswers button{font-size:14px}.dl-overlay{padding:10px}}
+@media(min-width:721px) and (max-width:1100px){.dl-zone-tag{display:none}.dl-mission{max-width:270px}#question{top:153px}}
+
+/* Comandi touch: tutti i pulsanti ricevono tocchi, anche fuori dal pad. */
+#mobileControls{left:50%;right:auto;transform:translateX(-50%);width:min(360px,calc(100% - 32px));bottom:max(18px,env(safe-area-inset-bottom));align-items:center;gap:24px}
+#mobileControls .ctrl{pointer-events:auto;display:grid;place-items:center;padding:0;line-height:1;flex-shrink:0;user-select:none;-webkit-user-select:none;touch-action:none}
+#mobileControls .pad{align-items:center;gap:12px}
+#mobileControls .ctrl.jump{width:84px;height:84px;position:relative;font-size:32px;padding-bottom:12px}
+#mobileControls .ctrl.jump:after{content:'SALTA';position:absolute;bottom:13px;left:0;right:0;text-align:center;font-size:10px;letter-spacing:1px;font-weight:900}
+#mobileControls .ctrl.pressed{transform:scale(.94);border-color:#fff;box-shadow:0 0 18px #ffd26470}
+@media(any-pointer:coarse),(max-width:720px){#mobileControls{display:flex}#hint{display:none}}
+@media(max-height:480px) and (any-pointer:coarse){#mobileControls{bottom:max(8px,env(safe-area-inset-bottom));width:min(360px,calc(100% - 32px))}#mobileControls .ctrl{width:54px;height:54px}#mobileControls .ctrl.jump{width:66px;height:66px;font-size:27px}#mobileControls .ctrl.jump:after{bottom:8px;font-size:9px}}
+#plazaReturn{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:70;background:#1b2c3f;color:#ffd264;border:1px solid #617386;border-radius:12px;padding:12px 18px;text-decoration:none;font-weight:800;font-size:13px}.dl-zone-tag{display:none}@media(max-width:720px){#plazaReturn{top:auto;bottom:116px;padding:8px 16px;font-size:12px}}
+</style>
+</head>
+<body>
+<a id="plazaReturn" href="index.html">← Plaza</a><canvas id="game"></canvas>
+<div id="stats">
+  <div class="stat">⚡ <span id="score">0</span></div>
+  <div class="stat">❤️ <span id="life">5</span></div>
+  <div class="stat">◼ BIT <span id="bits">0</span>/8</div>
+  <div class="stat">◆ BYTE disponibili <span id="bytesRun">0</span></div>
+  <div class="stat">🏢 <span id="floorRun">1/7</span></div>
+</div>
+<div id="powerDock"><button id="powerBtn" type="button" disabled>⚡ Sfida automatica · 1 BYTE</button><div id="powerStatus" aria-live="polite">8 bit = 1 byte · Raccogli energia</div></div>
+<button id="fullBtn" aria-label="Schermo intero">⛶</button>
+<div id="challenge" class="dl-overlay" hidden><section class="dl-card" role="dialog" aria-modal="true" aria-labelledby="challengeTitle"><div class="dl-kicker" id="challengeGrade"></div><h2 id="challengeTitle">Sfida Turbo</h2><p id="challengeQuestion"></p><div id="challengeAnswers"></div><p id="challengeFeedback" role="status"></p><p class="challengeNote">Risposta corretta: doppio salto + scudo per 20 secondi.<br>Errore: −1 vita. Puoi riprovare senza spendere altri byte.</p><button class="dl-btn secondary" id="challengeClose">Torna alla torre · conserva la sfida</button></section></div>
+<div id="question"></div><div id="learn"></div>
+<div id="mobileControls">
+  <div class="pad"><button type="button" aria-label="Muovi a sinistra" class="ctrl" data-left>◀</button><button type="button" aria-label="Muovi a destra" class="ctrl" data-right>▶</button></div>
+  <button type="button" aria-label="Salta; premi di nuovo in aria per il doppio salto durante il Turbo" class="ctrl jump" data-jump>↑</button>
+</div>
+<div id="hint">← → / A D per muoverti · SPAZIO / ↑ per saltare · 1 BYTE: SFIDA AUTOMATICA · E: RIPRENDI SFIDA</div>
+<script>
+window.DigitalLab = (() => {
+  const KEY='cfpDigitalLabProfileV1';
+  const defaults={name:'PIXEL STUDENT',level:3,xp:420,bytes:80,avatar:{hoodie:'blue',hair:'spiky',accessory:'none'}};
+  function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');return {...defaults,...v,avatar:{...defaults.avatar,...(v?.avatar||{})}}}catch(e){return structuredClone(defaults)}}
+  let profile=load();
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(profile))}catch(e){}}
+  function colorForHoodie(v){return ({blue:'#298cff',green:'#36c879',orange:'#ff9b44',purple:'#9c71ff'})[v]||'#298cff'}
+  function mount({zone,mission,accent='#ffd264',accent2='#69d7dc'}){
+    document.documentElement.style.setProperty('--accent',accent);document.documentElement.style.setProperty('--accent2',accent2);
+    const hud=document.createElement('div');hud.className='dl-hud';hud.innerHTML=`<div class="dl-profile dl-glass"><div class="dl-avatar"><i class="hair"></i><i class="head"></i><i class="eye a"></i><i class="eye b"></i><i class="body"></i></div><div><div class="dl-pname">${profile.name} · LV ${profile.level}</div><div class="dl-xpbar"><div class="dl-xpfill"></div></div><div class="dl-pstats"><span data-dl-xp>${profile.xp}</span> XP · 🧬 <span data-dl-bytes>${profile.bytes}</span> BYTE TOTALI</div></div></div><div class="dl-mission dl-glass"><b>MISSIONE</b>${mission}</div>`;
+    document.body.appendChild(hud);const tag=document.createElement('div');tag.className='dl-zone-tag dl-glass';tag.textContent=zone;document.body.appendChild(tag);refresh();
+  }
+  function refresh(){document.querySelectorAll('[data-dl-xp]').forEach(x=>x.textContent=profile.xp);document.querySelectorAll('[data-dl-bytes]').forEach(x=>x.textContent=profile.bytes);document.querySelectorAll('.dl-pname').forEach(x=>x.textContent=`${profile.name} · LV ${profile.level}`);document.querySelectorAll('.dl-xpfill').forEach(x=>x.style.width=`${Math.min(100,(profile.xp%1000)/10)}%`);document.querySelectorAll('.dl-avatar .body').forEach(x=>x.style.background=colorForHoodie(profile.avatar.hoodie))}
+  function intro({kicker,title,description,npc='BYTE',npcText,chips=[],button='INIZIA',onStart}){const o=document.createElement('div');o.className='dl-overlay';o.innerHTML=`<div class="dl-card"><div class="dl-kicker">${kicker}</div><h1>${title}</h1><p>${description}</p><div class="dl-npcrow"><div class="dl-npcface"></div><div class="dl-npctext"><b>${npc}</b>${npcText}</div></div><div class="dl-chips">${chips.map(c=>`<div class="dl-chip">${c}</div>`).join('')}</div><div class="dl-btns"><button class="dl-btn primary" data-start>${button}</button><button class="dl-btn secondary" data-back>TORNA ALLA PLAZA</button></div></div>`;document.body.appendChild(o);o.querySelector('[data-start]').onclick=()=>{o.remove();onStart?.()};o.querySelector('[data-back]').onclick=goBack;return o}
+  function toast(text,good=true){let t=document.querySelector('.dl-toast');if(!t){t=document.createElement('div');t.className='dl-toast';document.body.appendChild(t)}t.textContent=text;t.style.color=good?'#75ffc1':'#ff7898';t.classList.remove('pop');void t.offsetWidth;t.classList.add('pop')}
+  function complete({title='MISSIONE COMPLETATA',score=0,xp=100,bytes=25,badge='DIGITAL EXPLORER',summary='',replay}){profile.xp+=xp;profile.bytes+=bytes;profile.level=Math.max(1,Math.floor(profile.xp/500)+1);save();refresh();const o=document.createElement('div');o.className='dl-overlay';o.innerHTML=`<div class="dl-card"><div class="dl-kicker">DIGITAL LAB · RISULTATO</div><h1>${title}</h1><p>${summary}</p><div class="dl-reward"><div><b>${score}</b><span>PUNTEGGIO</span></div><div><b>+${xp}</b><span>XP</span></div><div><b>+${bytes}</b><span>BYTE</span></div></div><div class="dl-npcrow"><div class="dl-npcface"></div><div class="dl-npctext"><b>BADGE SBLOCCATO</b>🏅 ${badge}</div></div><div class="dl-btns"><button class="dl-btn primary" data-replay>RIGIOCA</button><button class="dl-btn secondary" data-back>TORNA ALLA PLAZA</button></div></div>`;document.body.appendChild(o);o.querySelector('[data-replay]').onclick=()=>{o.remove();replay?.()};o.querySelector('[data-back]').onclick=goBack}
+  function goBack(){location.href='index.html'}
+  return {mount,intro,toast,complete,goBack,refresh};
+})();
+</script>
+<script>
+DigitalLab.mount({zone:'CYBER TOWER · OFFICINA DIGITALE',mission:'Costruisci i piani. Raccogli byte e apri sfide avanzate per attivare il Turbo.',accent:'#ffd264',accent2:'#69d7dc'});
+let avatarColor='#bd893c';try{const a=JSON.parse(localStorage.getItem('cfpDigitalLabProfileV1')||'{}').avatar;avatarColor=({blue:'#298cff',green:'#36c879',orange:'#ff9b44',purple:'#9c71ff',gold:'#d5aa5c'})[a?.hoodie]||avatarColor}catch(e){}
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const scoreEl=document.getElementById('score'),lifeEl=document.getElementById('life'),bitsEl=document.getElementById('bits'),bytesEl=document.getElementById('bytesRun'),floorEl=document.getElementById('floorRun'),qEl=document.getElementById('question'),learn=document.getElementById('learn');
+let W=0,H=0,dpr=1,last=0,raf=0,playing=false,cameraY=0,score=0,life=5,bitCount=0,byteCount=0,correct=0,total=0,finished=false,currentStage=0,reachedFloor=0,flash=0;
+const keys={left:false,right:false,jump:false};
+let earnedBytes=0,powerTime=0,shieldCharges=0,airJumpUsed=false,challengeOpen=false,challengeLevel=0,challengeWins=0,pendingChallenge=null;
+const grades=['APPRENDISTA','TECNICO','ESPERTO'];
+const powerBtn=document.getElementById('powerBtn'),powerStatus=document.getElementById('powerStatus'),challengePanel=document.getElementById('challenge');
+const challengeBank=[
+[
+ {q:'Hai raccolto 16 bit. Quanti byte puoi ottenere?',a:['2 byte','8 byte','16 byte'],c:0,tip:'Un byte contiene 8 bit: 16 ÷ 8 = 2 byte.'},
+ {q:'Il disco si rompe. Quale copia ti permette davvero di recuperare i file?',a:['Un’altra cartella sullo stesso disco','Un backup verificato su un dispositivo separato','Un collegamento sul desktop'],c:1,tip:'Una copia sullo stesso disco può andare persa con l’originale. Il backup va separato e il ripristino va verificato.'},
+ {q:'Un sito ha HTTPS. Che cosa puoi concludere?',a:['Il venditore è sicuramente onesto','La connessione è cifrata, ma il sito può essere una truffa','Tutti i file sono privi di malware'],c:1,tip:'HTTPS protegge il trasporto dei dati. Anche un sito di phishing può avere HTTPS.'}
+],
+[
+ {q:'Un’app conserva 5 byte di dati. A quanti bit corrispondono?',a:['13 bit','40 bit','5 bit'],c:1,tip:'Per passare dai byte ai bit moltiplichi per 8: 5 × 8 = 40 bit.'},
+ {q:'Quale coppia usa due fattori di autenticazione diversi?',a:['Password e PIN','Password e codice da un’app autenticatore','Password e domanda segreta'],c:1,tip:'Password = qualcosa che sai. App sul dispositivo = qualcosa che possiedi. Due segreti memorizzati restano lo stesso tipo di fattore.'},
+ {q:'Un allegato chiede di attivare le macro per vedere una fattura. Cosa fai?',a:['Attivo le macro perché è urgente','Disattivo l’antivirus','Non attivo le macro e verifico la richiesta con il mittente tramite un contatto noto'],c:2,tip:'Le macro eseguono codice. Una richiesta inattesa va verificata attraverso un canale indipendente.'}
+],
+[
+ {q:'Un file occupa 24 byte. Quanti bit contiene?',a:['3 bit','192 bit','240 bit'],c:1,tip:'24 × 8 = 192 bit. Il byte è un gruppo di 8 bit, non di 10.'},
+ {q:'Il PC cifra improvvisamente i file e mostra una richiesta di riscatto. Qual è la prima azione utile?',a:['Collego subito il disco di backup','Isolo il PC dalla rete e avviso chi gestisce la sicurezza','Invio i file ai compagni per controllarli'],c:1,tip:'Isolare il dispositivo aiuta a limitare la diffusione. Non collegare il backup a un sistema sospetto.'},
+ {q:'Una cartella cloud sincronizza subito ogni modifica. È sufficiente da sola contro il ransomware?',a:['Sì, la sincronizzazione impedisce gli attacchi','No: può sincronizzare anche file cifrati; servono copie/versioni recuperabili e protette','Sì, se cambio il nome della cartella'],c:1,tip:'Sincronizzazione e backup non sono equivalenti. Contano versioni recuperabili, protezione delle copie e prove di ripristino.'},
+ {q:'Un’app torcia chiede contatti e microfono. Quale principio applichi?',a:['Concedo ogni permesso per farla funzionare','Concedo solo i permessi necessari alla funzione','Concedo i permessi se l’icona sembra professionale'],c:1,tip:'Il principio del minimo privilegio limita ogni app ai soli accessi necessari.'}
+]];
+// Alternate conversion exercises with progressively harder security scenarios.
+challengeBank[1].unshift(challengeBank[1].splice(1,1)[0]);
+challengeBank[2].unshift(challengeBank[2].splice(1,1)[0]);
+let challengeUsed=[0,0,0];
+function releaseKeys(){keys.left=keys.right=keys.jump=false;player.jumpHeld=false}
+function refreshPower(){
+ powerBtn.disabled=!playing||challengeOpen||(powerTime>0)||(!pendingChallenge&&byteCount<1);
+ powerBtn.textContent=powerTime>0?'⚡ TURBO · '+Math.ceil(powerTime)+' s':pendingChallenge?'↩ Riprendi la sfida':'⚡ Sfida automatica · 1 BYTE';
+ powerStatus.textContent=powerTime>0?'Doppio salto · '+(shieldCharges?'Scudo pronto':'Scudo consumato')+(byteCount>=1?' · Prossima sfida al termine':''):pendingChallenge?'Sfida già pagata · nessun altro costo':grades[challengeLevel]+' · '+bitCount+'/8 bit: a 1 byte la sfida si apre da sola';
+}
+function autoChallenge(){if(playing&&!challengeOpen&&!pendingChallenge&&powerTime<=0&&byteCount>=1)openChallenge()}
+function openChallenge(){
+ if(!playing||challengeOpen||powerTime>0)return;
+ if(!pendingChallenge){if(byteCount<1)return;byteCount--;const level=challengeLevel,list=challengeBank[level];pendingChallenge={...list[challengeUsed[level]%list.length],level,wrong:[],solved:false};challengeUsed[level]++;}
+ challengeOpen=true;releaseKeys();challengePanel.hidden=false;qEl.classList.remove('show');
+ document.getElementById('challengeGrade').textContent='SFIDA '+(challengeWins+1)+' · '+grades[pendingChallenge.level]+' · 1 BYTE INVESTITO';
+ document.getElementById('challengeQuestion').textContent=pendingChallenge.q;
+ document.getElementById('challengeFeedback').textContent='1 BYTE raggiunto: sfida attivata automaticamente! La torre è in pausa.';
+ const answers=document.getElementById('challengeAnswers');answers.replaceChildren();
+ pendingChallenge.a.forEach((text,i)=>{const b=document.createElement('button');b.textContent=text;b.disabled=pendingChallenge.wrong.includes(i);b.onclick=()=>answerChallenge(i);answers.appendChild(b)});
+ document.getElementById('challengeClose').textContent='Torna alla torre · conserva la sfida';updateHud();answers.querySelector('button:not(:disabled)')?.focus();
+}
+function answerChallenge(i){
+ const q=pendingChallenge;if(!challengeOpen||!q||q.solved||q.wrong.includes(i))return;
+ const bs=document.getElementById('challengeAnswers').children;
+ if(i!==q.c){q.wrong.push(i);bs[i].disabled=true;life--;document.getElementById('challengeFeedback').textContent='Non è corretto: −1 vita. '+q.tip;updateHud();if(life<=0){closeChallenge();endGame(false)}return;}
+ q.solved=true;challengeWins++;challengeLevel=Math.min(2,challengeLevel+1);score+=200*(q.level+1);powerTime=20;shieldCharges=1;airJumpUsed=false;
+ [...bs].forEach(b=>b.disabled=true);bs[i].classList.add('correct');
+ document.getElementById('challengeFeedback').textContent='Corretto! '+q.tip+' Turbo pronto: doppio salto e uno scudo contro i malware. '+(q.level<2?'Prossimo grado: '+grades[challengeLevel]+'.':'Continua con altre sfide Esperto.');
+ document.getElementById('challengeClose').textContent='Attiva il Turbo e riprendi →';updateHud();
+}
+function closeChallenge(){challengePanel.hidden=true;challengeOpen=false;if(pendingChallenge?.solved)pendingChallenge=null;releaseKeys();const active=questionBlocks[currentStage];if(active)active.active=false;refreshPower();powerBtn.focus({preventScroll:true})}
+powerBtn.onclick=openChallenge;document.getElementById('challengeClose').onclick=closeChallenge;
+document.getElementById('fullBtn').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen()}catch(e){DigitalLab.toast('Usa F11 per lo schermo intero',false)}};
+addEventListener('blur',releaseKeys);
+
+const world={height:0,bottomY:0,topY:0,floorGap:455,floorCount:6};
+const player={x:120,y:0,w:38,h:52,vx:0,vy:0,onGround:false,inv:0,face:1,jumpHeld:false};
+const floors=[],bridges=[],pickups=[],malwares=[],questionBlocks=[],particles=[];
+const questions=[
+  {q:'Un sito di login usa HTTP. Cosa fai?',a:['ENTRO','CERCO HTTPS','DISATTIVO WIFI'],c:1,tip:'HTTPS cifra la comunicazione tra browser e sito.'},
+  {q:'Quale password è più sicura?',a:['mario2009','12345678','Gatto!Fiume7Luna'],c:2,tip:'Meglio una password lunga, unica e difficile da prevedere.'},
+  {q:'Mail: “Account bloccato! Clicca subito”.',a:['CONTROLLO MITTENTE','CLICCO SUBITO','INOLTRO A TUTTI'],c:0,tip:'Urgenza e link inattesi sono segnali tipici del phishing.'},
+  {q:'Come proteggo meglio un account?',a:['PASSWORD + MFA','UNA PASSWORD CORTA','STESSA PASSWORD OVUNQUE'],c:0,tip:'MFA aggiunge una seconda verifica oltre alla password.'},
+  {q:'C’è un aggiornamento di sicurezza.',a:['LO IGNORO','AGGIORNO','DISINSTALL0 TUTTO'],c:1,tip:'Gli aggiornamenti correggono vulnerabilità note.'},
+  {q:'Per i file importanti scelgo…',a:['UNA SOLA COPIA','NESSUN BACKUP','BACKUP SEPARATO'],c:2,tip:'Un backup separato resta disponibile se l’originale viene perso o cifrato.'}
+];
+function resize(){
+  const previousW=W;dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+  if(!playing){player.x=W*.5-player.w/2;player.y=H-player.h-120}
+  else if(previousW&&previousW!==W){
+    floors.forEach(f=>{const oldX=f.x,oldWidth=f.w,g=floorGeometry(f.i);f.x=g.x;f.w=g.w;
+      pickups.filter(p=>p.floor===f.i).forEach(p=>p.x=f.x+(p.x-oldX)/oldWidth*f.w);
+      malwares.filter(m=>m.floor===f.i).forEach(m=>{m.x=f.x+(m.x-oldX)/oldWidth*f.w;m.min=f.x+30;m.max=f.x+f.w-65});
+      const group=questionBlocks[f.i];if(group)layoutQuiz(group);
+      bridges.filter(b=>b.stage===f.i).forEach((b,j)=>{const ratios=f.i%2===0?[.30,.52,.70,.56]:[.70,.48,.30,.44];b.x=clamp(f.x+f.w*ratios[j]-58,16,W-132)})
+    });layoutMalwares();player.x=clamp(player.x/previousW*W,10,W-player.w-10);
+  }
+}
+addEventListener('resize',resize);resize();
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function rects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function tip(t){learn.textContent='💡 '+t;learn.classList.remove('show');void learn.offsetWidth;learn.classList.add('show')}
+function floorGeometry(i){
+  const margin=Math.max(54,W*.08),wide=Math.min(W-margin*2,900);
+  const offset=(i%2===0?-1:1)*Math.min(58,W*.055);
+  return {x:clamp((W-wide)/2+offset,28,W-wide-28),w:wide};
+}
+function resetLevel(){
+  score=0;life=5;bitCount=0;byteCount=0;earnedBytes=0;powerTime=0;shieldCharges=0;airJumpUsed=false;challengeOpen=false;challengeLevel=0;challengeWins=0;pendingChallenge=null;challengeUsed=[0,0,0];challengePanel.hidden=true;releaseKeys();correct=0;total=0;finished=false;currentStage=0;reachedFloor=0;flash=0;
+  floors.length=bridges.length=pickups.length=malwares.length=questionBlocks.length=particles.length=0;
+  world.bottomY=world.floorCount*world.floorGap+Math.max(520,H*.72);
+  world.topY=world.bottomY-world.floorCount*world.floorGap;
+  world.height=world.bottomY+240;
+  for(let i=0;i<=world.floorCount;i++){
+    const g=floorGeometry(i),y=world.bottomY-i*world.floorGap;
+    floors.push({i,x:g.x,y,w:g.w,h:30,solid:i===0,progress:i===0?1:0,building:false,label:i===world.floorCount?'CORE':'PIANO '+(i+1)});
+  }
+  for(let i=0;i<world.floorCount;i++){
+    const lower=floors[i],upper=floors[i+1];
+    const dir=i%2===0?1:-1;
+    const xs=dir>0?[.30,.52,.70,.56]:[.70,.48,.30,.44];
+    const ys=[-105,-205,-305,-395];
+    xs.forEach((ratio,j)=>bridges.push({stage:i,x:clamp(lower.x+lower.w*ratio-58,16,W-132),y:lower.y+ys[j],w:116,h:20,active:false,progress:0,delay:j*.10}));
+    createQuiz(i);
+  }
+  for(let i=0;i<=world.floorCount;i++){
+    const f=floors[i];
+    const count=i===0?4:5;
+    for(let j=0;j<count;j++)pickups.push({floor:i,x:f.x+70+j*((f.w-140)/Math.max(1,count-1)),y:f.y-62-(j%2)*34,r:11,type:'bit',taken:false,bob:Math.random()*6.28});
+    if(i>0)pickups.push({floor:i,x:f.x+f.w*.5,y:f.y-120,r:18,type:'byte',taken:false,bob:Math.random()*6.28});
+    if(i>0&&i<world.floorCount)malwares.push({floor:i,x:f.x+f.w*.68,y:f.y-36,w:42,h:36,vx:i%2?55:-55,min:f.x+55,max:f.x+f.w-95,dead:false});
+  }
+  layoutMalwares();
+  const base=floors[0];Object.assign(player,{x:base.x+90,y:base.y-player.h,vx:0,vy:0,onGround:true,inv:0,face:1,jumpHeld:false});
+  cameraY=clamp(base.y-H*.72,0,Math.max(0,world.height-H));
+  updateHud();qEl.classList.remove('show');
+}
+function compactPlay(){return W<=720 || (typeof matchMedia==='function'&&matchMedia('(pointer:coarse)').matches)}
+function layoutQuiz(group){
+ const floor=floors[group.stage],q=group.q,compact=compactPlay();
+ const wrong=(q.c+1+group.stage%2)%q.a.length;
+ const indices=compact?[q.c,wrong].sort((a,b)=>a-b):q.a.map((_,i)=>i);
+ const gap=compact?52:10,bw=compact?Math.min(80,(floor.w-gap-12)/2):Math.min(150,Math.max(72,(floor.w-40)/3-12));
+ const start=floor.x+(floor.w-(bw*indices.length+gap*(indices.length-1)))/2;
+ const previous=group.blocks;
+ group.blocks=indices.map((index,j)=>({x:start+j*(bw+gap),y:floor.y-150,w:bw,h:compact?50:58,text:q.a[index],index,bump:0,wrong:previous.find(b=>b.index===index)?.wrong||0}));
+}
+function layoutMalwares(){
+ for(const m of malwares){const f=floors[m.floor];
+  if(compactPlay()){
+   // Enemies guard the climb, leaving the answer-selection floor clear.
+   const step=bridges.filter(b=>b.stage===m.floor-1)[1];
+   m.min=step.x+6;m.max=step.x+step.w-m.w-6;m.y=step.y-m.h;m.x=(m.min+m.max)/2;
+  }else{m.min=f.x+55;m.max=f.x+f.w-95;m.y=f.y-m.h;m.x=f.x+f.w*.68}
+ }
+}
+function createQuiz(stage){
+ const group={stage,q:questions[stage%questions.length],answered:false,active:false,blocks:[]};
+ layoutQuiz(group);questionBlocks.push(group);
+}
+function updateHud(){scoreEl.textContent=score;lifeEl.textContent=life;bitsEl.textContent=bitCount;bytesEl.textContent=byteCount;floorEl.textContent=`${Math.min(reachedFloor+1,world.floorCount+1)}/${world.floorCount+1}`;refreshPower()}
+function takeBit(){bitCount++;score+=20;if(bitCount>=8){bitCount-=8;byteCount++;earnedBytes++;score+=80;DigitalLab.toast('8 BIT = 1 BYTE  +80')}else DigitalLab.toast('+1 BIT');updateHud();autoChallenge()}
+function takeByte(){byteCount++;earnedBytes++;score+=120;DigitalLab.toast('+1 BYTE  +120');updateHud();autoChallenge()}
+function hurt(msg='MALWARE! -1 VITA'){
+  if(player.inv>0||!playing)return;if(powerTime>0&&shieldCharges>0){shieldCharges--;player.inv=1.35;DigitalLab.toast('SCUDO: MALWARE BLOCCATO');refreshPower();return}life--;player.inv=1.35;player.vy=-390;player.vx=-player.face*190;DigitalLab.toast(msg,false);updateHud();if(life<=0)endGame(false)
+}
+function burst(x,y){for(let i=0;i<34;i++){const a=Math.random()*Math.PI*2,s=70+Math.random()*230;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-80,life:.65+Math.random()*.5,max:1.15})}}
+function consolidate(stage){
+  const next=floors[stage+1];next.solid=true;next.building=true;next.progress=.01;
+  bridges.filter(b=>b.stage===stage).forEach(b=>{b.active=true;b.progress=.01});
+  burst(next.x+next.w/2,next.y);flash=.35;
+}
+function answer(group,idx){
+  if(group.answered||group.stage!==currentStage)return;
+  total++;const ok=idx===group.q.c;
+  if(ok){
+    group.answered=true;group.active=false;correct++;score+=320;consolidate(group.stage);currentStage=group.stage+1;
+    DigitalLab.toast('RISPOSTA CORRETTA — PIANO CONSOLIDATO +320');tip(group.q.tip);qEl.classList.remove('show');
+  }else{
+    life--;score=Math.max(0,score-70);player.inv=1.0;group.blocks.find(b=>b.index===idx).wrong=.5;DigitalLab.toast('RISPOSTA SBAGLIATA — IL PIANO NON REGGE',false);tip(group.q.tip);
+    if(life<=0){updateHud();endGame(false);return}
+  }
+  updateHud();
+}
+function start(){cancelAnimationFrame(raf);playing=true;last=performance.now();resetLevel();raf=requestAnimationFrame(loop)}
+function endGame(win=true){
+  if(!playing)return;playing=false;finished=true;challengeOpen=false;challengePanel.hidden=true;releaseKeys();refreshPower();qEl.classList.remove('show');
+  const accuracy=total?Math.round(correct/total*100):0,reward=Math.max(5,earnedBytes+Math.floor(score/700)),xp=80+correct*35+earnedBytes*8+(win?100:0);
+  DigitalLab.complete({title:win?'CORE MESSO IN SICUREZZA':'TORRE INTERROTTA',score,xp,bytes:reward,badge:win&&accuracy>=80?'CYBER ARCHITECT':'PACKET CLIMBER',summary:`Hai consolidato ${correct} piani, raccolto ${earnedBytes} BYTE, superato ${challengeWins} sfide Turbo e raggiunto il ${accuracy}% di risposte corrette.`,replay:start});
+}
+function pressJump(){if(!playing||challengeOpen)return;if(player.onGround){player.vy=-690;player.onGround=false;player.jumpHeld=true;airJumpUsed=false}else if(powerTime>0&&!airJumpUsed){player.vy=-690;airJumpUsed=true;player.jumpHeld=true;burst(player.x+player.w/2,player.y+player.h)}}
+addEventListener('keydown',e=>{if(e.key==='Escape'&&challengeOpen){closeChallenge();return}if(!playing||challengeOpen)return;if(e.key.toLowerCase()==='e'){e.preventDefault();if(!e.repeat)openChallenge();return}if(['ArrowLeft','a','A'].includes(e.key))keys.left=true;if(['ArrowRight','d','D'].includes(e.key))keys.right=true;if(['ArrowUp','w','W',' '].includes(e.key)){if(!keys.jump)pressJump();keys.jump=true;e.preventDefault()}});
+addEventListener('keyup',e=>{if(['ArrowLeft','a','A'].includes(e.key))keys.left=false;if(['ArrowRight','d','D'].includes(e.key))keys.right=false;if(['ArrowUp','w','W',' '].includes(e.key)){keys.jump=false;player.jumpHeld=false}});
+function bindHold(sel,key){
+ const el=document.querySelector(sel);let activePointer=null;
+ const on=e=>{e.preventDefault();if(!playing||challengeOpen||activePointer!==null)return;
+  activePointer=e.pointerId;try{el.setPointerCapture(e.pointerId)}catch(err){}
+  keys[key]=true;el.classList.add('pressed');if(key==='jump')pressJump();
+ };
+ const off=e=>{if(activePointer!==e.pointerId)return;e.preventDefault();activePointer=null;keys[key]=false;el.classList.remove('pressed');if(key==='jump')player.jumpHeld=false};
+ el.addEventListener('pointerdown',on);['pointerup','pointercancel','lostpointercapture'].forEach(ev=>el.addEventListener(ev,off));
+ el.addEventListener('contextmenu',e=>e.preventDefault());
+ addEventListener('blur',()=>{activePointer=null;keys[key]=false;el.classList.remove('pressed')});
+}
+bindHold('[data-left]','left');bindHold('[data-right]','right');bindHold('[data-jump]','jump');
+function collidablePlatforms(){return [...floors.filter(f=>f.solid&&f.progress>.42),...bridges.filter(b=>b.active&&b.progress>.38)]}
+function solidCollision(oldY){
+  player.onGround=false;
+  for(const p of collidablePlatforms()){
+    if(player.x+player.w<=p.x||player.x>=p.x+p.w)continue;
+    const oldBottom=oldY+player.h,newBottom=player.y+player.h;
+    if(player.vy>=0&&oldBottom<=p.y+5&&newBottom>=p.y){
+      player.y=p.y-player.h;player.vy=0;player.onGround=true;
+      if(p.i!==undefined&&p.i>reachedFloor){reachedFloor=p.i;score+=100;DigitalLab.toast(`PIANO ${p.i+1} RAGGIUNTO +100`);updateHud()}
+    }
+  }
+}
+function quizCollision(oldY){
+  const group=questionBlocks[currentStage];if(!group||group.answered)return;
+  for(const b of group.blocks){
+    const hitX=player.x+player.w>b.x&&player.x<b.x+b.w;if(!hitX)continue;
+    const oldTop=oldY,newTop=player.y,blockBottom=b.y+b.h;
+    if(player.vy<0&&oldTop>=blockBottom-5&&newTop<=blockBottom){player.y=blockBottom;player.vy=120;b.bump=.18;answer(group,b.index);return}
+    const oldBottom=oldY+player.h,newBottom=player.y+player.h;
+    if(player.vy>=0&&oldBottom<=b.y+4&&newBottom>=b.y){player.y=b.y-player.h;player.vy=0;player.onGround=true}
+  }
+}
+function updateBuild(dt){
+  for(const f of floors){if(f.building&&f.progress<1){f.progress=Math.min(1,f.progress+dt*1.45);if(f.progress>=1)f.building=false}}
+  for(const b of bridges){if(b.active&&b.progress<1){b.delay=Math.max(0,b.delay-dt);if(b.delay<=0)b.progress=Math.min(1,b.progress+dt*2.2)}}
+}
+function update(dt){
+  if(!playing||challengeOpen)return;if(powerTime>0){powerTime=Math.max(0,powerTime-dt);if(!powerTime){shieldCharges=0;autoChallenge();if(challengeOpen)return}refreshPower()}flash=Math.max(0,flash-dt);player.inv=Math.max(0,player.inv-dt);updateBuild(dt);
+  const accel=player.onGround?1650:1020,maxSpeed=320,friction=player.onGround?.81:.94;
+  if(keys.left){player.vx-=accel*dt;player.face=-1}if(keys.right){player.vx+=accel*dt;player.face=1}if(!keys.left&&!keys.right)player.vx*=Math.pow(friction,dt*60);
+  player.vx=clamp(player.vx,-maxSpeed,maxSpeed);if(!keys.jump&&player.vy<-250)player.vy+=1280*dt;player.vy+=1780*dt;player.vy=Math.min(980,player.vy);
+  const oldY=player.y;player.x+=player.vx*dt;player.x=clamp(player.x,10,W-player.w-10);player.y+=player.vy*dt;solidCollision(oldY);quizCollision(oldY);
+  if(player.y>world.bottomY+240){
+    life--;updateHud();if(life<=0){endGame(false);return}DigitalLab.toast('CADUTA NEL VUOTO — -1 VITA',false);
+    const f=floors[reachedFloor];Object.assign(player,{x:f.x+70,y:f.y-player.h-8,vx:0,vy:0,inv:1.4});
+  }
+  for(const m of malwares){
+    const f=floors[m.floor];if(!f.solid||f.progress<.9||m.dead)continue;m.x+=m.vx*dt;if(m.x<m.min){m.x=m.min;m.vx=Math.abs(m.vx)}if(m.x>m.max){m.x=m.max;m.vx=-Math.abs(m.vx)}
+    const mr={x:m.x,y:m.y,w:m.w,h:m.h};if(rects(player,mr)){const pb=player.y+player.h;if(player.vy>120&&pb-m.y<25){m.dead=true;player.vy=-520;score+=180;DigitalLab.toast('MALWARE SCHIACCIATO +180');updateHud()}else hurt()}
+  }
+  for(const p of pickups){
+    const f=floors[p.floor];if(p.taken||!f.solid||f.progress<.8)continue;const dx=(player.x+player.w/2)-p.x,dy=(player.y+player.h/2)-p.y;if(dx*dx+dy*dy<(p.r+23)*(p.r+23)){p.taken=true;p.type==='bit'?takeBit():takeByte();if(challengeOpen)return}
+  }
+  const active=questionBlocks[currentStage];
+  if(active&&!active.answered){const f=floors[currentStage],near=Math.abs((player.y+player.h)-f.y)<250;if(near&&!active.active){active.active=true;qEl.innerHTML=`${active.q.q}<small>SALTA SOTTO LA RISPOSTA GIUSTA PER CONSOLIDARE IL PIANO SUPERIORE</small>`;qEl.classList.add('show')}else if(!near&&active.active){active.active=false;qEl.classList.remove('show')}active.blocks.forEach(b=>{b.bump=Math.max(0,b.bump-dt);b.wrong=Math.max(0,b.wrong-dt)})}
+  const desired=clamp(player.y-H*.62,0,Math.max(0,world.height-H));cameraY+=(desired-cameraY)*Math.min(1,dt*4.8);
+  const top=floors[world.floorCount],core={x:top.x+top.w*.5-32,y:top.y-78,w:64,h:64};if(currentStage>=world.floorCount&&rects(player,core)&&!finished)endGame(true);
+  for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=420*dt;if(p.life<=0)particles.splice(i,1)}
+}
+function sy(y){return y-cameraY}
+function round(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
+function drawBackground(){
+  const grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,'#253b4d');grad.addColorStop(1,'#101c2a');ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+  for(let i=0;i<18;i++){const x=(i*179)%W,y=((i*263-cameraY*.11)%H+H)%H;ctx.fillStyle='rgba(255,210,100,.11)';ctx.fillRect(x,y,2,70)}
+  const towerX=Math.max(18,W*.045),towerW=W-towerX*2;ctx.fillStyle='rgba(11,29,58,.48)';round(towerX,0,towerW,H,28);ctx.fill();ctx.strokeStyle='rgba(255,210,100,.12)';ctx.lineWidth=2;ctx.stroke();
+  for(let y=-80;y<H+80;y+=92){ctx.strokeStyle='rgba(105,215,220,.055)';ctx.beginPath();ctx.moveTo(towerX+18,y-(cameraY*.08%92));ctx.lineTo(towerX+towerW-18,y-(cameraY*.08%92));ctx.stroke()}
+}
+function drawFloor(f){
+  const y=sy(f.y);if(y<-80||y>H+100)return;const p=f.progress;
+  if(!f.solid){ctx.save();ctx.globalAlpha=.28;ctx.strokeStyle='#6fb9ff';ctx.setLineDash([12,10]);ctx.lineWidth=2;round(f.x,y,f.w,f.h,8);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#8acbff';ctx.font='900 10px system-ui';ctx.textAlign='center';ctx.fillText('PIANO BLOCCATO · RISPONDI PER CONSOLIDARE',f.x+f.w/2,y+f.h+20);ctx.restore();return}
+  const reveal=f.w*p;ctx.save();ctx.globalAlpha=.25+.75*p;ctx.fillStyle='#344c60';round(f.x,y,reveal,f.h,8);ctx.fill();ctx.fillStyle='#69d7dc';ctx.fillRect(f.x,y,Math.max(0,reveal),5);
+  for(let x=f.x+14;x<f.x+reveal-12;x+=44){ctx.fillStyle='rgba(105,215,220,.18)';ctx.fillRect(x,y+11,20,5)}
+  ctx.fillStyle='rgba(221,241,255,.74)';ctx.font='900 10px system-ui';ctx.textAlign='left';ctx.fillText(f.label,f.x+10,y-10);ctx.restore();
+}
+function drawBridge(b){
+  const y=sy(b.y);if(y<-60||y>H+60)return;if(!b.active)return;ctx.save();ctx.globalAlpha=.2+.8*b.progress;const w=b.w*b.progress;ctx.fillStyle='#435e70';round(b.x,y,w,b.h,7);ctx.fill();ctx.fillStyle='#ffd264';ctx.fillRect(b.x,y,w,4);ctx.restore()
+}
+function drawPickup(p){const f=floors[p.floor];if(p.taken||!f.solid||f.progress<.8)return;const y=sy(p.y)+Math.sin(performance.now()/250+p.bob)*5;if(y<-40||y>H+40)return;ctx.save();ctx.translate(p.x,y);if(p.type==='bit'){ctx.fillStyle='#69d7dc';round(-11,-11,22,22,5);ctx.fill();ctx.fillStyle='#061625';ctx.font='1000 11px monospace';ctx.textAlign='center';ctx.fillText(Math.floor(performance.now()/300)%2?'0':'1',0,4)}else{ctx.rotate(Math.PI/4);ctx.fillStyle='#ffd86a';round(-15,-15,30,30,6);ctx.fill();ctx.rotate(-Math.PI/4);ctx.fillStyle='#112039';ctx.font='1000 9px system-ui';ctx.textAlign='center';ctx.fillText('BYTE',0,3)}ctx.restore()}
+function drawMalware(m){const f=floors[m.floor];if(m.dead||!f.solid||f.progress<.9)return;const y=sy(m.y);if(y<-60||y>H+60)return;ctx.save();ctx.translate(m.x+m.w/2,y+m.h/2);ctx.fillStyle='#ff587d';ctx.beginPath();for(let i=0;i<16;i++){const a=i*Math.PI/8,r=i%2?18:25;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.fill();ctx.fillStyle='#300819';ctx.fillRect(-10,-5,6,6);ctx.fillRect(5,-5,6,6);ctx.strokeStyle='#300819';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-8,9);ctx.lineTo(8,9);ctx.stroke();ctx.restore()}
+function drawQuestions(){
+  const g=questionBlocks[currentStage];if(!g||g.answered)return;for(const b of g.blocks){const y=sy(b.y)-(b.bump>0?Math.sin((.18-b.bump)/.18*Math.PI)*10:0);if(y<-90||y>H+80)continue;ctx.fillStyle=b.wrong>0?'rgba(255,88,125,.96)':'rgba(43,65,84,.96)';round(b.x,y,b.w,b.h,11);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.24)';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='white';ctx.font='800 '+(b.w<110?9:11)+'px system-ui';ctx.textAlign='center';wrapText(b.text,b.x+b.w/2,y+17,b.w-10,13)}
+}
+function wrapText(text,x,y,maxWidth,lineHeight){const words=text.split(' ');let line='',lines=[];for(const w of words){const test=line?line+' '+w:w;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=w}else line=test}if(line)lines.push(line);lines.slice(0,3).forEach((l,i)=>ctx.fillText(l,x,y+i*lineHeight))}
+function drawPlayer(){const y=sy(player.y);ctx.save();ctx.translate(player.x+player.w/2,y+player.h/2);if(player.inv>0&&Math.floor(player.inv*12)%2===0)ctx.globalAlpha=.3;if(powerTime>0){ctx.strokeStyle=shieldCharges?'#ffd264':'#69d7dc';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,29,37,0,0,Math.PI*2);ctx.stroke()}ctx.scale(player.face,1);ctx.fillStyle=avatarColor;round(-19,-26,38,52,8);ctx.fill();ctx.fillStyle='#eef7ff';round(-14,-17,28,19,5);ctx.fill();ctx.fillStyle='#142231';ctx.fillRect(-7,-10,4,4);ctx.fillRect(4,-10,4,4);ctx.fillStyle='#69d7dc';round(-14,12,28,7,4);ctx.fill();ctx.fillStyle='#0f2b53';ctx.fillRect(-18,20,14,8);ctx.fillRect(4,20,14,8);ctx.restore()}
+function drawCore(){const f=floors[world.floorCount],y=sy(f.y-78);if(y<-120||y>H+100)return;const x=f.x+f.w*.5;ctx.save();ctx.translate(x,y+32);ctx.shadowBlur=22;ctx.shadowColor='#69d7dc';ctx.fillStyle=currentStage>=world.floorCount?'#69d7dc':'rgba(105,215,220,.2)';ctx.beginPath();ctx.arc(0,0,31,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#142231';ctx.font='1000 10px system-ui';ctx.textAlign='center';ctx.fillText('CORE',0,4);ctx.restore()}
+function drawParticles(){for(const p of particles){ctx.globalAlpha=Math.max(0,p.life/p.max);ctx.fillStyle=Math.random()>.5?'#69d7dc':'#ffd264';ctx.fillRect(p.x-3,sy(p.y)-3,6,6)}ctx.globalAlpha=1}
+function drawProgressRail(){
+  const x=26,y=H*.22,h=H*.56;ctx.save();ctx.strokeStyle='rgba(255,255,255,.16)';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+h);ctx.stroke();
+  for(let i=0;i<=world.floorCount;i++){const yy=y+h-(i/world.floorCount)*h;ctx.fillStyle=i<=reachedFloor?'#69d7dc':'#23415e';ctx.beginPath();ctx.arc(x,yy,6,0,Math.PI*2);ctx.fill()}ctx.restore()
+}
+function draw(){drawBackground();floors.forEach(drawFloor);bridges.forEach(drawBridge);pickups.forEach(drawPickup);malwares.forEach(drawMalware);drawQuestions();drawCore();drawParticles();drawPlayer();drawProgressRail();if(flash>0){ctx.fillStyle=`rgba(105,215,220,${flash*.28})`;ctx.fillRect(0,0,W,H)}}
+function loop(now){if(!playing)return;const dt=Math.min(.033,(now-last)/1000);last=now;update(dt);draw();raf=requestAnimationFrame(loop)}
+DigitalLab.intro({kicker:'MISSIONE 01 · CYBER SECURITY',title:'CYBER TOWER',description:'Sali, impara, potenziati. Colpisci dal basso la risposta corretta per costruire il piano successivo. Ogni 8 bit raccolti ottieni 1 byte: la sfida Turbo si apre automaticamente!',npc:'FIREWALL',npcText:'Appena ottieni 1 byte, il gioco si ferma e apre una sfida avanzata, usando quel byte. Se il Turbo è già attivo, la prossima sfida attende la sua fine. Puoi rimandare una domanda e riprenderla con E o con il pulsante. Se rispondi bene ottieni 20 secondi di doppio salto e uno scudo contro un malware. Le sfide passano da Apprendista a Tecnico a Esperto. Lo scudo non protegge dagli errori nelle risposte o dalle cadute.',chips:['8 BIT → 1 BYTE','1 BYTE → SFIDA TURBO','3 GRADI DI DIFFICOLTÀ'],button:'ENTRA NELLA TORRE',onStart:start});
+
+</script>
+</body>
+</html>
