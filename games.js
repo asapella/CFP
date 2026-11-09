@@ -163,7 +163,23 @@ const GAMES = [
     "description": "16 livelli CPS: significato delle frazioni, equivalenze e MCM, operazioni, divisione e segni. Progressi e varianti personali vengono salvati nella piattaforma.",
     "icon": "½",
     "url": "attivita/giochi/studente/"
-  }
+  },
+{
+  title: "FORCE LAB — Spingi, tira, deforma",
+  classes: ["1 Legno, 1 Disegno"],
+  subject: "Scienze",
+  description: "Sperimenta le forze su un listello: movimento, compressione, trazione e flessione. Laboratorio libero e 8 missioni interattive.",
+  icon: "↔",
+  url: "attivita/force-lab/"
+},
+{
+  "title": "Balance Bench — Trova la risultante",
+  "classes": ["1 Legno", "1 Disegno"],
+  "subject": "Scienze",
+  "description": "Sperimenta con due forze: osserva la risultante, trova l’equilibrio e completa 8 missioni. Include demo libera e somma grafica delle frecce.",
+  "icon": "⚖️",
+  "url": "attivita/balance-bench/"
+}
 ];
 
 const FILTERS = ["Tutte","1 Legno","1 Disegno","1 Informatica","2 Legno","2 Disegno","3 Legno"];
